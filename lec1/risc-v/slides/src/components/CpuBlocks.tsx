@@ -5,27 +5,25 @@ import { Arrow, COLORS } from './viz';
 import { useSlideStep } from '../deck/hooks';
 
 /**
- * A core, roughly: front end on top, back end below. Steps send
- * `add a2, a3, a2` through (fetch → decode → read regs → alu → write back),
- * then `ld a3, 0(a0)` (→ load/store → L1d). Last step: every block busy with a
- * different instruction, the setup for the pipeline slide. Rename and the
- * reorder buffer stay greyed out ("later") until the rename / out-of-order slides.
+ * A core, roughly: front end on top, back end below. Steps send our loop's
+ * `add t2, t2, t3` through (fetch → decode → read regs → alu → write back),
+ * then `ld t3, 0(t0)` (→ load/store → L1d). Last step: every block busy with a
+ * different instruction, the setup for the pipeline slide. (Rename and the
+ * reorder buffer were cut with the out-of-order slide.)
  */
 
-type Key = 'pc' | 'l1i' | 'fetch' | 'decode' | 'rename' | 'regs' | 'alu1' | 'alu2' | 'mul' | 'lsu' | 'l1d' | 'rob';
+type Key = 'pc' | 'l1i' | 'fetch' | 'decode' | 'regs' | 'alu1' | 'alu2' | 'mul' | 'lsu' | 'l1d';
 const BLOCKS: Record<Key, { x: number; y: number; w: number; h: number; title: string; sub?: string; later?: boolean }> = {
   pc: { x: 20, y: 20, w: 250, h: 150, title: 'pc', sub: '+ branch predictor' },
   l1i: { x: 320, y: 20, w: 250, h: 150, title: 'L1i', sub: 'instruction cache' },
   fetch: { x: 620, y: 20, w: 250, h: 150, title: 'fetch' },
   decode: { x: 920, y: 20, w: 250, h: 150, title: 'decode' },
-  rename: { x: 1220, y: 20, w: 260, h: 150, title: 'rename', later: true },
   regs: { x: 20, y: 250, w: 300, h: 340, title: 'registers', sub: 'register file' },
   alu1: { x: 420, y: 250, w: 300, h: 74, title: 'alu' },
   alu2: { x: 420, y: 339, w: 300, h: 74, title: 'alu' },
   mul: { x: 420, y: 428, w: 300, h: 74, title: 'mul / div' },
   lsu: { x: 420, y: 517, w: 300, h: 74, title: 'load / store' },
   l1d: { x: 820, y: 480, w: 280, h: 111, title: 'L1d', sub: 'data cache' },
-  rob: { x: 1220, y: 250, w: 260, h: 340, title: 'reorder buffer', sub: 'commit in order', later: true },
 };
 
 // where a token sits on a block
@@ -36,8 +34,8 @@ const spot = (k: Key, w: number): [number, number] => {
 };
 
 type Tok = { id: string; text: string; at: Key; color?: string };
-const ADD = (at: Key): Tok => ({ id: 'add', text: 'add a2, a3, a2', at });
-const LD = (at: Key): Tok => ({ id: 'ld', text: 'ld a3, 0(a0)', at, color: COLORS.hot });
+const ADD = (at: Key): Tok => ({ id: 'add', text: 'add t2, t2, t3', at });
+const LD = (at: Key): Tok => ({ id: 'ld', text: 'ld t3, 0(t0)', at, color: COLORS.hot });
 
 const STEPS: { toks: Tok[]; on: Key[]; arrows: string[]; text: ComponentChildren }[] = [
   { toks: [], on: [], arrows: [],
@@ -45,24 +43,25 @@ const STEPS: { toks: Tok[]; on: Key[]; arrows: string[]; text: ComponentChildren
   { toks: [ADD('fetch')], on: ['pc', 'l1i', 'fetch'], arrows: ['pc-l1i', 'l1i-fetch'],
     text: <>pc says where. fetch reads 4 bytes from the <b>L1i</b>, a small fast copy of the code</> },
   { toks: [ADD('decode')], on: ['decode'], arrows: ['fetch-decode'],
-    text: 'decode pulls the fields out: opcode add, rd = a2, rs1 = a3, rs2 = a2 (the switch from before)' },
-  { toks: [ADD('regs')], on: ['regs'], arrows: ['decode-rename', 'rename-regs'],
-    text: 'read a3 and a2 from the register file. (rename sits in the way; later)' },
+    text: 'decode pulls the fields out: add, rd = t2, rs1 = t2, rs2 = t3 (the last slide, in hardware)' },
+  { toks: [ADD('regs')], on: ['regs'], arrows: ['decode-regs'],
+    text: 'read t2 and t3 from the register file' },
   { toks: [ADD('alu1')], on: ['alu1'], arrows: ['regs-alu'],
     text: <>an <b>alu</b> (arithmetic logic unit) adds them: one cycle</> },
   { toks: [ADD('regs')], on: ['regs'], arrows: ['alu-regs'],
-    text: 'write the sum back into a2. done' },
+    text: 'write the sum back into t2. done' },
   { toks: [LD('lsu')], on: ['pc', 'l1i', 'fetch', 'decode', 'regs', 'lsu'], arrows: ['regs-lsu'],
-    text: <><code>ld a3, 0(a0)</code>: same front end, then the load/store unit computes the address a0 + 0</> },
+    text: <><code>ld t3, 0(t0)</code>: same front end, then the load/store unit computes the address t0 + 0</> },
   { toks: [LD('l1d')], on: ['lsu', 'l1d'], arrows: ['lsu-l1d'],
-    text: <>and asks the <b>L1d</b>. a hit takes ~4 cycles. a miss goes further out (the memory part, at the end)</> },
+    text: <>and asks the <b>L1d</b>, a small fast copy of memory. a hit takes ~4 cycles. a miss goes further out (the end of the talk)</> },
   { toks: [
-      { id: 'b1', text: 'pc = loop', at: 'pc' }, { id: 'b2', text: 'bne', at: 'l1i' },
-      { id: 'b3', text: 'add', at: 'fetch' }, { id: 'b4', text: 'addi', at: 'decode' },
-      { id: 'ld', text: 'ld', at: 'lsu', color: COLORS.hot }, { id: 'b5', text: 'add', at: 'alu1' },
-      { id: 'b6', text: 'addi', at: 'alu2' }, { id: 'b7', text: 'mul', at: 'mul' }, { id: 'b8', text: 'ld', at: 'l1d', color: COLORS.hot },
+      // our loop, overlapped: the front end already has the next lap while the back end finishes this one
+      { id: 'b1', text: 'pc = loop', at: 'pc' }, { id: 'b2', text: 'ld', at: 'l1i' },
+      { id: 'b3', text: 'bne', at: 'fetch' }, { id: 'b4', text: 'addi t1', at: 'decode' },
+      { id: 'ld', text: 'ld', at: 'lsu', color: COLORS.hot }, { id: 'b5', text: 'addi t0', at: 'alu1' },
+      { id: 'b6', text: 'add', at: 'alu2' },
     ],
-    on: ['pc', 'l1i', 'fetch', 'decode', 'alu1', 'alu2', 'mul', 'lsu', 'l1d'], arrows: [],
+    on: ['pc', 'l1i', 'fetch', 'decode', 'alu1', 'alu2', 'lsu'], arrows: [],
     text: 'one instruction at a time leaves almost every block idle. so a real core keeps them all busy, each on a different instruction' },
 ];
 
@@ -70,8 +69,7 @@ const ARROWS: Record<string, { from: [number, number]; to: [number, number]; via
   'pc-l1i': { from: [270, 95], to: [320, 95] },
   'l1i-fetch': { from: [570, 95], to: [620, 95] },
   'fetch-decode': { from: [870, 95], to: [920, 95] },
-  'decode-rename': { from: [1170, 95], to: [1220, 95] },
-  'rename-regs': { from: [1350, 170], via: [[1350, 210], [170, 210]], to: [170, 250] },
+  'decode-regs': { from: [1045, 170], via: [[1045, 210], [170, 210]], to: [170, 250] },
   'regs-alu': { from: [320, 275], to: [420, 275] },
   'alu-regs': { from: [420, 305], to: [320, 305] },
   'regs-lsu': { from: [320, 554], to: [420, 554] },
@@ -85,11 +83,11 @@ export default function CpuBlocks() {
   const step = Math.min(STEPS.length - 1, useSlideStep(root));
   const cur = STEPS[step];
   // a token that was on screen last step keeps its id, so it slides to its new block
-  const ids = ['add', 'ld', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8'];
+  const ids = ['add', 'ld', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6'];
 
   return (
     <div class="cpu-blocks" ref={root}>
-      <svg viewBox="0 0 1500 610" class="diagram">
+      <svg viewBox="0 0 1190 610" class="diagram">
         {Object.entries(ARROWS).map(([k, a]) => (
           <Arrow from={a.from} to={a.to} via={a.via} on={cur.arrows.includes(k)} width={3} />
         ))}

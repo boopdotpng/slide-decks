@@ -1,5 +1,8 @@
 # builds every deck (lec*/*/slides) and publishes them to github pages:
-#   https://<user>.github.io/<repo>/<lec>-<topic>/   plus an index at the root
+#   <site>/<lec>-<topic>/   plus an index at the root
+# <site> is https://<user>.github.io/<repo> or the custom domain set in the repo's pages settings
+# (slides.anuraagw.me); configure-pages hands back the matching base path, so nothing here changes.
+# a new deck is picked up as soon as lecN/<topic>/slides exists with a bun.lock.
 name: pages
 
 on:
@@ -22,17 +25,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - uses: actions/configure-pages@v5
+      - id: pages
+        uses: actions/configure-pages@v5
       - name: build decks
+        env:
+          BASE: ${{ steps.pages.outputs.base_path }}
         run: |
-          repo="${GITHUB_REPOSITORY#*/}"
           mkdir -p _site
           links=""
           for d in lec*/*/slides; do
             name=$(dirname "$d" | tr / -)
             title=$(sed -nE "s/^export const title = ['\"](.*)['\"];?/\1/p" "$d/src/deck.config.ts")
             echo "::group::$name"
-            (cd "$d" && bun install --frozen-lockfile && bunx astro build --base "/$repo/$name" --outDir "$GITHUB_WORKSPACE/_site/$name")
+            (cd "$d" && bun install --frozen-lockfile && bunx astro build --base "$BASE/$name" --outDir "$GITHUB_WORKSPACE/_site/$name")
             echo "::endgroup::"
             links="$links<li><a href=\"$name/\">$name</a> — ${title:-$name}</li>"
           done

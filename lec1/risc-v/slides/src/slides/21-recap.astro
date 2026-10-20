@@ -1,0 +1,23 @@
+<h2>what we covered</h2>
+<table class="recap">
+  <tr><td>assembly</td><td>every program ends up as instructions. assembly is them, written as text</td></tr>
+  <tr><td>instructions</td><td>32 registers. arithmetic between registers, loads / stores for memory, branches to jump</td></tr>
+  <tr><td>our program</td><td>8 numbers in .data, a 5-instruction loop in .text. sum = 31</td></tr>
+  <tr><td>encoding</td><td>every instruction is 32 bits in one of 6 shapes. the file is those bytes plus a header</td></tr>
+  <tr><td>the cpu</td><td>fetch, decode, execute, pc += 4. pipelined, so 5 instructions are in flight at once; branches are guessed</td></tr>
+  <tr><td>memory</td><td>slow. caches bring it in 64-byte lines: data used together should sit together</td></tr>
+</table>
+<div class="try step">
+  <p>try it: change the numbers, or the loop, and run it</p>
+  <pre class="code">lec2/os/rv.sh run lec1/risc-v/sum.s   <span class="tok-com"># ebreak dumps every register</span>
+echo $?                               <span class="tok-com"># the exit code: the sum</span></pre>
+</div>
+<style>
+  .recap { font-size: .74em; }
+  .recap td { padding: .3em 1.6em .3em 0; }
+  .recap td:first-child { color: var(--muted); white-space: nowrap; }
+  .recap tr + tr td { border-top: 1px solid var(--border); }
+  .recap code, .try p code { background: none; padding: 0; }
+  .try { margin-top: 1.2em; font-size: .74em; }
+  .try pre { font-size: .75em; }
+</style>

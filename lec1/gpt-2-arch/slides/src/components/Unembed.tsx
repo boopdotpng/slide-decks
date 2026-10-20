@@ -5,7 +5,7 @@ import { Bars, Shape, Strip, Tok, sequential, useData } from './viz';
 
 /**
  * Last token's final hidden state -> score for every vocab entry -> distribution.
- * Steps: 1. @ embed_tokens.weight.T (logits)  2. softmax, top 10
+ * Steps: 1. @ wte.T (logits)  2. softmax, top 10
  */
 export default function Unembed() {
   const root = useRef<HTMLDivElement>(null);
@@ -21,12 +21,12 @@ export default function Unembed() {
       <div class="row">
         <span class="k">norm(x)</span>
         <Strip values={d.norm} scale={3} height={24} label="norm" />
-        <Shape dims={[1, S, 768]} names={['B', 'S', 'D']} />
+        <Shape dims={[S, 768]} names={['S', 'D']} />
       </div>
       <div class={`row fade ${step >= 1 ? 'on' : ''}`}>
-        <span class="k">@ embed_tokens.weight.T</span>
+        <span class="k">@ wte.T</span>
         <span class="mid"><Shape dims={[768, 50257]} /> <span class="muted">same matrix as the input embedding</span></span>
-        <Shape dims={[1, S, 50257]} names={['B', 'S', 'V']} hl={[2]} />
+        <Shape dims={[S, 50257]} names={['S', 'V']} hl={[1]} />
       </div>
       <div class={`row fade ${step >= 1 ? 'on' : ''}`}>
         <span class="k">logits</span>

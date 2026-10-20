@@ -1,12 +1,29 @@
 ---
-import CodePair from '../components/CodePair.tsx';
-import c from '../../../c/branch.c?raw';
-import asm from '../asm/branch.s?raw';
+import { Walkthrough } from '../components/viz';
+
+// count t1 down from 3: bne jumps back while t1 != 0, then falls through
+const code = `
+0x00        li   t1, 3
+0x04  loop: addi t1, t1, -1
+0x08        bne  t1, zero, loop
+0x0c        ebreak`;
 ---
-<h2>if</h2>
-<div data-steps="3"><CodePair client:load c={c} asm={asm} steps={[
-  { text: 'there is no "if" instruction. there are branches: compare two registers, maybe jump' },
-  { c: [1], asm: [1], text: 'the c says "if x > hi, do this". the asm says "if x < hi, skip it": the condition is flipped' },
-  { c: [2], asm: [2], text: 'not taken (x ≥ hi): fall through to the next instruction, the then-block. x = hi' },
-  { c: [3], asm: [3, 4, 5], text: 'both paths meet at .LBB0_2. a label is just a name for an address, no instruction' },
-]} /></div>
+<h2>branches: jumping</h2>
+<div data-steps="8" class="br-walk">
+  <Walkthrough client:load lang="asm" code={code}
+    vars={[{ name: 'pc' }, { name: 't1', reg: true }]}
+    steps={[
+      { hl: [], set: { pc: '0x00', t1: 0 }, text: "a label (loop:) is a name for an address. it costs nothing, it's not an instruction" },
+      { hl: [0], set: { pc: '0x04', t1: 3 }, text: 't1 = 3' },
+      { hl: [1], set: { pc: '0x08', t1: 2 }, text: 't1 = 2' },
+      { hl: [2], set: { pc: '0x04  (jumped)' }, text: 'bne: branch if not equal. t1 ≠ zero, so pc = loop instead of pc + 4' },
+      { hl: [1], set: { pc: '0x08', t1: 1 }, text: 't1 = 1' },
+      { hl: [2], set: { pc: '0x04  (jumped)' }, text: 'still not 0: jump back again' },
+      { hl: [1], set: { pc: '0x08', t1: 0 }, text: 't1 = 0' },
+      { hl: [2], set: { pc: '0x0c' }, text: 'now t1 == 0: no jump, pc += 4 as usual. a loop is a branch that jumps backwards' },
+      { hl: [3], set: { pc: '0x10' }, text: 'an if is a branch that jumps forwards, over the code you skip. beq, bne, blt, bge: compare two registers, maybe jump' },
+    ]} />
+</div>
+<style>
+  .br-walk { font-size: 1.2em; }
+</style>

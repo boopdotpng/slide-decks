@@ -5,7 +5,7 @@ import { Shape, Strip, useData } from './viz';
 
 /**
  * The MLP on the real layer-10 activations. Steps:
- *  1. up_proj: 768 -> 3072   2. gelu (most neurons are negative and get squashed)   3. down_proj: 3072 -> 768, add to x
+ *  1. c_fc: 768 -> 3072   2. gelu (most neurons are negative and get squashed)   3. c_proj: 3072 -> 768, add to x
  */
 const gelu = (x: number) => 0.5 * x * (1 + Math.tanh(0.7978845608 * (x + 0.044715 * x ** 3)));
 const W = 160, H = 90;
@@ -25,11 +25,11 @@ export default function MLPViz() {
   }).join(' ');
 
   const rows = [
-    { k: 'post_attention_layernorm(x)', v: st.post_attention_layernorm, s: [1, S, 768], on: 0, sc: 1 },
-    { k: 'up_proj', v: st['mlp.up'], s: [1, S, 3072], on: 1, sc: 2 },
-    { k: 'gelu', v: st['mlp.hidden'], s: [1, S, 3072], on: 2, sc: 2 },
-    { k: 'down_proj', v: st['mlp.out'], s: [1, S, 768], on: 3, sc: 6 },
-    { k: 'x + mlp(…)', v: st.resid_out, s: [1, S, 768], on: 3, sc: 6 },
+    { k: 'layernorm(x, ln_2)', v: st.post_attention_layernorm, s: [S, 768], on: 0, sc: 1 },
+    { k: '@ c_fc', v: st['mlp.up'], s: [S, 3072], on: 1, sc: 2 },
+    { k: 'gelu', v: st['mlp.hidden'], s: [S, 3072], on: 2, sc: 2 },
+    { k: '@ c_proj', v: st['mlp.out'], s: [S, 768], on: 3, sc: 6 },
+    { k: 'x + mlp(…)', v: st.resid_out, s: [S, 768], on: 3, sc: 6 },
   ];
 
   return (

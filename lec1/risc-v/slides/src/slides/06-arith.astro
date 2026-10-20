@@ -1,12 +1,28 @@
 ---
-import CodePair from '../components/CodePair.tsx';
-import c from '../../../c/arith.c?raw';
-import asm from '../asm/arith.s?raw';
+import { Walkthrough } from '../components/viz';
+
+// four arithmetic instructions our program will use, run with made-up starting values
+const code = `
+add  t2, t2, t3       # t2 = t2 + t3
+addi t0, t0, 8        # t0 = t0 + 8
+addi t1, t1, -1       # t1 = t1 - 1
+li   t2, 0            # t2 = 0 (really: addi t2, zero, 0)`;
 ---
 <h2>arithmetic</h2>
-<div data-steps="3"><CodePair client:load c={c} asm={asm} steps={[
-  { text: 'three small functions. no variables in memory: everything lives in registers' },
-  { c: [0, 1, 2], asm: [0, 1, 2, 3], text: 'arguments arrive in a0, a1, a2. the result goes back in a0, then ret' },
-  { c: [4, 5, 6], asm: [5, 6, 7, 8, 9], text: 'a constant only fits 12 bits in one instruction. 1000000 = lui 244 (244 << 12 = 999424) + addi 576' },
-  { c: [8, 9, 10], asm: [11, 12, 13], text: 'x * 8 is a shift left by 3. the compiler picks the cheaper instruction' },
-]} /></div>
+<div data-steps="4" class="arith-walk">
+  <Walkthrough client:load lang="asm" code={code}
+    vars={[{ name: 't0', reg: true }, { name: 't1', reg: true }, { name: 't2', reg: true }, { name: 't3', reg: true }]}
+    initial={{ t0: 100, t1: 8, t2: 10, t3: 3 }}
+    steps={[
+      { hl: [], text: 'the pattern is always destination, source, source. some starting values →' },
+      { hl: [0], set: { t2: 13 }, text: 'add two registers, put the result in the first one. reading and writing t2 in one instruction is fine' },
+      { hl: [1], set: { t0: 108 }, text: 'addi: add immediate. the second source is a number written right in the instruction' },
+      { hl: [2], set: { t1: 7 }, text: "there's no subi: just add a negative number" },
+      { hl: [3], set: { t2: 0 }, text: 'li (load immediate) is a shorthand: the assembler turns it into addi from zero. same for mv t1, t2 = addi t1, t2, 0' },
+    ]} />
+</div>
+<p class="muted small ar-more">also: sub, mul, div, and, or, xor, shifts. all register, register → register</p>
+<style>
+  .arith-walk { font-size: 1.15em; }
+  .ar-more { margin-top: .4em; }
+</style>

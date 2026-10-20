@@ -1,0 +1,12 @@
+---
+import CodePair from '../components/CodePair.tsx';
+import c from '../../../c/arith.c?raw';
+import asm from '../asm/arith.s?raw';
+---
+<h2>arithmetic</h2>
+<div data-steps="3"><CodePair client:load c={c} asm={asm} steps={[
+  { text: 'three small functions. no variables in memory: everything lives in registers' },
+  { c: [0, 1, 2], asm: [0, 1, 2, 3], text: 'arguments arrive in a0, a1, a2. the result goes back in a0, then ret' },
+  { c: [4, 5, 6], asm: [5, 6, 7, 8, 9], text: 'a constant only fits 12 bits in one instruction. 1000000 = lui 244 (244 << 12 = 999424) + addi 576' },
+  { c: [8, 9, 10], asm: [11, 12, 13], text: 'x * 8 is a shift left by 3. the compiler picks the cheaper instruction' },
+]} /></div>

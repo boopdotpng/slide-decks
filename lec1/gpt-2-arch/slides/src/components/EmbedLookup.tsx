@@ -4,9 +4,9 @@ import { useSlideStep } from '../deck/hooks';
 import { Arrow, Shape, Strip, Tok, box, useData, useMeasure } from './viz';
 
 /**
- * embed_tokens is a lookup table: token id -> row. Steps:
+ * wte is a lookup table: token id -> row. Steps:
  *  1. the table, with this prompt's rows marked (common words have small ids)
- *  2. the rows come out, one per token: (1, S, 768), an arrow from each mark to its row
+ *  2. the rows come out, one per token: (S, 768), an arrow from each mark to its row
  *  3. zoom on one row: a token is just 768 numbers
  */
 const SUB = 6000; // every id in the prompt is < 6000 (' Mary' = 5335), so only draw these rows of the 50257
@@ -38,7 +38,7 @@ export default function EmbedLookup() {
   return (
     <div class="el" ref={root}>
       <div class="table">
-        <div class="lbl">embed_tokens · rows 0 … {SUB - 1}</div>
+        <div class="lbl">wte · rows 0 … {SUB - 1}</div>
         <div class="mat" ref={mat}>
           {d.ids.map((id: number, i: number) => (
             <div class={`mark ${step >= 1 ? 'on' : ''}`} style={{ top: `${markY(id)}%`, transitionDelay: `${i * 50}ms` }} />
@@ -56,7 +56,7 @@ export default function EmbedLookup() {
           </div>
         ))}
         <div class="foot">
-          tok_emb <Shape dims={[1, S, 768]} names={['B', 'S', 'D']} />
+          tok_emb <Shape dims={[S, 768]} names={['S', 'D']} />
         </div>
       </div>
 

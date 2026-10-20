@@ -1,0 +1,40 @@
+---
+import Code from '../components/Code.tsx';
+import c from '../../../c/add.c?raw';
+import asm from '../asm/add.s?raw';
+
+// real bytes: clang --target=riscv64 -O1, then llvm-objdump (add = 0x00a58533, ret = 0x00008067)
+const BYTES = [['33 85 a5 00', 'add  a0, a1, a0'], ['67 80 00 00', 'ret']];
+---
+<h2>what is assembly?</h2>
+<div class="asm-chain">
+  <div>
+    <div class="muted ac-t">what you write</div>
+    <Code lang="c" code={c} />
+  </div>
+  <div class="ac-arrow step"><span>→</span><span class="muted">compiler</span></div>
+  <div class="step">
+    <div class="muted ac-t">assembly: one line per instruction</div>
+    <Code lang="asm" code={asm} />
+  </div>
+  <div class="ac-arrow step"><span>→</span><span class="muted">assembler</span></div>
+  <div class="step">
+    <div class="muted ac-t">what the cpu actually gets</div>
+    <pre class="code ac-bytes">{BYTES.map(([b]) => <div>{b}</div>)}</pre>
+  </div>
+</div>
+<ul class="ac-points">
+  <li class="step">the cpu only runs <b>instructions</b>: tiny steps like "add two registers" or "jump back"</li>
+  <li class="step">every program ends up as these. c, rust, go: compiled to them. python, js: the interpreter running your code is itself a compiled program</li>
+  <li class="step">assembly is just the instructions written as text, one per line. today we write it by hand</li>
+</ul>
+<style>
+  .asm-chain { display: flex; align-items: center; gap: 1.2em; font-size: .9em; }
+  .asm-chain pre { margin: 0; }
+  .ac-t { font-size: .55em; margin-bottom: .3em; }
+  .ac-arrow { display: flex; flex-direction: column; align-items: center; font-size: 1.3em; }
+  .ac-arrow .muted { font-size: .4em; }
+  .ac-bytes { font-family: var(--mono); color: #f69d50; }
+  .ac-points { font-size: .72em; margin-top: 1.4em; }
+  .ac-points li { margin: .35em 0; }
+</style>

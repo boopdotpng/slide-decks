@@ -1,24 +1,5 @@
 ---
-import CodePair from '../components/CodePair.tsx';
-import c from '../../../c/memory.c?raw';
-import asm from '../asm/memory.s?raw';
-
-// c type ↔ size ↔ load / store, one line under the panes
-const widths = [['char', 1, 'lb', 'sb'], ['short', 2, 'lh', 'sh'], ['int', 4, 'lw', 'sw'], ['long', 8, 'ld', 'sd']];
+import MemoryWalk from '../components/MemoryWalk.tsx';
 ---
-<h2>loads and stores</h2>
-<div data-steps="3" class="fill"><CodePair client:load c={c} asm={asm} steps={[
-  { text: 'memory is one big array of bytes. a pointer is just an index into it' },
-  { c: [0, 1, 2], asm: [0, 1, 2, 3, 4], text: 'a[i] on longs: address = a + i × 8. slli by 3 is the × 8, then ld loads 8 bytes' },
-  { c: [4, 5, 6], asm: [6, 7, 8, 9, 10], text: 'ints are 4 bytes: × 4 (slli 2), and sw stores the low 4 bytes of a2' },
-  { c: [8, 9, 10], asm: [12, 13, 14], text: 'chars are 1 byte. lbu = load byte, unsigned (char is unsigned on risc-v). 0(a0): address = a0 + 0' },
-]} belowFrom={1}>
-  <div class="widths">
-    {widths.map(([t, n, l, st]) => <span><b>{t}</b> {n} B · <code>{l}</code> / <code>{st}</code></span>)}
-  </div>
-</CodePair></div>
-<style>
-  .widths { display: flex; gap: 2.2em; font-size: .6em; color: var(--muted); }
-  .widths b { color: var(--fg); font-weight: normal; }
-  .widths code { background: none; padding: 0; color: #f47067; }
-</style>
+<h2>memory: loads and stores</h2>
+<div data-steps="6"><MemoryWalk client:load /></div>

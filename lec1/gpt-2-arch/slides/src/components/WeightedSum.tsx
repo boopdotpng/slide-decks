@@ -39,7 +39,7 @@ export default function WeightedSum() {
         ))}
       </div>
       <div class={`out fade ${step >= 2 ? 'on' : ''}`}>
-        <div class="sum">Σ ↓ <span class="muted">v <Shape dims={[1, 12, T, 64]} names={['B', 'H', 'T', 'd']} /> → out <Shape dims={[1, 12, T, 64]} names={['B', 'H', 'S', 'd']} /></span></div>
+        <div class="sum">Σ ↓ <span class="muted">v <Shape dims={[T, 64]} /> → out <Shape dims={[64]} /></span></div>
         <div class="vr">
           <span class="t">out</span><span />
           <Strip values={d.head_out} scale={1.2} height={18} label="out" />

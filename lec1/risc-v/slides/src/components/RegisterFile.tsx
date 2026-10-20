@@ -63,17 +63,13 @@ const byRole = (role: Role) => ABI.flatMap((abi, i) => (roleOf(abi) === role ? [
 
 // ── view="roles" ─────────────────────────────────────────────────────────────
 const ROLE_STEPS: { show: Role[]; text: ComponentChildren }[] = [
-  { show: [], text: '32 registers, x0 to x31, 64 bits each. the only storage instructions compute on' },
-  { show: ['zero'], text: <><b>x0</b> is wired to 0. reading gives 0, writing does nothing</> },
-  { show: ['zero', 'link'], text: <><b>ra</b>: where to go back to after a call. <b>sp</b>: the top of the stack</> },
-  { show: ['zero', 'link', 'arg'], text: <><b>a0–a7</b>: arguments in, result out in a0</> },
-  { show: ['zero', 'link', 'arg', 'temp'], text: <><b>t0–t6</b>: temporaries. scratch space, gone after a call</> },
-  { show: ['zero', 'link', 'arg', 'temp', 'saved'], text: <><b>s0–s11</b>: saved. a function must hand these back unchanged</> },
-  { show: ['zero', 'link', 'arg', 'temp', 'saved', 'other'],
-    text: <><b>gp</b>: points into the global variables, so one load reaches them instead of two. <b>tp</b>: points at
-      this thread's own variables (like errno). both set once at startup, then never touched</> },
-  { show: ['zero', 'link', 'arg', 'temp', 'saved', 'other'],
-    text: <>the names are a convention between programs (the abi). to the hardware they're all just x0–x31, and only x0 is special</> },
+  { show: [], text: <>32 registers, x0 to x31, 64 bits each. the cpu's own tiny storage: every calculation happens between registers</> },
+  { show: ['zero'], text: <><b>x0</b>, called <b>zero</b>, is wired to 0. reading it gives 0, writing it does nothing</> },
+  { show: ['zero', 'temp'], text: <><b>t0–t6</b>: temporaries, free scratch space. our program lives in these</> },
+  { show: ['zero', 'temp', 'arg'], text: <><b>a0–a7</b>: arguments and results. we use two: a0 for our answer, a7 to ask the os for something</> },
+  { show: ['zero', 'temp', 'arg', 'link', 'saved', 'other'], text: <><b>ra, sp, s0–s11, gp, tp</b> are for functions and the stack. not today</> },
+  { show: ['zero', 'temp', 'arg', 'link', 'saved', 'other'],
+    text: <>the names are only an agreement between programmers. to the hardware they're all x0–x31, and only x0 is special</> },
 ];
 
 function rolesLooks(step: number) {

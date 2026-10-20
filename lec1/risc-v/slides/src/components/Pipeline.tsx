@@ -6,10 +6,10 @@ import { COLORS } from './viz';
 import { useSlideStep } from '../deck/hooks';
 
 /**
- * The sum loop's body on a 5-stage pipeline: instructions × cycles, one cell per
- * stage (F fetch, D decode, X execute, M memory, W write back).
- * Steps: one at a time (20 cycles) → overlapped (8) → load-use bubble when add
- * comes right after the ld → clang's real order hides it → a branch has to be
+ * One lap of sum.s's loop on a 5-stage pipeline: instructions × cycles, one cell
+ * per stage (F fetch, D decode, X execute, M memory, W write back).
+ * Steps: one at a time (25 cycles) → overlapped (9) → our order has a load-use
+ * bubble (add right after ld) → moving addi t1 up hides it → a branch has to be
  * guessed → a wrong guess flushes what was fetched behind it.
  * Simple textbook pipeline with forwarding: a loaded value can be used one
  * cycle after M; an alu result in the next X; a branch resolves in X.
@@ -36,38 +36,41 @@ const run = (op: string, start: number, extra: Partial<Row> = {}, stall: { befor
 };
 const cut = (r: Row, upTo: number): Row => ({ ...r, cells: r.cells.filter(([c]) => c <= upTo) });
 
-const LD = 'ld   a3, 0(a0)', ADDI = 'addi a0, a0, 8', ADD = 'add  a2, a3, a2', BNE = 'bne  a0, a1, loop';
+const LD = 'ld   t3, 0(t0)', ADD = 'add  t2, t2, t3', ADDI0 = 'addi t0, t0, 8', ADDI1 = 'addi t1, t1, -1', BNE = 'bne  t1, zero, loop';
+const C = 25; // columns, the same on every step so the grid doesn't jump
 
 const STEPS: { rows: Row[]; cycles: number; total: ComponentChildren; text: ComponentChildren }[] = [
   {
-    rows: [run(LD, 0), run(ADDI, 5), run(ADD, 10), run(BNE, 15)], cycles: 20, total: '20 cycles',
-    text: 'every instruction goes through 5 stages. one at a time: 4 instructions × 5 = 20 cycles, and 4 of 5 stages sit idle',
+    rows: [run(LD, 0), run(ADD, 5), run(ADDI0, 10), run(ADDI1, 15), run(BNE, 20)], cycles: C, total: '25 cycles',
+    text: 'one lap of our loop. every instruction goes through 5 stages. one at a time: 5 × 5 = 25 cycles, and 4 of the 5 stages sit idle',
   },
   {
-    rows: [run(LD, 0), run(ADDI, 1), run(ADD, 2), run(BNE, 3)], cycles: 20, total: '8 cycles',
-    text: 'pipelined: start the next one as soon as fetch is free. same 4 instructions in 8 cycles, and once it\'s full, one finishes every cycle',
+    rows: [run(LD, 0), run(ADD, 1), run(ADDI0, 2), run(ADDI1, 3), run(BNE, 4)], cycles: C, total: '9 cycles',
+    text: 'pipelined: start the next instruction as soon as fetch is free, like a laundry line. once it\'s full, one finishes every cycle. (if no instruction had to wait for another…)',
   },
   {
-    rows: [run(LD, 0), run(ADD, 1, { note: 'needs a3' }, { before: 'X', n: 1 }), run(ADDI, 2, {}, { before: 'D', n: 1 }), run(BNE, 3, {}, { before: 'F', n: 1 })],
-    cycles: 20, total: '9 cycles',
-    text: <>but if <code>add</code> comes right after the <code>ld</code>, a3 isn't loaded yet (it arrives at the end of M). the add waits a cycle: a <b>bubble</b>, and everything behind it waits too</>,
+    rows: [run(LD, 0), run(ADD, 1, { note: 'needs t3' }, { before: 'X', n: 1 }), run(ADDI0, 2, {}, { before: 'D', n: 1 }),
+      run(ADDI1, 3, {}, { before: 'F', n: 1 }), run(BNE, 5)],
+    cycles: C, total: '10 cycles',
+    text: <>but our <code>add</code> needs t3, and the <code>ld</code> only has it at the end of M. the add waits a cycle: a <b>bubble</b>, and everything behind it waits too</>,
   },
   {
-    rows: [run(LD, 0), run(ADDI, 1, { note: 'independent' }), run(ADD, 2, { note: 'a3 ready in time' }), run(BNE, 3)], cycles: 20, total: '8 cycles',
-    text: <>that's why clang put the <code>addi</code> between them (it's the real order): the add starts one cycle later, exactly when a3 is ready. no bubble</>,
+    rows: [run(LD, 0), run(ADDI1, 1, { note: 'doesn\'t need t3' }), run(ADD, 2, { note: 't3 ready just in time' }), run(ADDI0, 3), run(BNE, 4)],
+    cycles: C, total: '9 cycles',
+    text: <>fix: move <code>addi t1</code> up between them. same answer, no bubble. compilers reorder like this for you, because they know the pipeline</>,
   },
   {
-    rows: [run(LD, 0), run(ADDI, 1), run(ADD, 2), run(BNE, 3, { note: 'taken? known in X' }),
-      cut(run(LD, 4, { guess: true, note: 'guess: taken' }), 5), cut(run(ADDI, 5, { guess: true }), 5)],
-    cycles: 20, total: '…',
-    text: <>the bne isn't decided until X (cycle 6), but fetch needs the next instruction at cycle 5. so the cpu <b>guesses</b>. loop branches are almost always taken, so it guesses "loop again" and keeps fetching</>,
+    rows: [run(LD, 0), run(ADDI1, 1), run(ADD, 2), run(ADDI0, 3), run(BNE, 4, { note: 'jump? known in X' }),
+      cut(run(LD, 5, { guess: true, note: 'guess: jump' }), 6), cut(run(ADDI1, 6, { guess: true }), 6)],
+    cycles: C, total: '…',
+    text: <>the bne is only decided in X (cycle 7), but fetch needs the next instruction in cycle 6. so the cpu <b>guesses</b>. loops almost always go around again, so it guesses "jump" and keeps fetching</>,
   },
   {
-    rows: [run(LD, 0), run(ADDI, 1), run(ADD, 2), run(BNE, 3, { note: 'not taken!' }),
-      cut(run(LD, 4, { flushed: true, note: 'thrown away' }), 5), cut(run(ADDI, 5, { flushed: true }), 5),
-      run('mv   a0, a2', 6, { note: 'after the loop' })],
-    cycles: 20, total: '11 cycles',
-    text: <>on the last iteration the guess is wrong: the 2 guessed instructions are thrown away and fetch restarts after the loop. 2 cycles lost here; ~15–20 on a big modern core</>,
+    rows: [run(LD, 0), run(ADDI1, 1), run(ADD, 2), run(ADDI0, 3), run(BNE, 4, { note: 't1 = 0: no jump!' }),
+      cut(run(LD, 5, { flushed: true, note: 'thrown away' }), 6), cut(run(ADDI1, 6, { flushed: true }), 6),
+      run('la   t4, total', 7, { note: 'after the loop' })],
+    cycles: C, total: '12 cycles',
+    text: <>on lap 8 the guess is wrong: the 2 guessed instructions are thrown away and fetch restarts after the loop. 2 cycles lost here; ~15–20 on a big modern core</>,
   },
 ];
 

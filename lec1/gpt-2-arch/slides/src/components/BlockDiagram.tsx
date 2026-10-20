@@ -7,12 +7,12 @@ import { Bars, Shape, useData } from './viz';
 /**
  * One transformer block. The residual stream x runs straight through; attn and
  * mlp each read a normalized copy and *add* their output back. Steps:
- *  1. input_layernorm   2. self_attn, added back   3. post_attention_layernorm   4. mlp, added back   5. stack 12 of them: how big x gets (real norms)
+ *  1. ln_1   2. attention, added back   3. ln_2   4. mlp, added back   5. stack 12 of them: how big x gets (real norms)
  */
 const SRC = `
-def __call__(self, x, start_pos):
-  x = x + self.self_attn(self.input_layernorm(x), start_pos)
-  x = x + self.mlp(self.post_attention_layernorm(x))
+def block(x, i):
+  x = x + attention(layernorm(x, ln_1), i)
+  x = x + mlp(layernorm(x, ln_2), i)
   return x`;
 const HL: Record<number, number[]> = { 1: [1], 2: [1], 3: [2], 4: [2] };
 
@@ -20,7 +20,7 @@ export default function BlockDiagram() {
   const root = useRef<HTMLDivElement>(null);
   const step = useSlideStep(root);
   const d = useData('decode');
-  const sh = <Shape dims={[1, 'S', 768]} />;
+  const sh = <Shape dims={['S', 768]} />;
 
   return (
     <div class="bd" ref={root}>
@@ -29,11 +29,11 @@ export default function BlockDiagram() {
           <div class="stream" />
           <div class="node io">x {sh}</div>
           <div class={`branch ${step === 1 || step === 2 ? 'on' : ''}`}>
-            <span class={`box ${step === 1 ? 'cur' : ''}`}>input_layernorm</span><span class="ar">→</span>
-            <span class={`box big ${step === 2 ? 'cur' : ''}`}>self_attn</span><span class="ar">→</span><span class={`plus ${step === 2 ? 'cur' : ''}`}>+</span>
+            <span class={`box ${step === 1 ? 'cur' : ''}`}>layernorm</span><span class="ar">→</span>
+            <span class={`box big ${step === 2 ? 'cur' : ''}`}>attention</span><span class="ar">→</span><span class={`plus ${step === 2 ? 'cur' : ''}`}>+</span>
           </div>
           <div class={`branch ${step === 3 || step === 4 ? 'on' : ''}`}>
-            <span class={`box ${step === 3 ? 'cur' : ''}`}>post_attention_layernorm</span><span class="ar">→</span>
+            <span class={`box ${step === 3 ? 'cur' : ''}`}>layernorm</span><span class="ar">→</span>
             <span class={`box big ${step === 4 ? 'cur' : ''}`}>mlp</span><span class="ar">→</span><span class={`plus ${step === 4 ? 'cur' : ''}`}>+</span>
           </div>
           <div class="node io">x {sh}</div>

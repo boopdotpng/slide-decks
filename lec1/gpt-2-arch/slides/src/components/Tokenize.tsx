@@ -22,7 +22,7 @@ export default function Tokenize() {
         ))}
       </div>
       <div class={`fade ${step >= 2 ? 'on' : ''} foot`}>
-        tokens <Shape dims={[1, d.ids.length]} names={['B', 'S']} />
+        tokens <Shape dims={[d.ids.length]} names={['S']} />
         <span class="muted small"> · vocab = 50,257</span>
       </div>
       <div class={`fade ${step >= 3 ? 'on' : ''} splits`}>

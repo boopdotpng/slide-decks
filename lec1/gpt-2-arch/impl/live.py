@@ -1,5 +1,5 @@
 # gpt-2 small, written in the order you'd teach it. no kv cache, no jit: the whole
-# sequence goes through the model every step (slide 03). ~90 lines, real weights.
+# sequence goes through the model every step (the gen-loop slide). ~90 lines, real weights.
 #
 #   python live.py                       # greedy completion
 #   python live.py --prompt "..." -n 20

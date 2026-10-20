@@ -4,8 +4,8 @@ import { useSlideStep } from '../deck/hooks';
 import { Shape, Tok, useData } from './viz';
 
 /**
- * The whole forward pass on one screen, top to bottom, with the batch-1 tensor
- * shape after each stage. Steps 1–6 light up one stage at a time.
+ * The whole forward pass on one screen, top to bottom, with the tensor shape
+ * after each stage (live.py's names, no batch dim). Steps 1–6 light up one stage at a time.
  */
 export default function ModelMap() {
   const root = useRef<HTMLDivElement>(null);
@@ -14,12 +14,12 @@ export default function ModelMap() {
   const S = d?.ids.length ?? 14;
 
   const rows = [
-    { name: 'tokenize', code: 'tokenizer.encode(prompt).ids', dims: [1, S], names: ['B', 'S'], params: '' },
-    { name: 'embed', code: 'self.embed_tokens(tokens) + self.embed_positions.weight[:S]', dims: [1, S, 768], names: ['B', 'S', 'D'], params: '38.6M + 0.8M' },
-    { name: '× 12 blocks', code: 'for layer in self.layers: x = layer(x)', dims: [1, S, 768], names: ['B', 'S', 'D'], params: '12 × 7.1M' },
-    { name: 'final norm', code: 'self.norm(x)', dims: [1, S, 768], names: ['B', 'S', 'D'], params: '' },
-    { name: 'unembed', code: 'x @ self.embed_tokens.weight.T', dims: [1, S, 50257], names: ['B', 'S', 'V'], params: '(tied to embed_tokens)' },
-    { name: 'sample', code: 'logits[:, -1, :].argmax()', dims: [1], names: [''], params: '' },
+    { name: 'tokenize', code: 'tok.encode(prompt).ids', dims: [S], names: ['S'], params: '' },
+    { name: 'embed', code: 'wte[ids] + wpe[:S]', dims: [S, 768], names: ['S', 'D'], params: '38.6M + 0.8M' },
+    { name: '× 12 blocks', code: 'for i in range(12): x = block(x, i)', dims: [S, 768], names: ['S', 'D'], params: '12 × 7.1M' },
+    { name: 'final norm', code: 'layernorm(x, ln_f)', dims: [S, 768], names: ['S', 'D'], params: '' },
+    { name: 'unembed', code: 'x @ wte.T', dims: [S, 50257], names: ['S', 'V'], params: '(the same wte)' },
+    { name: 'pick', code: 'logits[-1].argmax()', dims: [1], names: [''], params: '' },
   ];
 
   return (

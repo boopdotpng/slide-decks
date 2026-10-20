@@ -13,8 +13,8 @@ const CHIPS = [
   { name: 'tenstorrent "baby" core', sub: 'small, in order · 5 per tensix tile · 120 tiles on blackhole' },
   { name: 'big desktop-class core', sub: 'out of order · ~4 GHz · hundreds of instructions in flight' },
 ];
-const PROMISES = ['32 registers, 64 bits each', 'these instructions, and what each one does', 'this encoding: 4 bytes, these bit fields', 'how loads and stores see memory'];
-const NOT = ['how fast', 'how many stages, or instructions at once', 'caches, or how big', 'how many registers really exist inside'];
+const PROMISES = ['32 registers, 64 bits each', 'these instructions, and what each one does', 'how each instruction is written as 4 bytes', 'how loads and stores see memory'];
+const NOT = ['how fast', 'how many instructions it works on at once', 'caches, or how big'];
 
 export default function IsaLayers() {
   const root = useRef<HTMLDivElement>(null);
@@ -25,7 +25,7 @@ export default function IsaLayers() {
       <div class="il-left">
         <div class="il-prog">
           <span>your program</span>
-          <code class={`fade ${step >= 1 ? 'on' : ''}`}>b3 02 73 00 …</code>
+          <code class={`fade ${step >= 1 ? 'on' : ''}`}>b3 83 c3 01 …</code>
         </div>
         <div class="il-band">
           <b>the isa</b> <span class="muted">(rv64im)</span>
@@ -50,7 +50,7 @@ export default function IsaLayers() {
         <div class={`fade ${step >= 3 ? 'on' : ''}`}>
           <h3>doesn't say</h3>
           <ul class="not">{NOT.map((p) => <li>{p}</li>)}</ul>
-          <p class="muted il-later">that's the hardware's business. we'll open it up later</p>
+          <p class="muted il-later">that's up to the chip. we'll open one up at the end</p>
         </div>
       </div>
       <style>{`

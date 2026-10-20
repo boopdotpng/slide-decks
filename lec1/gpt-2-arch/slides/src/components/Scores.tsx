@@ -30,7 +30,7 @@ export default function Scores() {
       <div class="qrow">
         <span class="k">q <span class="muted">(<Tok t={d.toks[T - 1]} />)</span></span>
         <Strip values={q} scale={2.5} height={22} label="q" />
-        <Shape dims={[1, 12, T, 64]} />
+        <Shape dims={[64]} />
       </div>
       <div class="grid">
         <div class="hdr" />
@@ -56,8 +56,8 @@ export default function Scores() {
         })}
         <div />
         <div />
-        <div class={`fade ${step >= 2 ? 'on' : ''}`}><Shape dims={[1, 12, T, T]} names={['B', 'H', 'S', 'T']} /> <span class="muted small">· last row</span></div>
-        <div class={`fade ${step >= 4 ? 'on' : ''}`}><Shape dims={[1, 12, T, T]} /> <span class="muted small">each row Σ = 1</span></div>
+        <div class={`fade ${step >= 2 ? 'on' : ''}`}><Shape dims={[T]} /> <span class="muted small">one score per token</span></div>
+        <div class={`fade ${step >= 4 ? 'on' : ''}`}><Shape dims={[T]} /> <span class="muted small">Σ = 1</span></div>
       </div>
       <style>{`
         .sc { font-size: .8em; display: flex; flex-direction: column; gap: .6em; }

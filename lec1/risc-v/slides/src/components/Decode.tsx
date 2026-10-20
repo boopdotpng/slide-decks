@@ -7,18 +7,18 @@ import { useSlideStep } from '../deck/hooks';
 /**
  * One instruction, from bytes in memory to "x5 = x6 + x7". Steps 0–6:
  * bytes → word → bits → fields → field values + extraction code → switch → result.
- * The word is add x5, x6, x7 (same example as riscv_formats.svg).
+ * The word is our loop's add t2, t2, t3 = add x7, x7, x28 (the encode slide, backwards).
  */
 
-const WORD = 0x007302b3;
+const WORD = 0x01c383b3;
 const BYTES = [0, 1, 2, 3].map((k) => (WORD >>> (8 * k)) & 0xff); // little-endian: low byte first
 
 const FIELDS = [
   { name: 'funct7', hi: 31, lo: 25, color: COLORS.amber, value: '0' },
-  { name: 'rs2', hi: 24, lo: 20, color: COLORS.blue, value: 'x7' },
-  { name: 'rs1', hi: 19, lo: 15, color: COLORS.blue, value: 'x6' },
+  { name: 'rs2', hi: 24, lo: 20, color: COLORS.blue, value: 'x28' },
+  { name: 'rs1', hi: 19, lo: 15, color: COLORS.blue, value: 'x7' },
   { name: 'funct3', hi: 14, lo: 12, color: COLORS.amber, value: '0' },
-  { name: 'rd', hi: 11, lo: 7, color: COLORS.green, value: 'x5' },
+  { name: 'rd', hi: 11, lo: 7, color: COLORS.green, value: 'x7' },
   { name: 'opcode', hi: 6, lo: 0, color: COLORS.slate, value: '0x33' },
 ];
 
@@ -45,13 +45,13 @@ pc += 4;`;
 const CODE_HL: Record<number, number[]> = { 4: [0, 1, 2, 3, 4, 5, 6], 5: [8, 9, 10, 11], 6: [9, 10, 11, 17] };
 
 const CAPTIONS = [
-  '4 bytes in memory, at the address in pc',
+  'fetch: the 4 bytes at the address in pc (0x1116c, our add)',
   'read them as one 32-bit number (little-endian: lowest byte first)',
-  "it's just bits",
+  "now it's just bits. the cpu does the encode slide backwards",
   'the format puts each field at a fixed position',
-  'shift and mask to pull each field out',
-  'switch on the opcode, then funct3 / funct7',
-  'add x5, x6, x7',
+  'shift and mask to pull each field out. this is what our emulator (or a real decoder) does',
+  'decode: switch on the opcode, then funct3 / funct7',
+  'execute: add x7, x7, x28. then pc += 4, and do it all again'
 ];
 
 export default function Decode() {
@@ -61,13 +61,13 @@ export default function Decode() {
   return (
     <div ref={root} style={{ fontSize: '.74em' }}>
       <div style={{ display: 'flex', gap: '1.2em', alignItems: 'center' }}>
-        <Bytes data={BYTES} label="mem[pc]" />
+        <Bytes data={BYTES} addr={0x1116c} label="mem[pc]" />
         <div class={`fade ${step >= 1 ? 'on' : ''}`} style={{ paddingBottom: '1.6em' }}>
           <span class="muted">→</span> <code>0x{hex(WORD, 8)}</code>
         </div>
         <div class={`fade ${step >= 6 ? 'on' : ''}`} style={{ paddingBottom: '1.6em' }}>
-          <span class="muted">=</span> <code>{highlight('add x5, x6, x7', 'asm')}</code>
-          <span class="muted"> → x5 = x6 + x7</span>
+          <span class="muted">=</span> <code>{highlight('add t2, t2, t3', 'asm')}</code>
+          <span class="muted"> → t2 = t2 + t3</span>
         </div>
       </div>
       <div class={`fade ${step >= 2 ? 'on' : ''}`}>

@@ -1,9 +1,10 @@
-# lec 1: assembly → the cpu → gpt-2
+# lec 1: assembly → the cpu → rnn → gpt-2
 
 one 90-minute session, two decks. `PLAN.md` is the run sheet.
 
-- `risc-v/`: assembly + cpu execution (19 slides). `c/` holds the C ↔ asm pairs the assembly slides show.
-- `gpt-2-arch/`: gpt-2, top to bottom with real weights (14 slides). `impl/` is the model; `tutorial.md` is the prose version.
+- `risc-v/`: assembly + cpu execution (21 slides), all built around one program, `sum.s` (sum an array in `.data`; `rv.sh run sum.s`).
+- `rnn/`: a char rnn on tiny shakespeare in tinygrad, the live demo before gpt-2. see `rnn/README.md`.
+- `gpt-2-arch/`: why attention beats the rnn, then gpt-2 with real weights (19 slides, visuals only: the code is live). `impl/` is the model; `tutorial.md` is the prose version.
 
 each deck's `_cut/` holds the slides that didn't make the 90 minutes. running assembly live uses the emulator
 in `../lec2/os` (`rv.sh run FILE.s`, `compile.sh FILE.c`); see `../lec2/os/README.md`.

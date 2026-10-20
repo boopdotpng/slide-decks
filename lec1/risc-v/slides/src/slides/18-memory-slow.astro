@@ -1,0 +1,26 @@
+---
+import { LatencyRace } from '../components/viz';
+---
+<h2>memory is slow</h2>
+<div class="slow">
+  <div class="slow-race">
+    <LatencyRace client:load rows={[
+      { name: 'ssd', ns: 75_000, label: '~75 µs' },
+      { name: 'ram', ns: 70, label: '~70 ns' },
+      { name: 'l3', ns: 9, label: '~9 ns' },
+      { name: 'l2', ns: 2.5, label: '~2.5 ns' },
+      { name: 'l1', ns: 0.7, label: '~0.7 ns' },
+      { name: 'registers', ns: 0.2, label: '~0.2 ns' },
+    ]} />
+  </div>
+  <ul class="slow-points small">
+    <li>every <code>ld</code> asks memory for something. a 4 GHz cpu does an add in 0.25 ns; ram takes ~70 ns to answer. ~300 adds' worth of waiting</li>
+    <li class="step">so the chip keeps copies of recently used memory close by: <b>caches</b>. l1 is tiny and fast, l3 bigger and slower, then ram</li>
+  </ul>
+</div>
+<style>
+  .slow { display: flex; gap: 3em; align-items: flex-start; }
+  .slow-race { flex: 1.2; }
+  .slow-points { flex: 1; }
+  .slow-points li { margin: 0 0 .8em; }
+</style>

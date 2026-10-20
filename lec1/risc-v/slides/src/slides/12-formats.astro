@@ -1,0 +1,70 @@
+---
+import { COLORS } from '../components/viz';
+
+// field colors match the decode slide; immediates get their own
+const op = { name: 'opcode', hi: 6, lo: 0, color: COLORS.slate };
+const rd = { name: 'rd', hi: 11, lo: 7, color: COLORS.green };
+const rs1 = { name: 'rs1', hi: 19, lo: 15, color: COLORS.blue };
+const rs2 = { name: 'rs2', hi: 24, lo: 20, color: COLORS.blue };
+const f3 = { name: 'funct3', hi: 14, lo: 12, color: COLORS.amber };
+const imm = (hi: number, lo: number, name = 'imm') => ({ name, hi, lo, color: COLORS.violet });
+
+// our program's instructions, as llvm-mc encoded them (llvm-objdump of sum). t0 = x5, t1 = x6, t2 = x7, t3 = x28, t4 = x29
+const formats = [
+  { t: 'R', what: 'register, register', ops: 'add sub mul and or …', ex: 'add  t2, t2, t3', word: 0x01c383b3, ours: true,
+    fields: [{ name: 'funct7', hi: 31, lo: 25, color: COLORS.amber }, rs2, rs1, f3, rd, op] },
+  { t: 'I', what: 'register, small constant', ops: 'addi li ld lw …', ex: 'addi t0, t0, 8', word: 0x00828293, ours: true,
+    fields: [imm(31, 20), rs1, f3, rd, op] },
+  { t: 'S', what: 'stores', ops: 'sd sw sh sb', ex: 'sd   t2, 0(t4)', word: 0x007eb023, ours: true,
+    fields: [imm(31, 25), rs2, rs1, f3, imm(11, 7), op] },
+  { t: 'B', what: 'branches', ops: 'beq bne blt bge', ex: 'bne  t1, zero, loop', word: 0xfe0318e3, ours: true,
+    fields: [imm(31, 25), rs2, rs1, f3, imm(11, 7), op] },
+  { t: 'U', what: 'big constant', ops: 'lui auipc', ex: 'auipc t0, 1', word: 0x00001297, ours: true,
+    fields: [imm(31, 12), rd, op] },
+  { t: 'J', what: 'far jumps', ops: 'jal', ex: 'jal  ra, +16', word: 0x010000ef, ours: false,
+    fields: [imm(31, 12), rd, op] },
+];
+const bit = (w: number, i: number) => (w >>> i) & 1;
+---
+<h2>every instruction fits one of 6 shapes</h2>
+<p class="muted fmt-lead">the opcode (low 7 bits) says which shape. rd, rs1, rs2 are always in the same place, so the cpu can read them before it knows the rest. a constant (imm) fills whatever's left</p>
+<div class="fmts">
+  <div class="fmt">
+    <div></div>
+    <div class="grid32 bitnums">{[31, 25, 20, 15, 12, 7, 0].map((i) => <span style={`grid-column: ${32 - i}`}>{i}</span>)}</div>
+  </div>
+  {formats.map((f, k) => (
+    <div class={`fmt ${k ? 'step' : ''}`}>
+      <div class="fmt-name">
+        <span class="fmt-t">{f.t}</span> <span class="fmt-what">{f.what}</span>
+        <div class="fmt-ex"><code>{f.ex}</code> <span class="muted">· {f.ops}</span>{!f.ours && <span class="muted fmt-not"> · calls, not ours</span>}</div>
+      </div>
+      <div class="grid32">
+        {f.fields.map((fd) => (
+          <div class="fd" style={`grid-column: ${32 - fd.hi} / ${33 - fd.lo}; --fc: ${fd.color}`}>
+            <div class="fd-name">{fd.name}</div>
+            <div class="fd-bits">{Array.from({ length: fd.hi - fd.lo + 1 }, (_, j) => <span>{bit(f.word, fd.hi - j)}</span>)}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  ))}
+</div>
+<p class="muted fmt-foot step">S and B have no rd, so the constant takes that slot too. our bne's constant is −16: jump back 16 bytes, 4 instructions, to loop. U is la's first half: next slide</p>
+<style>
+  .fmt-lead { font-size: .62em; margin: -.6em 0 .5em; }
+  .fmts { display: flex; flex-direction: column; gap: .3em; font-size: .62em; }
+  .fmt { display: grid; grid-template-columns: 20em 1fr; gap: 1.2em; align-items: end; }
+  .fmt-t { font-size: 1.5em; font-weight: 700; }
+  .fmt-ex { font-size: .85em; margin-top: .1em; white-space: nowrap; }
+  .fmt-ex code { background: none; padding: 0; white-space: pre; }
+  .fmt-not { font-style: italic; }
+  /* one shared 32-column grid, so a field sits in the same place in every row */
+  .grid32 { display: grid; grid-template-columns: repeat(32, 1fr); column-gap: 0; font-family: var(--mono); }
+  .bitnums { font-size: .6em; color: var(--muted); }
+  .fd { padding: 0 1px; min-width: 0; }
+  .fd-name { font-size: .65em; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; }
+  .fd-bits { display: flex; background: var(--fc); border-radius: 5px; font-size: .8em; }
+  .fd-bits span { flex: 1; text-align: center; padding: .15em 0; }
+  .fmt-foot { font-size: .6em; margin-top: 1em; }
+</style>
