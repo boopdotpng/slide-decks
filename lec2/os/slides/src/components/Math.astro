@@ -1,0 +1,8 @@
+---
+// LaTeX rendered with KaTeX at build time: static HTML, no client-side JS
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
+const { tex, block = false } = Astro.props as { tex: string; block?: boolean };
+const html = katex.renderToString(tex, { displayMode: block, throwOnError: true });
+---
+<span class="math" set:html={html} />

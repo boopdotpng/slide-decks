@@ -1,0 +1,49 @@
+---
+import Code from '../components/Code.tsx';
+---
+<h2 class="named"><span class="wide" data-label="risc-v, 64-bit" style="--row: 3">rv64</span><span data-label="integer base" style="--row: 2">i</span><span data-label="multiply / divide" style="--row: 1">m</span>: everything you get</h2>
+<table class="isa">
+  <tr><td>registers</td><td><div class="abi">
+    <span><b class="tok-reg">x0–x31</b> the real names, all 64-bit</span>
+    <span><b class="tok-reg">zero</b> x0, always reads 0</span>
+    <span><b class="tok-reg">a0–a7</b> args, a0 = return value</span>
+    <span><b class="tok-reg">t0–t6</b> scratch, a call may clobber</span>
+    <span><b class="tok-reg">s0–s11</b> callee restores before ret</span>
+    <span><b class="tok-reg">ra sp</b> return address, stack</span>
+  </div></td></tr>
+  <tr><td>math</td><td><Code lang="asm" code={"add  t0, t1, t2      # t0 = t1 + t2\n                     # also sub mul div and or xor shifts"} /></td></tr>
+  <tr><td>loads / stores</td><td><Code lang="asm" code="ld   t0, 8(sp)       # t0 = memory[sp + 8]" /></td></tr>
+  <tr><td>branches / jumps</td><td><Code lang="asm" code={"beq  t0, t1, done    # if t0 == t1, pc = done\njal  ra, func        # call: ra = pc + 4, pc = func"} /></td></tr>
+  <tr><td>syscalls</td><td><Code lang="asm" code="ecall                # ask the kernel" /></td></tr>
+</table>
+<p class="muted step">that's the core. everything else is built out of these.</p>
+<style>
+  /* leader lines from each part of the name down to a small label */
+  .named { margin-bottom: 1.5em; }
+  .named span { position: relative; }
+  .named span::after {
+    content: attr(data-label);
+    position: absolute; left: 50%; top: 95%;
+    height: calc(var(--row) * 1.3em);
+    display: flex; align-items: flex-end;
+    padding-left: .4em;
+    border-left: 1px solid var(--muted);
+    font-size: .3em; font-weight: normal; line-height: 1;
+    color: var(--muted); white-space: nowrap;
+  }
+  /* bracket under the whole of a multi-letter part, leader drops from its middle */
+  .named .wide::before {
+    content: '';
+    position: absolute; left: .05em; right: .05em; top: 95%;
+    height: .12em;
+    border: 1px solid var(--muted); border-top: none;
+  }
+  .named .wide::after { top: calc(95% + .4em); height: calc(var(--row) * 1.3em - .4em); } /* .4em of the label font = the bracket's .12em */
+  /* registers: 2-column grid of register group + what it's for */
+  .abi { display: grid; grid-template-columns: repeat(2, max-content); gap: .2em 2.5em; font-size: .7em; color: var(--muted); padding: .3em 0 .3em .9em; }
+  .abi span { white-space: nowrap; }
+  .abi b { font-family: var(--mono); font-weight: normal; display: inline-block; min-width: 4.2em; }
+  .isa { font-size: .8em; }
+  .isa td:first-child { color: var(--muted); padding-right: 1.5em; white-space: nowrap; }
+  .isa pre { margin: .2em 0; font-size: .8em; }
+</style>

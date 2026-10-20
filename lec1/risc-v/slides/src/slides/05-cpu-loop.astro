@@ -1,0 +1,29 @@
+---
+import { Walkthrough } from '../components/viz';
+
+// t0 counts down from 3; bne jumps back while t0 != 0, then falls through to ecall
+const loop = `
+0x00  addi t0, x0, 3
+0x04  addi t0, t0, -1
+0x08  bne  t0, x0, 0x04
+0x0c  ecall`;
+---
+<h2>the cpu loop, for real</h2>
+<p class="muted small">read the instruction at the pc, execute it, pc += 4 (unless it jumps), repeat. every risc-v instruction is 4 bytes</p>
+<div class="cpu-walk">
+      <Walkthrough client:load lang="asm" code={loop} auto={900}
+        vars={[{ name: 'pc' }, { name: 't0', reg: true }]}
+        steps={[
+          { hl: [0], set: { pc: '0x00', t0: 0 } },
+          { hl: [1], set: { pc: '0x04', t0: 3 } },
+          { hl: [2], set: { pc: '0x08', t0: 2 } },
+          { hl: [1], set: { pc: '0x04 (jumped)' } },
+          { hl: [2], set: { pc: '0x08', t0: 1 } },
+          { hl: [1], set: { pc: '0x04 (jumped)' } },
+          { hl: [2], set: { pc: '0x08', t0: 0 } },
+          { hl: [3], set: { pc: '0x0c' } },
+        ]} />
+    </div>
+<style>
+  .cpu-walk { font-size: 1.5em; margin-top: .6em; }
+</style>

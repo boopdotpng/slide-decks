@@ -1,0 +1,7 @@
+---
+import Inline from '../components/Inline.tsx';
+import callAsm from '../asm/noinline.s?raw';
+import inlineAsm from '../asm/inline.s?raw';
+---
+<h2>inlining: the cheapest call is no call</h2>
+<div data-steps="4" class="fill"><Inline client:load callAsm={callAsm} inlineAsm={inlineAsm} /></div>

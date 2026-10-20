@@ -1,0 +1,45 @@
+---
+import { BitFields, COLORS } from '../components/viz';
+
+// same field colors as the decode slide; immediates get their own
+const op = { name: 'opcode', hi: 6, lo: 0, color: COLORS.slate };
+const rd = { name: 'rd', hi: 11, lo: 7, color: COLORS.green };
+const rs1 = { name: 'rs1', hi: 19, lo: 15, color: COLORS.blue };
+const rs2 = { name: 'rs2', hi: 24, lo: 20, color: COLORS.blue };
+const f3 = { name: 'funct3', hi: 14, lo: 12, color: COLORS.amber };
+const imm = (hi: number, lo: number, name = 'imm') => ({ name, hi, lo, color: COLORS.violet });
+
+const formats = [
+  { t: 'R', what: 'reg, reg', ex: 'add x5, x6, x7', word: 0x007302b3,
+    fields: [{ name: 'funct7', hi: 31, lo: 25, color: COLORS.amber }, rs2, rs1, f3, rd, op] },
+  { t: 'I', what: 'reg, constant', ex: 'addi x5, x6, -1', word: 0xfff30293,
+    fields: [imm(31, 20), rs1, f3, rd, op] },
+  { t: 'S', what: 'stores', ex: 'sd x7, 8(x6)', word: 0x00733423,
+    fields: [imm(31, 25), rs2, rs1, f3, imm(11, 7), op] },
+  { t: 'B', what: 'branches', ex: 'beq x6, x7, +16', word: 0x00730863,
+    fields: [imm(31, 25), rs2, rs1, f3, imm(11, 7), op] },
+];
+---
+<h2>instruction formats</h2>
+<p class="muted fmt-lead">always 32 bits. opcode, rd, rs1, rs2 never move; the constant gets split around them.</p>
+<div class="fmts">
+  {formats.map((f) => (
+    <>
+      <div class="fmt-name">
+        <span class="fmt-t">{f.t}</span> <span class="muted">{f.what}</span>
+        <div class="fmt-ex"><code>{f.ex}</code></div>
+      </div>
+      <BitFields word={f.word} fields={f.fields} />
+    </>
+  ))}
+</div>
+<p class="muted fmt-foot">also U (<code>lui</code>) and J (<code>jal</code>): just rd and one big constant.<br>B shuffles its constant's bits, and drops bit 0: branch targets are always even.</p>
+<style>
+  .fmt-lead { font-size: .7em; margin: -.6em 0 1em; }
+  .fmts { display: grid; grid-template-columns: auto 1fr; gap: .5em 1.4em; align-items: center; font-size: .75em; }
+  .fmt-t { font-size: 1.4em; font-weight: 700; }
+  .fmt-ex { font-size: .75em; margin-top: .1em; }
+  .fmt-ex code { background: none; padding: 0; }
+  .fmt-foot { font-size: .65em; margin-top: 1em; }
+  .fmt-foot code { background: none; padding: 0; color: var(--fg); }
+</style>

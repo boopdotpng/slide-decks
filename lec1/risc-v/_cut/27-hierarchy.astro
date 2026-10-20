@@ -1,0 +1,25 @@
+---
+import { LatencyRace } from '../components/viz';
+
+// amd ryzen 9 7950x (zen 4), per core except l3 (shared by 8 cores) and ram.
+// cycles at ~5.7 GHz: l1 4 cycles, l2 14, l3 ~50. ram: ddr5, measured ~60–80 ns
+const LEVELS = [
+  { name: 'ssd', size: 'TBs', ns: 75_000, label: '~75 µs' },
+  { name: 'ram', size: '32–128 GB', ns: 70, label: '~70 ns' },
+  { name: 'l3', size: '32 MB', ns: 9, label: '~9 ns' },
+  { name: 'l2', size: '1 MB', ns: 2.5, label: '~2.5 ns' },
+  { name: 'l1', size: '32 KB', ns: 0.7, label: '~0.7 ns' },
+  { name: 'registers', size: '256 B', ns: 0.2, label: '~0.2 ns' },
+];
+---
+<h2>the memory hierarchy, again</h2>
+<div class="hier">
+  <LatencyRace client:load rows={LEVELS.map(({ name, size, ns, label }) => ({ name: `${name} · ${size}`, ns, label }))} />
+</div>
+<p class="step lead">closer to the core = smaller and faster. caches keep copies of what you used recently</p>
+<p class="muted src-note">numbers: amd ryzen 9 7950x (zen 4). l1/l2 per core, l3 shared by 8 cores. registers = the 32 you can name × 8 bytes</p>
+<style>
+  .hier { font-size: .95em; }
+  .lead { font-size: .8em; margin-top: .6em; }
+  .src-note { font-size: .5em; margin-top: .6em; }
+</style>

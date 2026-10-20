@@ -1,0 +1,6 @@
+---
+import FrameLayout from '../components/FrameLayout.tsx';
+import asm from '../asm/frame.s?raw';
+---
+<h2>locals live in the frame</h2>
+<div data-steps="3"><FrameLayout client:load asm={asm} /></div>

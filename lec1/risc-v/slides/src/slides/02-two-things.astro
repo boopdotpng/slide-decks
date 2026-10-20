@@ -1,0 +1,37 @@
+---
+import { Bytes, LatencyRace } from '../components/viz';
+
+// the first bytes of hello's code, as loaded: to the cpu a program is just this
+const CODE = [0x13, 0x05, 0x10, 0x00, 0x97, 0xf5, 0xff, 0xff, 0x93, 0x85, 0xc5, 0xfe, 0x13, 0x06, 0xd0, 0x00];
+---
+<h2>a computer is two things</h2>
+<div class="cols small">
+  <div>
+    <h3>a cpu <span class="muted">(pretty dumb)</span></h3>
+    <ol>
+      <li>read the instruction at the pc</li>
+      <li>execute it</li>
+      <li>move the pc to the next one <span class="muted">(unless it jumps)</span></li>
+      <li>repeat</li>
+    </ol>
+    <div class="blob">
+      <Bytes data={CODE} addr={0x11130} label="your program" ptr={{ at: 0, label: 'pc' }} />
+      <p class="muted">a program is just bytes in memory. the cpu doesn't know or care what made them</p>
+    </div>
+  </div>
+  <div>
+    <h3>memory <span class="muted">(many tiers)</span></h3>
+    <LatencyRace client:load rows={[
+      { name: 'ssd', ns: 75_000, label: '~75 µs' },
+      { name: 'ram', ns: 70, label: '~70 ns' },
+      { name: 'l3', ns: 9, label: '~9 ns' },
+      { name: 'l2', ns: 2.5, label: '~2.5 ns' },
+      { name: 'l1', ns: 0.7, label: '~0.7 ns' },
+      { name: 'registers', ns: 0.2, label: '~0.2 ns' },
+    ]} />
+  </div>
+</div>
+<style>
+  .blob { font-size: .8em; margin-top: .8em; }
+  .blob p { font-size: .8em; }
+</style>

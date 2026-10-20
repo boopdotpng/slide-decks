@@ -1,0 +1,13 @@
+---
+import OnePass from '../components/OnePass.tsx';
+import { Where } from '../components/Where.tsx';
+import { StepCode } from '../components/viz';
+const SRC = `
+logits = model.logits(Tensor([ids]))   # (B, S, vocab_size): a guess at every position
+next_id = logits[:, -1, :].argmax()    # only the last position's guess is the next token`;
+---
+<Where at="attn" />
+<div class="section">one pass</div>
+<h2>one pass, follow the last token</h2>
+<div data-steps="3"><OnePass client:load /></div>
+<StepCode client:load code={SRC} hl={{ 1: [0], 2: [1], 3: [0, 1] }} />

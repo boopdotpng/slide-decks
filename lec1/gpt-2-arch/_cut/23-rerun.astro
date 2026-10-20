@@ -1,0 +1,13 @@
+---
+import Rerun from '../components/Rerun.tsx';
+import { Where } from '../components/Where.tsx';
+import { StepCode } from '../components/viz';
+const SRC = `
+model(Tensor([ids]))               # pass 1: k, v for every position
+model(Tensor([ids + [next_id]]))   # pass 2: the same k, v again, plus one new row`;
+---
+<Where at="attn" />
+<div class="section">kv cache</div>
+<h2>run it again</h2>
+<div data-steps="2"><Rerun client:load /></div>
+<StepCode client:load code={SRC} hl={{ 0: [0], 1: [1], 2: [1] }} />

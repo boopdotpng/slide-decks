@@ -1,0 +1,38 @@
+---
+// the config at the top of impl/main.py: [name, value, shape letter, what it sizes]
+const KNOBS = [
+  ['vocab_size', '50257', 'V', 'tokens the model knows'],
+  ['max_seq_len', '1024', '', 'longest context, caps T'],
+  ['emb_dim', '768', 'D', 'width of every token vector'],
+  ['n_layers', '12', '', 'blocks stacked'],
+  ['n_heads', '12', 'H', 'attention heads per block'],
+  ['head_dim', '64', 'd', 'emb_dim // n_heads'],
+  ['mlp_size', '3072', '', '4 × emb_dim'],
+];
+// not config: they come from the input. values are for prefill on our 14-token prompt
+const PER_PASS = [
+  ['x.shape[0]', '1', 'B', 'prompts at once: always 1 here'],
+  ['x.shape[1]', '14', 'S', 'tokens this pass'],
+  ['start_pos + S', '14', 'T', 'keys attended to · scores are S × T · T = S until the kv cache'],
+];
+---
+<h2>the knobs</h2>
+<div class="knobs">
+  {KNOBS.map(([name, v, letter, what]) => <>
+    <code class="n">{name}</code><span class="v">{v}</span><span class="l accent">{letter}</span><span class="w muted">{what}</span>
+  </>)}
+  <span class="sep muted">per forward pass</span>
+  {PER_PASS.map(([name, v, letter, what]) => <>
+    <code class="n">{name}</code><span class="v">{v}</span><span class="l accent">{letter}</span><span class="w muted">{what}</span>
+  </>)}
+</div>
+<p class="step params">params ≈ V·D + max_seq_len·D + n_layers · 12·D² <span class="muted">= 38.6M + 0.8M + 12 × 7.1M ≈ 124M</span></p>
+<style>
+  .knobs { display: grid; grid-template-columns: auto auto auto auto; gap: .25em 1em; align-items: baseline; align-self: center; }
+  .knobs .n { font-size: .9em; background: none; }
+  .knobs .v { font-family: var(--mono); font-size: .9em; text-align: right; }
+  .knobs .l { font-family: var(--mono); font-size: .7em; min-width: 1em; }
+  .knobs .w { font-size: .75em; }
+  .knobs .sep { grid-column: 1 / -1; font-size: .65em; margin-top: .5em; border-top: 1px solid var(--border); padding-top: .6em; }
+  .params { align-self: center; margin-top: 1em; font-size: .75em; }
+</style>

@@ -1,0 +1,15 @@
+---
+import MaskSoftmax from '../components/MaskSoftmax.tsx';
+import { Where } from '../components/Where.tsx';
+import { StepCode } from '../components/viz';
+const SRC = `
+scores = q @ k.transpose(-2, -1) * (head_dim ** -0.5)
+causal_mask = Tensor.full((1, 1, S, T), float("-inf")).triu(start_pos+1)
+scores = scores + causal_mask
+attn = scores.softmax(-1)`;
+---
+<Where at="attn" />
+<div class="section">one pass</div>
+<h2>mask + softmax</h2>
+<div data-steps="3"><MaskSoftmax client:load /></div>
+<StepCode client:load code={SRC} hl={{ 0: [0], 1: [1, 2], 2: [3], 3: [3] }} />

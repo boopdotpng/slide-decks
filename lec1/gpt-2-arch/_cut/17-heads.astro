@@ -1,0 +1,18 @@
+---
+import DecodeHeads from '../components/DecodeHeads.tsx';
+import { Where } from '../components/Where.tsx';
+import { StepCode } from '../components/viz';
+const SRC = `
+q = q.reshape(B, S, n_heads, head_dim).transpose(1, 2)   # 12 heads, each its own attention
+attn = (q @ k.transpose(-2, -1) * head_dim ** -0.5).softmax(-1)
+for layer in self.layers: x = layer(x, start_pos)        # 12 layers`;
+---
+<Where at="attn" />
+<div class="section">one pass</div>
+<h2>12 heads, 12 blocks</h2>
+<div data-steps="4"><DecodeHeads client:load /></div>
+<StepCode client:load class="heads-code" code={SRC} hl={{ 0: [1], 1: [2], 2: [2], 3: [2], 4: [2] }} />
+<style>
+  /* the heads grid is tall: keep the code close under it */
+  :global(.step-code.heads-code) { margin-top: .3em; }
+</style>

@@ -1,0 +1,13 @@
+---
+import PosEmbed from '../components/PosEmbed.tsx';
+import { Where } from '../components/Where.tsx';
+import { StepCode } from '../components/viz';
+const SRC = `
+self.embed_positions = nn.Embedding(max_seq_len, emb_dim)     # (1024, 768)
+pos_emb = self.embed_positions.weight[start_pos:start_pos+S]  # (S, emb_dim)
+x = tok_emb + pos_emb                                         # (B, S, emb_dim)`;
+---
+<Where at="embed" />
+<h2>position embedding</h2>
+<div data-steps="3"><PosEmbed client:load /></div>
+<StepCode client:load code={SRC} hl={{ 1: [0], 2: [0], 3: [1, 2] }} />

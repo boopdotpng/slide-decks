@@ -1,0 +1,13 @@
+---
+import CodePair from '../components/CodePair.tsx';
+import c from '../../../c/loop.c?raw';
+import asm from '../asm/loop.s?raw';
+---
+<h2>loops</h2>
+<div data-steps="4"><CodePair client:load c={c} asm={asm} steps={[
+  { text: 'a loop is a branch that jumps backwards' },
+  { c: [1, 2], asm: [1, 2], text: 'total = 0 in a2. if n ≤ 0 the loop never runs: jump straight to the end' },
+  { c: [2], asm: [3, 4], text: 'i is gone. instead, a1 = a + n × 8: the address just past the last element' },
+  { c: [3], asm: [5, 6, 7, 8], text: 'load *a0, move a0 to the next element, add. the pointer walks the array' },
+  { c: [2, 4], asm: [9, 10, 11, 12], text: 'loop while a0 ≠ end. then move total into a0 and return. same answer, fewer instructions per lap' },
+]} /></div>

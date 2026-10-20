@@ -1,0 +1,13 @@
+---
+import WeightedSum from '../components/WeightedSum.tsx';
+import { Where } from '../components/Where.tsx';
+import { StepCode } from '../components/viz';
+const SRC = `
+attn = scores.softmax(-1)   # (B, n_heads, S, T)
+out = attn @ v              # (B, n_heads, S, head_dim): weighted average of values`;
+---
+<Where at="attn" />
+<div class="section">one pass</div>
+<h2>weighted sum of v</h2>
+<div data-steps="2"><WeightedSum client:load /></div>
+<StepCode client:load code={SRC} hl={{ 1: [1], 2: [1] }} />

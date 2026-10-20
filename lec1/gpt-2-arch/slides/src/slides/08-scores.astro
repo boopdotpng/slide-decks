@@ -1,0 +1,14 @@
+---
+import Scores from '../components/Scores.tsx';
+import { Where } from '../components/Where.tsx';
+import { StepCode } from '../components/viz';
+const SRC = `
+scores = q @ k.transpose(-2, -1)       # (B, n_heads, S, T)
+scores = scores * (head_dim ** -0.5)   # ÷ √64
+attn = scores.softmax(-1)              # each row sums to 1`;
+---
+<Where at="attn" />
+<div class="section">one pass</div>
+<h2>q · k</h2>
+<div data-steps="4"><Scores client:load /></div>
+<StepCode client:load code={SRC} hl={{ 1: [0], 2: [0], 3: [1], 4: [2] }} />

@@ -1,0 +1,27 @@
+---
+import { Shape, StepCode } from '../components/viz';
+const SRC = `
+def __call__(self, tokens:Tensor, start_pos:int=0) -> Tensor:
+  if tokens.shape[1] == 1 and start_pos != 0:   # decode: jitted, start_pos symbolic
+    sp = Variable("start_pos", 1, max_seq_len-1).bind(start_pos)
+    return self.decode_jit(tokens.contiguous(), sp)
+  return self.forward(tokens, start_pos)        # prefill`;
+---
+<h2>decode vs prefill</h2>
+<table class="dvp">
+  <tr><th></th><th>decode</th><th>prefill</th></tr>
+  <tr><td>x</td><td><Shape dims={[1, 1, 768]} /></td><td><Shape dims={[1, 'S', 768]} /></td></tr>
+  <tr><td>q</td><td><Shape dims={[1, 12, 1, 64]} /></td><td><Shape dims={[1, 12, 'S', 64]} /></td></tr>
+  <tr><td>k, v</td><td><Shape dims={[1, 12, 'T', 64]} /> <span class="muted">from cache</span></td><td><Shape dims={[1, 12, 'S', 64]} /> <span class="muted">into cache</span></td></tr>
+  <tr><td>scores</td><td><Shape dims={[1, 12, 1, 'T']} /></td><td><Shape dims={[1, 12, 'S', 'S']} /> <span class="muted">+ mask</span></td></tr>
+  <tr><td>logits</td><td><Shape dims={[1, 1, 50257]} /></td><td><Shape dims={[1, 'S', 50257]} /></td></tr>
+  <tr class="step"><td>matmuls</td><td>vector × matrix</td><td>matrix × matrix</td></tr>
+  <tr class="step"><td>bound by</td><td>memory: read all 124M weights per token</td><td>compute</td></tr>
+</table>
+<StepCode client:load code={SRC} hl={{}} />
+<style>
+  .dvp { font-size: .8em; }
+  .dvp td, .dvp th { padding: .3em 2em .3em 0; }
+  .dvp td:first-child { color: var(--muted); }
+  .dvp .shape { font-size: .85em; }
+</style>

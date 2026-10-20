@@ -1,0 +1,14 @@
+---
+import HeadsProj from '../components/HeadsProj.tsx';
+import { Where } from '../components/Where.tsx';
+import { StepCode } from '../components/viz';
+const SRC = `
+self.q_proj = nn.Linear(emb_dim, emb_dim)               # (768, 768): 12 heads' W_Q side by side
+q = self.q_proj(x)                                      # (B, S, 768): every head's q in one matmul
+q = q.reshape(B, S, n_heads, head_dim).transpose(1, 2)  # (B, 12, S, 64): cut into heads`;
+---
+<Where at="attn" />
+<div class="section">one pass</div>
+<h2>12 heads, one matmul</h2>
+<div data-steps="2"><HeadsProj client:load /></div>
+<StepCode client:load code={SRC} hl={{ 0: [1], 1: [0, 1], 2: [2] }} />

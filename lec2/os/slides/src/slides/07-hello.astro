@@ -1,0 +1,26 @@
+---
+import Code from '../components/Code.tsx';
+import { Bytes } from '../components/viz';
+
+// what hello does, in words; the instruction-by-instruction version is 25-hello-asm
+const SRC = `write(1, "hello, world\\n", 13);   // 1 = the terminal
+exit(0);`;
+---
+<h2>hello world</h2>
+<div class="hello">
+  <Code lang="c" code={SRC} />
+  <Bytes data={'hello, world\n'} addr={0x10120} label="msg" />
+  <ol>
+    <li class="step">./hello is a file: some bytes of code, plus the 13 bytes of the message</li>
+    <li class="step">the kernel copies both into memory (msg lands at 0x10120) and starts the pc at the first instruction of the code</li>
+    <li class="step">the code puts the request in registers: write, to fd 1 (the terminal), the bytes at 0x10120, 13 of them. then it runs the syscall instruction</li>
+    <li class="step">the kernel prints it and comes back. then exit(0): another syscall, and the kernel cleans up</li>
+  </ol>
+  <p class="muted small">the actual instructions come at the end, in risc-v</p>
+</div>
+<style>
+  .hello { font-size: .8em; }
+  .hello pre { font-size: .8em; }
+  .hello ol { margin-top: .8em; }
+  .hello li { margin: .3em 0; }
+</style>

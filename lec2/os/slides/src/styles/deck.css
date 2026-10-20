@@ -1,0 +1,143 @@
+/* code font: Paper Mono (OFL, public/fonts/PaperMono-OFL.txt), served locally */
+@font-face { font-family: 'Paper Mono'; src: url('/fonts/PaperMono.woff2') format('woff2');
+  font-weight: 100 900; font-style: normal; font-display: block; }
+
+/* theme: change these per deck */
+:root { --bg:#0a0a0a; --fg:#e5e5e5; --muted:#8a8a8a; --accent:#60a5fa; --code:#171717;
+  --hl: rgba(96, 165, 250, .16); --panel:#141414; --border:#262626;
+  --sans: -apple-system, 'Segoe UI', Inter, Helvetica, Arial, sans-serif;
+  --mono: 'Paper Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* slide padding; fixed px in print mode */
+  --pad-y: 4vh; --pad-x: 4.5vw; --inset-y: 2vh; --inset-x: 2vw;
+  /* type scales with the screen: 37.8px at 1600×900 (print uses the same), capped by height for wide screens and by
+     width (2.36vw = the 16:9 value) for taller ones like 16:10, so a slide that fits at 16:9 fits everywhere.
+     --scale is deck.config.ts's `scale` */
+  --base: calc(min(2.36vw, 4.2vh) * var(--scale, 1)); }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+  font: var(--base)/1.45 var(--sans); overflow: hidden; }
+
+.slide { display: none; position: absolute; inset: 0; padding: var(--pad-y) var(--pad-x);
+  flex-direction: column; justify-content: center; }
+.slide.active { display: flex; animation: fade-in .25s ease-out; }
+@keyframes fade-in { from { opacity: 0; } }
+
+/* step-by-step reveal: add class="step" to anything */
+.step { opacity: 0; transform: translateY(8px); transition: opacity .3s, transform .3s; }
+.step.shown { opacity: 1; transform: none; }
+
+/* speaker notes: <aside class="notes"> in a slide, shown only in the presenter window */
+.notes { display: none; }
+
+h1 { font-size: 2.4em; margin: 0 0 .3em; line-height: 1.1; }
+h2 { font-size: 1.6em; margin: 0 0 .6em; }
+h3 { font-size: 1.1em; margin: 0 0 .4em; }
+p, li { margin: .3em 0; }
+ul, ol { padding-left: 1.2em; }
+a { color: var(--accent); }
+.muted { color: var(--muted); }
+.accent { color: var(--accent); }
+code, pre { font-family: var(--mono); }
+code { background: var(--code); padding: .05em .3em; border-radius: 4px; }
+pre { background: var(--code); padding: .8em 1em; border-radius: 8px; font-size: .8em; margin: .5em 0; }
+table { border-collapse: collapse; }
+td, th { padding: .2em 1.2em .2em 0; text-align: left; }
+th { color: var(--muted); font-weight: normal; }
+.cols { display: flex; gap: 4vw; }
+.cols > * { flex: 1; min-width: 0; }
+.small { font-size: .7em; }
+.center { text-align: center; align-items: center; }
+/* toggled by islands: class={`fade ${step >= 2 ? 'on' : ''}`} */
+.fade { opacity: 0; transition: opacity .35s; }
+.fade.on { opacity: 1; }
+.caption { color: var(--muted); font-size: .75em; min-height: 1.5em; margin-top: .4em; }
+
+/* need more room? put class="fill" on the thing that needs it (a direct child of the slide): the title moves to the
+   top, padding shrinks, and that element (and an island's root inside it) gets the rest */
+.slide:has(> .fill) { justify-content: flex-start; padding: 2.5vh 3vw 2vh; }
+.slide:has(> .fill) > :is(h1, h2) { font-size: 1.3em; margin-bottom: .3em; }
+.slide > .fill, .slide > .fill > astro-island, .slide > .fill > astro-island > * { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.mode-print .slide:has(> .fill) { padding: 22px 48px 18px; }
+
+/* full-slide images: wrap in <div class="full"> */
+.full { position: absolute; inset: var(--inset-y) var(--inset-x); display: flex; align-items: center; justify-content: center; }
+.full img, .full svg { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+/* nav ui: hidden until the mouse moves */
+#nav { position: fixed; bottom: 16px; right: 20px; display: flex; gap: 8px; align-items: center;
+  font-size: 16px; color: var(--muted); opacity: 0; transition: opacity .3s; }
+body.mouse #nav { opacity: 1; }
+#nav button { font: inherit; background: none; color: inherit; border: 1px solid var(--muted);
+  border-radius: 6px; padding: 4px 12px; cursor: pointer; }
+#counter { min-width: 4em; text-align: center; cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) {
+  .slide.active { animation: none; }
+  .step { transition: none; }
+}
+
+/* ── code blocks (components/Code.tsx) ─────────────────────────────────────── */
+pre.code { padding: .6em .4em; }
+.code .ln { white-space: pre; padding: 0 .5em; border-radius: 4px; transition: background .25s, opacity .25s; }
+.code.has-hl .ln:not(.hl) { opacity: .4; }
+.code .ln.hl { background: var(--hl); }
+.tok-kw { color: #f47067; }
+.tok-reg { color: #6cb6ff; }
+.tok-num { color: #f69d50; }
+.tok-str { color: #96d0ff; }
+.tok-com { color: #768390; font-style: italic; }
+.tok-dir { color: #8ddb8c; }
+.tok-label { color: #dcbdfb; }
+.tok-sym { color: #dcbdfb; }
+.tok-fn { color: #dcbdfb; }
+.tok-type { color: #f69d50; }
+
+/* ── slide picker (g) ──────────────────────────────────────────────────────── */
+#picker { position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, .6); z-index: 10; }
+#picker.open { display: flex; }
+#picker .box { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 0;
+  min-width: 480px; max-height: 80vh; overflow: auto; font-size: 20px; }
+#picker .typed { color: var(--muted); padding: 0 24px 10px; font-size: 15px; }
+#picker ol { list-style: none; margin: 0; padding: 0; }
+#picker li { padding: 6px 24px; cursor: pointer; }
+#picker li.sel, #picker li:hover { background: var(--hl); }
+#picker .n { display: inline-block; width: 2em; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ── embed (?embed): just the slide ────────────────────────────────────────── */
+.mode-embed #nav { display: none; }
+
+/* ── presenter (?presenter) ────────────────────────────────────────────────── */
+.mode-presenter .slide, .mode-presenter #nav { display: none !important; }
+#presenter { position: fixed; inset: 0; display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; padding: 20px;
+  font-size: 18px; }
+#presenter .pv-main, #presenter .pv-side { min-width: 0; min-height: 0; }
+#presenter .pv-main { display: flex; align-items: center; }
+#presenter .pv-main .pv-frame { width: 100%; aspect-ratio: 16 / 9; }
+#presenter .pv-side { display: flex; flex-direction: column; gap: 12px; }
+#presenter .pv-frame { position: relative; overflow: hidden; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
+#presenter .pv-next { aspect-ratio: 16 / 9; flex: none; }
+#presenter iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; pointer-events: none; }
+#presenter .pv-end { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: var(--muted); }
+#presenter .pv-label { color: var(--muted); font-size: 14px; text-transform: uppercase; letter-spacing: .1em; }
+#presenter .pv-meta { display: flex; gap: 1.5em; align-items: baseline; font-variant-numeric: tabular-nums; color: var(--muted); }
+#presenter .pv-timer { font-size: 32px; color: var(--fg); cursor: pointer; }
+#presenter .pv-notes { flex: 1; overflow: auto; font-size: 22px; line-height: 1.5; padding-right: 8px; }
+#presenter .pv-notes p { margin: 0 0 .6em; }
+#presenter .pv-none { color: var(--muted); }
+#presenter .pv-notes { cursor: text; }
+#presenter .pv-notes ul, #presenter .pv-notes ol { margin: 0 0 .6em; }
+#presenter .pv-edit { flex: 1; resize: none; font: 22px/1.5 var(--sans); color: var(--fg); background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px; padding: 12px; outline: none; }
+#presenter .pv-edit:focus { border-color: var(--accent); }
+#presenter .pv-save { text-transform: none; letter-spacing: 0; margin-left: .6em; }
+
+/* ── print (?print, then cmd+p): one slide per 1600×900 page ───────────────── */
+@page { size: 1600px 900px; margin: 0; }
+.mode-print { --pad-y: 36px; --pad-x: 72px; --inset-y: 18px; --inset-x: 32px; --base: calc(37.8px * var(--scale, 1)); }
+html:has(.mode-print), .mode-print { height: auto; overflow: visible; }
+.mode-print #nav { display: none; }
+.mode-print .slide { display: flex; position: relative; width: 1600px; height: 900px; overflow: hidden;
+  animation: none; break-after: page; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+.mode-print .step, .mode-print .fade, .mode-print * { transition: none !important; }
+@media screen { .mode-print .slide { margin: 0 auto 24px; outline: 1px solid var(--border); } }

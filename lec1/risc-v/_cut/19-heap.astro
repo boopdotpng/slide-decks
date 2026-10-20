@@ -1,0 +1,7 @@
+---
+import Heap from '../components/Heap.tsx';
+import c from '../../../c/heap.c?raw';
+import asm from '../asm/heap.s?raw';
+---
+<h2>the heap</h2>
+<div data-steps="6" class="fill"><Heap client:load c={c} asm={asm} /></div>

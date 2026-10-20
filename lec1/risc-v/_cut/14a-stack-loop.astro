@@ -1,0 +1,17 @@
+---
+import CodePair from '../components/CodePair.tsx';
+import asm from '../asm/fact.s?raw';
+
+const c = `long fact(long n) {
+    if (n <= 1)
+        return 1;
+    return n * fact(n - 1);
+}`;
+---
+<h2>…and then the compiler deletes it</h2>
+<div data-steps="3"><CodePair client:load c={c} asm={asm} steps={[
+  { c: [], asm: [], text: 'the same fact.c through clang -O1. no call, no sp, no frames' },
+  { c: [3], asm: [5, 6, 7, 8], text: 'the recursion became a loop: a0 = a0 × n, n = n − 1, while n ≥ 2' },
+  { c: [1, 2], asm: [1, 2, 3, 4], text: 'n ≤ 1 skips the loop: a0 starts at 1, so it returns 1' },
+  { c: [], asm: [], text: 'it multiplies 3 × 2 × 1 instead of 1 × 2 × 3. allowed: the compiler only has to keep the result the same, not your steps' },
+]} /></div>

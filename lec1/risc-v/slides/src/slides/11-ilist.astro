@@ -1,0 +1,31 @@
+---
+// rough rv64im list: what you'll see in practice, not every encoding
+const rows = [
+  ['math', 'add sub mul div rem', 'rd = rs1 op rs2'],
+  ['bits', 'and or xor sll srl sra', 'bitwise ops and shifts'],
+  ['with a constant', 'addi andi ori xori slli srli', 'rd = rs1 op imm'],
+  ['compare', 'slt sltu slti', 'rd = rs1 < rs2 ? 1 : 0'],
+  ['32-bit', 'addw subw mulw divw …', 'op on the low 32 bits, sign-extend'],
+  ['load', 'ld lw lh lb  (lwu lhu lbu)', 'rd = mem[rs1 + imm]'],
+  ['store', 'sd sw sh sb', 'mem[rs1 + imm] = rs2'],
+  ['branch', 'beq bne blt bge  (bltu bgeu)', 'if rs1 op rs2: pc += imm'],
+  ['jump', 'jal jalr', 'rd = pc + 4, then jump: calls, returns'],
+  ['big constants', 'lui auipc', 'rd = imm << 12  (+ pc)'],
+  ['system', 'ecall ebreak', 'trap into the kernel / debugger'],
+  ['shorthands', 'li mv j call ret nop', 'the assembler expands these'],
+];
+---
+<h2>rv64im: the instruction list</h2>
+<table class="ilist">
+  {rows.map(([group, ops, what]) => (
+    <tr><td>{group}</td><td class="tok-kw">{ops}</td><td>{what}</td></tr>
+  ))}
+</table>
+<style>
+  .ilist { font-size: .78em; align-self: flex-start; }
+  .ilist td { padding: .22em 1.6em .22em 0; white-space: nowrap; }
+  .ilist td:first-child { color: var(--muted); }
+  .ilist td:nth-child(2) { font-family: var(--mono); }
+  .ilist td:last-child { padding-right: 0; }
+  .ilist tr + tr td { border-top: 1px solid var(--border); }
+</style>

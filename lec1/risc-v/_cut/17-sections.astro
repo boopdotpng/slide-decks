@@ -1,0 +1,7 @@
+---
+import Sections from '../components/Sections.tsx';
+import c from '../../../c/sections.c?raw';
+import asm from '../asm/sections.s?raw';
+---
+<h2>where things live</h2>
+<div data-steps="7" class="fill"><Sections client:load c={c} asm={asm} /></div>

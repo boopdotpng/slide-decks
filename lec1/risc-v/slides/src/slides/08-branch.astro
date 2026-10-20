@@ -1,0 +1,12 @@
+---
+import CodePair from '../components/CodePair.tsx';
+import c from '../../../c/branch.c?raw';
+import asm from '../asm/branch.s?raw';
+---
+<h2>if</h2>
+<div data-steps="3"><CodePair client:load c={c} asm={asm} steps={[
+  { text: 'there is no "if" instruction. there are branches: compare two registers, maybe jump' },
+  { c: [1], asm: [1], text: 'the c says "if x > hi, do this". the asm says "if x < hi, skip it": the condition is flipped' },
+  { c: [2], asm: [2], text: 'not taken (x ≥ hi): fall through to the next instruction, the then-block. x = hi' },
+  { c: [3], asm: [3, 4, 5], text: 'both paths meet at .LBB0_2. a label is just a name for an address, no instruction' },
+]} /></div>

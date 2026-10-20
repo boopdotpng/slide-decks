@@ -1,0 +1,14 @@
+---
+import LogitLens from '../components/LogitLens.tsx';
+import { Where } from '../components/Where.tsx';
+import { StepCode } from '../components/viz';
+const SRC = `
+for layer in self.layers:
+  x = layer(x, start_pos)
+  guess = self.norm(x) @ self.embed_tokens.weight.T   # pretend this layer was the last one`;
+---
+<Where at="unembed" />
+<div class="section">one pass</div>
+<h2>logit lens</h2>
+<div data-steps="1"><LogitLens client:load /></div>
+<StepCode client:load code={SRC} hl={{ 1: [2] }} />

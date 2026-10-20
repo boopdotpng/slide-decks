@@ -1,0 +1,69 @@
+---
+import { COLORS } from '../components/viz';
+
+// field colors match the decode slide; immediates get their own
+const op = { name: 'opcode', hi: 6, lo: 0, color: COLORS.slate };
+const rd = { name: 'rd', hi: 11, lo: 7, color: COLORS.green };
+const rs1 = { name: 'rs1', hi: 19, lo: 15, color: COLORS.blue };
+const rs2 = { name: 'rs2', hi: 24, lo: 20, color: COLORS.blue };
+const f3 = { name: 'funct3', hi: 14, lo: 12, color: COLORS.amber };
+const imm = (hi: number, lo: number, name = 'imm') => ({ name, hi, lo, color: COLORS.violet });
+
+// real encodings (abi names: t0 = x5, t1 = x6, t2 = x7, ra = x1)
+const formats = [
+  { t: 'R', what: 'register, register', ops: 'add sub mul and or xor sll …', ex: 'add t0, t1, t2', word: 0x007302b3,
+    fields: [{ name: 'funct7', hi: 31, lo: 25, color: COLORS.amber }, rs2, rs1, f3, rd, op] },
+  { t: 'I', what: 'register, 12-bit constant', ops: 'addi andi slli ld lw lbu jalr', ex: 'addi t0, t1, -1', word: 0xfff30293,
+    fields: [imm(31, 20), rs1, f3, rd, op] },
+  { t: 'S', what: 'stores', ops: 'sd sw sh sb', ex: 'sd t2, 8(t1)', word: 0x00733423,
+    fields: [imm(31, 25), rs2, rs1, f3, imm(11, 7), op] },
+  { t: 'B', what: 'branches', ops: 'beq bne blt bge bltu bgeu', ex: 'beq t1, t2, +16', word: 0x00730863,
+    fields: [imm(31, 25), rs2, rs1, f3, imm(11, 7), op] },
+  { t: 'U', what: 'upper constant', ops: 'lui auipc', ex: 'lui t0, 244', word: 0x000f42b7,
+    fields: [imm(31, 12), rd, op] },
+  { t: 'J', what: 'jumps', ops: 'jal', ex: 'jal ra, +16', word: 0x010000ef,
+    fields: [imm(31, 12), rd, op] },
+];
+const bit = (w: number, i: number) => (w >>> i) & 1;
+---
+<h2>the 6 instruction formats</h2>
+<p class="muted fmt-lead">every instruction is 32 bits. the opcode (low 7 bits) says which format. rd, rs1, rs2 always sit in the same place; the constant (imm) fills whatever's left</p>
+<div class="fmts">
+  <div class="fmt">
+    <div></div>
+    <div class="grid32 bitnums">{[31, 25, 20, 15, 12, 7, 0].map((i) => <span style={`grid-column: ${32 - i}`}>{i}</span>)}</div>
+  </div>
+  {formats.map((f, k) => (
+    <div class={`fmt ${k ? 'step' : ''}`}>
+      <div class="fmt-name">
+        <span class="fmt-t">{f.t}</span> <span class="fmt-what">{f.what}</span>
+        <div class="fmt-ex"><code>{f.ex}</code> <span class="muted">· {f.ops}</span></div>
+      </div>
+      <div class="grid32">
+        {f.fields.map((fd) => (
+          <div class="fd" style={`grid-column: ${32 - fd.hi} / ${33 - fd.lo}; --fc: ${fd.color}`}>
+            <div class="fd-name">{fd.name}</div>
+            <div class="fd-bits">{Array.from({ length: fd.hi - fd.lo + 1 }, (_, j) => <span>{bit(f.word, fd.hi - j)}</span>)}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  ))}
+</div>
+<p class="muted fmt-foot step">S and B have no rd, so the constant takes that slot too. B and J constants are pc offsets: how far to jump</p>
+<style>
+  .fmt-lead { font-size: .62em; margin: -.6em 0 .5em; }
+  .fmts { display: flex; flex-direction: column; gap: .3em; font-size: .62em; }
+  .fmt { display: grid; grid-template-columns: 20em 1fr; gap: 1.2em; align-items: end; }
+  .fmt-t { font-size: 1.5em; font-weight: 700; }
+  .fmt-ex { font-size: .85em; margin-top: .1em; white-space: nowrap; }
+  .fmt-ex code { background: none; padding: 0; }
+  /* one shared 32-column grid, so a field sits in the same place in every row */
+  .grid32 { display: grid; grid-template-columns: repeat(32, 1fr); column-gap: 0; font-family: var(--mono); }
+  .bitnums { font-size: .6em; color: var(--muted); }
+  .fd { padding: 0 1px; min-width: 0; }
+  .fd-name { font-size: .65em; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; }
+  .fd-bits { display: flex; background: var(--fc); border-radius: 5px; font-size: .8em; }
+  .fd-bits span { flex: 1; text-align: center; padding: .15em 0; }
+  .fmt-foot { font-size: .6em; margin-top: .6em; }
+</style>

@@ -1,0 +1,14 @@
+---
+import LayerNormViz from '../components/LayerNormViz.tsx';
+import { Where } from '../components/Where.tsx';
+import { StepCode } from '../components/viz';
+const SRC = `
+self.input_layernorm = nn.LayerNorm(emb_dim, eps=norm_eps)
+# inside tinygrad's nn.LayerNorm.__call__:
+x = x.layernorm(eps=self.eps)       # (x - mean) / sqrt(var + eps), per token
+return x * self.weight + self.bias  # learned γ, β: (emb_dim,)`;
+---
+<Where at="ln" />
+<h2>layernorm</h2>
+<div data-steps="2"><LayerNormViz client:load /></div>
+<StepCode client:load code={SRC} hl={{ 0: [0], 1: [2], 2: [3] }} />
