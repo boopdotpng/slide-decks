@@ -41,7 +41,8 @@ export function StateTable({ vars, state, changed = [] }: {
   changed?: string[];
 }) {
   return (
-    <table class="state-table">
+    // explicit tbody: the browser inserts one into a bare <table>, and hydration then sees a dom that doesn't match
+    <table class="state-table"><tbody>
       {vars.map((v) => (
         <tr class={changed.includes(v.name) ? 'changed' : ''}>
           <td class={v.reg ? 'tok-reg' : ''}>{v.name}</td>
@@ -49,7 +50,7 @@ export function StateTable({ vars, state, changed = [] }: {
           <td class="muted">{v.note}</td>
         </tr>
       ))}
-    </table>
+    </tbody></table>
   );
 }
 

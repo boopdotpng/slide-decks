@@ -28,7 +28,7 @@ export function Timeline({ rows, units, msPerUnit = 280, title, run = 0, after, 
   afterTitle?: ComponentChildren;
 }) {
   return (
-    <table class="timeline" style={{ '--cell': `${100 / units}%` }}>
+    <table class="timeline" style={{ '--cell': `${100 / units}%` }}><tbody>
       <tr><th></th><th class="tl-h">{title}</th>{after && <th>{afterTitle}</th>}</tr>
       {rows.map((r, i) => (
         <tr>
@@ -53,6 +53,6 @@ export function Timeline({ rows, units, msPerUnit = 280, title, run = 0, after, 
           {after && <td class="tl-after">{after(r, i)}</td>}
         </tr>
       ))}
-    </table>
+    </tbody></table>
   );
 }
