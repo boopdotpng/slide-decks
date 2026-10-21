@@ -116,7 +116,7 @@ export default function CpuBlocks() {
       </svg>
       <div class="caption cb-text">{cur.text}</div>
       <style>{`
-        .cpu-blocks svg.diagram { max-height: 66vh; }
+        .cpu-blocks svg.diagram { max-height: 66cqh; }
         .cpu-blocks .cb-block rect { fill: #141414; stroke: #262626; stroke-width: 2; transition: fill .35s, stroke .35s; }
         .cpu-blocks .cb-block text { fill: var(--fg); transition: opacity .35s; }
         .cpu-blocks .cb-block .sub { fill: var(--muted); }

@@ -66,7 +66,7 @@ export default function Stream() {
       <div class="cap">{CAP[Math.min(step, CAP.length - 1)]}</div>
       <style>{`
         .stm { font-size: .8em; }
-        .stm svg { height: 58vh; max-width: 100%; display: block; overflow: visible; }
+        .stm svg { height: 58cqh; max-width: 100%; display: block; overflow: visible; }
         .stm .tk { font: 22px var(--mono); fill: var(--fg); }
         .stm .tk .sp { fill: var(--muted); }
         .stm .bx { fill: var(--panel); stroke: var(--border); stroke-width: 2; transition: stroke .3s; }

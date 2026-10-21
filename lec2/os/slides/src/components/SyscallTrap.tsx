@@ -105,7 +105,7 @@ export default function SyscallTrap() {
       <style>{`
         /* code size follows the slide's width, so the kernel code always fits its box */
         .sys { container-type: inline-size; }
-        .sys .cols { display: flex; gap: 2.4cqi; align-items: flex-start; font-size: min(1.55cqi, 2.3vh); }
+        .sys .cols { display: flex; gap: 2.4cqi; align-items: flex-start; font-size: min(1.55cqi, 2.3cqh); }
         .sys .col.left { flex: none; display: flex; flex-direction: column; }
         .sys .col.kernel { flex: 1; min-width: 0; }
         .sys pre { margin: 0; font-size: 1em; }

@@ -20,7 +20,9 @@ const formats = [
     fields: [imm(31, 25), rs2, rs1, f3, imm(11, 7), op] },
 ];
 ---
-<h2>instruction formats</h2>
+<header>
+  <h2>instruction formats</h2>
+</header>
 <p class="muted fmt-lead">always 32 bits. opcode, rd, rs1, rs2 never move; the constant gets split around them.</p>
 <div class="fmts">
   {formats.map((f) => (

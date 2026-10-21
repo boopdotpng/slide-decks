@@ -58,8 +58,8 @@ export default function TlbWindow() {
       <style>{`
         .tlb { container-type: inline-size; }
         .tlb-cols { display: flex; gap: 2cqi; align-items: center; }
-        .tlb pre { margin: 0; flex: none; font-size: min(1.5cqi, 2.4vh); }
-        .tlb-chip { flex: 1; min-width: 0; max-height: 62vh; font-family: var(--sans); }
+        .tlb pre { margin: 0; flex: none; font-size: min(1.5cqi, 2.4cqh); }
+        .tlb-chip { flex: 1; min-width: 0; max-height: 62cqh; font-family: var(--sans); }
         .tlb .caption { color: var(--fg); font-size: .75em; min-height: 3em; }
       `}</style>
     </div>

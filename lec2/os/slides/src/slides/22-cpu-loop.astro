@@ -8,8 +8,10 @@ const loop = `
 0x08  bne  t0, x0, 0x04
 0x0c  ecall`;
 ---
-<h2>the cpu loop, for real</h2>
-<p class="muted small">read the instruction at the pc, execute it, pc += 4 (unless it jumps), repeat. every risc-v instruction is 4 bytes</p>
+<header>
+  <h2>the cpu loop, for real</h2>
+  <p class="sub">read the instruction at the pc, execute it, pc += 4 (unless it jumps), repeat. every risc-v instruction is 4 bytes</p>
+</header>
 <div class="cpu-walk">
       <Walkthrough client:load lang="asm" code={loop} auto={900}
         vars={[{ name: 'pc' }, { name: 't0', reg: true }]}

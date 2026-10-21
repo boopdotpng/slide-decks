@@ -12,8 +12,10 @@ const rows = [
   ['instructions', '1 to 15 bytes', 'always 4 bytes', ''],
 ];
 ---
-<h2>now open the bytes: risc-v</h2>
-<p class="muted small">the host is x86 + linux, but the cores on the card run risc-v. same ideas, new names</p>
+<header>
+  <h2>now open the bytes: risc-v</h2>
+  <p class="sub">the host is x86 + linux, but the cores on the card run risc-v. same ideas, new names</p>
+</header>
 <table class="map">
   <tr><th></th><th>so far (x86-64)</th><th>risc-v</th><th></th></tr>
   {rows.map(([what, x86, rv, note]) => (

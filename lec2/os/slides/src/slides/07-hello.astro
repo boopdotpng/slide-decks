@@ -6,7 +6,9 @@ import { Bytes } from '../components/viz';
 const SRC = `write(1, "hello, world\\n", 13);   // 1 = the terminal
 exit(0);`;
 ---
-<h2>hello world</h2>
+<header>
+  <h2>hello world</h2>
+</header>
 <div class="hello">
   <Code lang="c" code={SRC} />
   <Bytes data={'hello, world\n'} addr={0x10120} label="msg" />

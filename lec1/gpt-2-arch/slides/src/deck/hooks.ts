@@ -25,6 +25,13 @@ export function useSlideStep(ref: RefObject<Element>) {
   return step;
 }
 
+/**
+ * Screen px per canvas px. Slides are laid out on a 1600×900 canvas scaled to the window (index.astro), so
+ * getBoundingClientRect / mouse coordinates are screen px: divide by this to get the px the slide is laid out in.
+ * A canvas drawn at its css size × devicePixelRatio should also multiply by it to stay sharp. 1 in ?print.
+ */
+export const deckScale = () => Number(document.documentElement.style.getPropertyValue('--k')) || 1;
+
 /** Whether the slide containing `ref` is the one on screen. */
 export function useSlideActive(ref: RefObject<Element>) {
   const [on, setOn] = useState(false);

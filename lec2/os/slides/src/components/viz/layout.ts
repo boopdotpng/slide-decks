@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import type { RefObject } from 'preact';
+import { deckScale } from '../../deck/hooks';
 
 /**
  * Measure the rendered layout inside an island, e.g. to point an Arrow at HTML
@@ -27,9 +28,9 @@ export function useMeasure<T>(ref: RefObject<HTMLElement>, measure: (root: HTMLE
 }
 
 export type ElBox = { x: number; y: number; w: number; h: number; r: number; b: number; cx: number; cy: number };
-/** `el`'s box in px relative to `root` (left x, top y, right r, bottom b, center cx / cy) */
+/** `el`'s box in (canvas) px relative to `root` (left x, top y, right r, bottom b, center cx / cy) */
 export function box(root: Element, el: Element): ElBox {
-  const o = root.getBoundingClientRect(), q = el.getBoundingClientRect();
-  const x = q.left - o.left, y = q.top - o.top;
-  return { x, y, w: q.width, h: q.height, r: x + q.width, b: y + q.height, cx: x + q.width / 2, cy: y + q.height / 2 };
+  const o = root.getBoundingClientRect(), q = el.getBoundingClientRect(), k = deckScale();
+  const x = (q.left - o.left) / k, y = (q.top - o.top) / k, w = q.width / k, h = q.height / k;
+  return { x, y, w, h, r: x + w, b: y + h, cx: x + w / 2, cy: y + h / 2 };
 }

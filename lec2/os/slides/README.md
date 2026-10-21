@@ -14,7 +14,7 @@ bun dev                                # http://localhost:4321
 ```
 
 Then:
-1. set the title in `src/deck.config.ts` (and `scale`, if the deck is dense: everything is sized from the screen)
+1. set the title in `src/deck.config.ts` (and `scale`, if the deck is dense: it sets the type size)
 2. delete the demo slides in `src/slides/` (and `src/components/demos/`) once you've seen them
 3. write `src/slides/01-whatever.astro`, `02-….astro`, …
 
@@ -59,7 +59,11 @@ comes from `data-title`, else the first h1/h2, else the filename.
 import Code from '../components/Code.tsx';
 import MyThing from '../components/MyThing.tsx';
 ---
-<h2>title</h2>
+<header>                                       <!-- title at the very top, content centered below -->
+  <div class="section">part 2</div>            <!-- optional kicker -->
+  <h2>title</h2>
+  <p class="sub">optional subtitle</p>
+</header>
 <p class="step">revealed on the first →</p>
 <Code lang="c" code={src} hl={[2, 3]} />
 <div data-steps="4"><MyThing client:load /></div>   <!-- island gets 4 more steps -->
@@ -83,8 +87,17 @@ say hi, ask who's written assembly before
 - point at the opcode bits
 ```
 
+Without a `<header>`, the title and content are centered together (good for title slides and short lists).
+
+Every slide is laid out on a 1600×900 canvas that's scaled to fit the window: on a big screen everything
+(text, islands, px sizes) gets bigger together, in a small window smaller, and nothing is ever cut off. A window
+that isn't 16:9 extends the canvas the long way rather than letterboxing. So size things in px or em, and use
+`cqw` / `cqh` (% of the slide) instead of `vw` / `vh` (% of the window). If a slide's content doesn't fit in 1600×900,
+`bun run shot` says OVERFLOW. Islands measuring the DOM get screen px from `getBoundingClientRect`: `box()` already
+converts, otherwise divide by `deckScale()` (`deck/hooks.ts`).
+
 Classes in `styles/deck.css`: `step`, `cols`, `small`, `muted`, `accent`,
-`center`, `full`, `caption`, `fade` + `on`, `notes`. Theme colors and fonts are
+`center`, `full`, `fill`, `sub`, `caption`, `fade` + `on`, `notes` (and `section`, the kicker, in `viz.css`). Theme colors and fonts are
 the variables at the top of that file.
 
 ## islands

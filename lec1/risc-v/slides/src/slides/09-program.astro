@@ -5,7 +5,9 @@ import src from '../../../sum.s?raw';
 // the file minus its header comment (what you'd type live)
 const code = src.slice(src.indexOf('    .data'));
 ---
-<h2>our program: add up 8 numbers</h2>
+<header>
+  <h2>our program: add up 8 numbers</h2>
+</header>
 <div class="prog">
   <StepCode client:load lang="asm" code={code} class="prog-code"
     hl={{ 1: [0, 1, 2, 3, 4], 2: [6, 7, 8], 3: [9, 10, 11], 4: [12, 13, 14, 15, 16, 17], 5: [19, 20, 21], 6: [23, 24, 25] }} />

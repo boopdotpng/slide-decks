@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useEffect, useRef } from 'preact/hooks';
 import * as THREE from 'three';
-import { useSlideActive, useSlideStep } from '../deck/hooks';
+import { deckScale, useSlideActive, useSlideStep } from '../deck/hooks';
 import { Tok, diverging, sequential, useData } from './viz';
 import { headColor } from './common';
 
@@ -183,7 +183,6 @@ function mapTexture(m: number[][], color: (v: number, r: number, c: number) => s
 
 function build(el: HTMLElement, labelEls: HTMLElement[], labelDefs: Label[], d: any, print: boolean) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: print });
-  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   el.prepend(renderer.domElement);
   const scene = new THREE.Scene();
@@ -262,6 +261,8 @@ function build(el: HTMLElement, labelEls: HTMLElement[], labelDefs: Label[], d: 
   }
   function render() {
     const { clientWidth: w, clientHeight: h } = el;
+    // the slide is scaled to the window, so draw at the on-screen size to stay sharp
+    renderer.setPixelRatio(Math.min(3, window.devicePixelRatio * deckScale()));
     renderer.setSize(w, h, true);
     frameCamera();
     renderer.render(scene, camera);
@@ -275,6 +276,8 @@ function build(el: HTMLElement, labelEls: HTMLElement[], labelDefs: Label[], d: 
   };
   const ro = new ResizeObserver(() => (dirty = true));
   ro.observe(el);
+  const onResize = () => (dirty = true); // window resizes change deckScale, not el's size
+  addEventListener('resize', onResize);
 
   return {
     go(s: number, snap: boolean) {
@@ -288,6 +291,7 @@ function build(el: HTMLElement, labelEls: HTMLElement[], labelDefs: Label[], d: 
     dispose() {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      removeEventListener('resize', onResize);
       disposables.forEach((x) => x.dispose());
       renderer.forceContextLoss();
       renderer.domElement.remove();

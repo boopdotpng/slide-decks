@@ -68,7 +68,7 @@ export default function ElfFile() {
       </div>
       <div class="caption ef-cap">{cur.text}</div>
       <style>{`
-        .elf-file .ef-cols { display: flex; gap: 1.5em; align-items: stretch; height: 52vh; }
+        .elf-file .ef-cols { display: flex; gap: 1.5em; align-items: stretch; height: 52cqh; }
         .elf-file .ef-col { flex: 1; display: flex; flex-direction: column; gap: .25em; font-size: .6em; min-width: 0; }
         .elf-file .ef-t { margin-bottom: .2em; }
         .elf-file .ef-box { border-radius: 6px; padding: .35em .7em; display: flex; flex-wrap: wrap; align-items: baseline;

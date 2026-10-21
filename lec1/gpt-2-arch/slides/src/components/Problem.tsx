@@ -33,6 +33,7 @@ export default function Problem() {
       <style>{`
         .pb { font-size: .8em; }
         .pb .cols { display: flex; gap: 1.2em; align-items: flex-end; }
+        .pb .cols > * { flex: none; }
         .pb .c { display: flex; flex-direction: column; align-items: center; gap: .4em; padding: .4em; border-radius: 8px;
           border: 2px solid transparent; transition: border-color .3s; }
         .pb .c .t { font-size: .9em; }

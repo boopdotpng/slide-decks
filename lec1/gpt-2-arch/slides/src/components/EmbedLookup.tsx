@@ -73,7 +73,7 @@ export default function EmbedLookup() {
       <style>{`
         .el { position: relative; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; gap: .6em 6em; font-size: .8em; }
         .el .table { grid-row: 1 / 3; display: flex; flex-direction: column; align-items: center; gap: .3em; }
-        .el .mat { position: relative; width: 120px; height: 52vh; border-radius: 6px 6px 0 0;
+        .el .mat { position: relative; width: 120px; height: 52cqh; border-radius: 6px 6px 0 0;
           background: linear-gradient(90deg, #1b1b1b, #242424, #1b1b1b); border: 1px solid var(--border); border-bottom: 0;
           mask-image: linear-gradient(to bottom, #000 92%, transparent); }
         .el .mark { position: absolute; left: -4px; right: -4px; height: 3px; background: var(--accent);

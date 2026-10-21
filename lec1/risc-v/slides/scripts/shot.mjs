@@ -6,7 +6,8 @@
  *   bun run shot 14-stack.3               # by file name (numbers shift as slides are added)
  *   bun run shot --url http://localhost:4400/ --out /tmp/x --wait 2000 3.1
  *
- * Each shot loads the page fresh at #N.K, waits --wait ms for animations, then saves --width × --height (default 1600×900).
+ * Each shot loads the page fresh at #N.K, waits --wait ms for animations, then saves --width × --height (default 1600×900),
+ * and says OVERFLOW if the slide's content doesn't fit on the canvas (it'd be cut off at any window size).
  * Uses Google Chrome if it's installed, else $CHROME, else the distro's chromium (Fedora / Debian names).
  */
 import { chromium } from 'playwright-core';
@@ -52,7 +53,13 @@ for (const arg of positionals) {
   await page.waitForTimeout(Number(opt.wait));
   const file = `${opt.out}/${arg}.png`;
   await page.screenshot({ path: file });
-  console.log(file, errors.length ? `ERRORS: ${errors.join(' | ')}` : '');
+  // content past the canvas edge is cut off at every window size
+  const over = await page.evaluate(() => {
+    const s = document.querySelector('.slide.active');
+    const dx = s.scrollWidth - s.clientWidth, dy = s.scrollHeight - s.clientHeight;
+    return dx > 1 || dy > 1 ? `OVERFLOW: ${Math.max(0, dx)}px wide, ${Math.max(0, dy)}px tall` : '';
+  });
+  console.log(file, [over, errors.length ? `ERRORS: ${errors.join(' | ')}` : ''].filter(Boolean).join(' '));
   await page.close();
 }
 await browser.close();

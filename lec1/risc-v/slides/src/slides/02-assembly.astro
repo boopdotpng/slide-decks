@@ -6,7 +6,9 @@ import asm from '../asm/add.s?raw';
 // real bytes: clang --target=riscv64 -O1, then llvm-objdump (add = 0x00a58533, ret = 0x00008067)
 const BYTES = [['33 85 a5 00', 'add  a0, a1, a0'], ['67 80 00 00', 'ret']];
 ---
-<h2>what is assembly?</h2>
+<header>
+  <h2>what is assembly?</h2>
+</header>
 <div class="asm-chain">
   <div>
     <div class="muted ac-t">what you write</div>

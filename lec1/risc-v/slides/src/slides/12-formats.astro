@@ -26,7 +26,9 @@ const formats = [
 ];
 const bit = (w: number, i: number) => (w >>> i) & 1;
 ---
-<h2>every instruction fits one of 6 shapes</h2>
+<header>
+  <h2>every instruction fits one of 6 shapes</h2>
+</header>
 <p class="muted fmt-lead">the opcode (low 7 bits) says which shape. rd, rs1, rs2 are always in the same place, so the cpu can read them before it knows the rest. a constant (imm) fills whatever's left</p>
 <div class="fmts">
   <div class="fmt">

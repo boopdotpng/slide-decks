@@ -15,7 +15,9 @@ const rows = [
   ['shorthands', 'li mv j call ret nop', 'the assembler expands these'],
 ];
 ---
-<h2>rv64im: the instruction list</h2>
+<header>
+  <h2>rv64im: the instruction list</h2>
+</header>
 <table class="ilist">
   {rows.map(([group, ops, what]) => (
     <tr><td>{group}</td><td class="tok-kw">{ops}</td><td>{what}</td></tr>

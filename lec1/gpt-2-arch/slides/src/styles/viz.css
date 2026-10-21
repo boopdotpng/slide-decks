@@ -109,7 +109,7 @@
 .state-table tr.changed td { background: var(--hl); }
 
 /* ── Svg.tsx ───────────────────────────────────────────────────────────────── */
-svg.diagram { width: 100%; max-height: 62vh; display: block; font-family: var(--sans); }
+svg.diagram { width: 100%; max-height: 62cqh; display: block; font-family: var(--sans); }
 .arrow { opacity: 0; }
 .arrow.on { opacity: 1; }
 .arrow path { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .5s ease-out; }

@@ -24,12 +24,30 @@ const notes = readNotes(process.cwd(), slides.map((s) => s.name.replace(/\.\w+$/
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{title}</title>
+  <!-- every slide is laid out on a W×H canvas (1600×900, the print / shot size) that's scaled to fit the window, so
+       a slide looks the same at every size: as big as the screen allows, never cut off. A window that isn't 16:9
+       extends the canvas the long way instead of letterboxing. --k is the scale; inline so the first paint is right -->
+  <script is:inline>
+    (() => {
+      const W = 1600, H = 900, r = document.documentElement.style;
+      const fit = () => {
+        const k = Math.min(innerWidth / W, innerHeight / H);
+        r.setProperty('--k', k);
+        r.setProperty('--stage-w', `${innerWidth / k}px`);
+        r.setProperty('--stage-h', `${innerHeight / k}px`);
+      };
+      fit();
+      addEventListener('resize', fit);
+    })();
+  </script>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%2360a5fa'/></svg>">
 </head>
 <body>
-  {slides.map(({ name, Slide }) => (
-    <section class="slide" data-file={name}><Slide /></section>
-  ))}
+  <div id="stage">
+    {slides.map(({ name, Slide }) => (
+      <section class="slide" data-file={name}><Slide /></section>
+    ))}
+  </div>
   <script type="application/json" id="deck-notes" set:html={JSON.stringify(Object.fromEntries(notes)).replace(/</g, '\\u003c')} />
 
   <div id="nav">

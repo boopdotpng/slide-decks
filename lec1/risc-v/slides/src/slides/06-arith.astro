@@ -8,7 +8,9 @@ addi t0, t0, 8        # t0 = t0 + 8
 addi t1, t1, -1       # t1 = t1 - 1
 li   t2, 0            # t2 = 0 (really: addi t2, zero, 0)`;
 ---
-<h2>arithmetic</h2>
+<header>
+  <h2>arithmetic</h2>
+</header>
 <div data-steps="4" class="arith-walk">
   <Walkthrough client:load lang="asm" code={code}
     vars={[{ name: 't0', reg: true }, { name: 't1', reg: true }, { name: 't2', reg: true }, { name: 't3', reg: true }]}

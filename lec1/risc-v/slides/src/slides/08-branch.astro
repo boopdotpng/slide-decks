@@ -8,7 +8,9 @@ const code = `
 0x08        bne  t1, zero, loop
 0x0c        ebreak`;
 ---
-<h2>branches: jumping</h2>
+<header>
+  <h2>branches: jumping</h2>
+</header>
 <div data-steps="8" class="br-walk">
   <Walkthrough client:load lang="asm" code={code}
     vars={[{ name: 'pc' }, { name: 't1', reg: true }]}
