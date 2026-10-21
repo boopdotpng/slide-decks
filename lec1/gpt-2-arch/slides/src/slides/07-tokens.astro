@@ -1,6 +1,13 @@
 ---
 import Tokenize from '../components/Tokenize.tsx';
+import Bpe from '../components/Bpe.tsx';
 ---
 <div class="section">gpt-2 · the strip</div>
 <h2>text → tokens</h2>
-<div data-steps="3"><Tokenize client:load /></div>
+<div class="tok-cols">
+  <div data-steps="3"><Tokenize client:load /></div>
+  <div data-steps="12"><Bpe from={4} client:load /></div>
+</div>
+<style>
+  .tok-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 3em; align-items: start; }
+</style>
