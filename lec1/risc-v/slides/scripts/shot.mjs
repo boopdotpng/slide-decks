@@ -7,9 +7,11 @@
  *   bun run shot --url http://localhost:4400/ --out /tmp/x --wait 2000 3.1
  *
  * Each shot loads the page fresh at #N.K, waits --wait ms for animations, then saves --width × --height (default 1600×900).
+ * Uses Google Chrome if it's installed, else $CHROME, else the distro's chromium (Fedora / Debian names).
  */
 import { chromium } from 'playwright-core';
 import { mkdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 
 const { values: opt, positionals } = parseArgs({
@@ -23,7 +25,11 @@ const { values: opt, positionals } = parseArgs({
   },
 });
 await mkdir(opt.out, { recursive: true });
-const browser = await chromium.launch({ channel: 'chrome' });
+const exe = [process.env.CHROME, '/usr/bin/chromium-browser', '/usr/bin/chromium'].find((p) => p && existsSync(p));
+const browser = await chromium.launch({ channel: 'chrome' }).catch((e) => {
+  if (!exe) throw e;
+  return chromium.launch({ executablePath: exe });
+});
 const ctx = await browser.newContext({ viewport: { width: Number(opt.width), height: Number(opt.height) } });
 // file names -> slide numbers, from the page itself
 const files = await (async () => {

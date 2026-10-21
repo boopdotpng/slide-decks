@@ -21,6 +21,9 @@ export function Tok({ t, class: cls = '' }: { t: string; class?: string }) {
   );
 }
 
+/** a token in a chip (.chip: .on to highlight, .dim to fade) */
+export const Chip = ({ t, class: cls = '' }: { t: string; class?: string }) => <span class={`chip ${cls}`}><Tok t={t} /></span>;
+
 /** "(1, 14, 768)" with optional dim names underneath; hl dims are colored */
 export function Shape({ dims, names, hl = [] }: { dims: (number | string)[]; names?: string[]; hl?: number[] }) {
   return (
@@ -125,6 +128,51 @@ export function HeatCanvas({ data, color, size, w, h, tipFn }: {
   };
   return <canvas ref={ref} class="heatcanvas" style={{ width: `${w ?? size}px`, height: `${h ?? size}px` }}
     onMouseMove={onMove} onMouseLeave={() => tip(null)} />;
+}
+
+/**
+ * A big matrix shipped as one byte per cell, so a 768 × 2304 weight is ~2 MB of json instead of ~20. Export it with
+ *
+ *   def q8(x, scale):  # tanh(v / scale) -> 0..255, 128 = 0
+ *     t = np.tanh(np.asarray(x, dtype=np.float64) / scale)
+ *     return {"b64": base64.b64encode(np.round((t + 1) / 2 * 255).astype(np.uint8).tobytes()).decode(),
+ *             "shape": list(np.shape(x)), "scale": float(scale)}
+ *
+ * and draw it with <ByteHeat m={d.W} w={300} h={400} />: same diverging colors as Strip / Heatmap. Overlays (a
+ * highlighted column, labels) go in `children`, positioned over the canvas in % (the wrapper is position: relative).
+ */
+export type Bytes8 = { b64: string; shape: [number, number]; scale: number };
+const b8cache = new WeakMap<Bytes8, Uint8Array>();
+export function bytes8(m: Bytes8) {
+  let b = b8cache.get(m);
+  if (!b) b8cache.set(m, (b = Uint8Array.from(atob(m.b64), (c) => c.charCodeAt(0))));
+  return b;
+}
+/** the value of cell (r, c), back in the matrix's units (lossy: tanh-squashed to 256 levels) */
+export const at8 = (m: Bytes8, r: number, c: number) => m.scale * Math.atanh(Math.max(-0.999, Math.min(0.999, bytes8(m)[r * m.shape[1] + c] / 127.5 - 1)));
+export function ByteHeat({ m, w, h, transpose = false, children, class: cls = '' }: {
+  m: Bytes8; w: number | string; h: number | string; transpose?: boolean; children?: ComponentChildren; class?: string;
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const c = ref.current!, b = bytes8(m), [R, C] = m.shape;
+    c.width = transpose ? R : C; c.height = transpose ? C : R;
+    const ctx = c.getContext('2d')!, img = ctx.createImageData(c.width, c.height);
+    // the bytes already hold tanh(v / scale); undo the tanh so diverging() lands on the same color as Strip with that scale
+    const lut = Array.from({ length: 256 }, (_, v) => diverging(Math.atanh(Math.max(-0.999, Math.min(0.999, v / 127.5 - 1))), 1).match(/\d+/g)!.map(Number));
+    for (let r = 0; r < R; r++) for (let k = 0; k < C; k++) {
+      const [x, y] = transpose ? [r, k] : [k, r];
+      img.data.set([...lut[b[r * C + k]], 255], (y * c.width + x) * 4);
+    }
+    ctx.putImageData(img, 0, 0);
+  }, [m, transpose]);
+  const px = (v: number | string) => (typeof v === 'number' ? `${v}px` : v);
+  return (
+    <div class={`byteheat ${cls}`} style={{ width: px(w), height: px(h) }}>
+      <canvas ref={ref} />
+      {children}
+    </div>
+  );
 }
 
 // ── horizontal bars with labels ──────────────────────────────────────────────

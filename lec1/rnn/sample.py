@@ -3,8 +3,8 @@
 #   python sample.py "ROMEO:"
 #   python sample.py "ROMEO:" -n 400 --temp 0.8
 import argparse
-from tinygrad import Tensor
-from tinygrad.nn.state import load_state_dict, safe_load
+import torch
+from safetensors.torch import load_file
 from train import RNN, H, HERE, encode, decode
 
 p = argparse.ArgumentParser()
@@ -14,20 +14,20 @@ p.add_argument("--temp", type=float, default=0.8)   # < 1: safer picks. > 1: wil
 p.add_argument("--seed", type=int, default=0)
 args = p.parse_args()
 
-Tensor.manual_seed(args.seed)
+torch.manual_seed(args.seed)
 model = RNN()
-load_state_dict(model, safe_load(f"{HERE}/rnn.safetensors"), verbose=False)
+model.load_state_dict(load_file(f"{HERE}/rnn.safetensors"))
 
-# read the prompt: the only thing carried forward is h
-h = Tensor.zeros(1, H)
-for c in encode(args.prompt):
-  h, logits = model.step(Tensor([c]), h)
+with torch.no_grad():
+  # read the prompt: the only thing carried forward is h
+  h = torch.zeros(1, H)
+  for c in encode(args.prompt):
+    h, logits = model.step(torch.tensor([c]), h)
 
-# write: sample a character, feed it back in, repeat
-print(args.prompt, end="", flush=True)
-for _ in range(args.n):
-  c = (logits / args.temp).softmax(-1).multinomial().item()
-  print(decode([c]), end="", flush=True)
-  h, logits = model.step(Tensor([c]), h)
-  h = h.realize()
+  # write: sample a character, feed it back in, repeat
+  print(args.prompt, end="", flush=True)
+  for _ in range(args.n):
+    c = torch.multinomial((logits / args.temp).softmax(-1), 1).item()
+    print(decode([c]), end="", flush=True)
+    h, logits = model.step(torch.tensor([c]), h)
 print()

@@ -15,7 +15,7 @@ Astro + Preact. `bun dev`, `bun run build`, `bun run check`, `bun run record` (m
 - Formulas: `components/Math.astro` (KaTeX, build time). Reuse `components/viz` before writing new marks or animations; if a new animation looks reusable, add it there (props-driven, styles in `styles/viz.css`) rather than inline in a deck-specific island.
 - Island-specific styles go in a `<style>` inside the island, scoped by its root class.
 - Colors: CSS vars in `styles/deck.css` (`--accent`, `--muted`, …) and `COLORS` in `viz/color.ts`. Code font is `var(--mono)` (Paper Mono).
-- Real numbers over made-up ones: export json into `public/data/` with a script and load it with `useData`.
+- Real numbers over made-up ones: export json into `public/data/` with a script and load it with `useData` (or `useIsland`, which also gives the root ref and step). Big matrices: one byte per cell, drawn with `ByteHeat` (see marks.tsx for the export helper).
 - Speaker notes: a `# <file name>` section in `src/slides/notes.md` (markdown; the presenter window edits it under `bun dev` via `deck/notes-server.ts`), or `<aside class="notes">` in the slide.
 - Lowercase, terse slide text.
 

@@ -1,7 +1,5 @@
 /** @jsxImportSource preact */
-import { useRef } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { Tok, useData } from './viz';
+import { Tok, useIsland } from './viz';
 
 /**
  * Generation as a loop: the sequence goes in, one token comes out and is appended. Real greedy steps.
@@ -10,9 +8,7 @@ import { Tok, useData } from './viz';
  * Each press reveals the next step.
  */
 export default function GenLoop({ split = false }: { split?: boolean }) {
-  const root = useRef<HTMLDivElement>(null);
-  const step = useSlideStep(root);
-  const d = useData('loop');
+  const { root, step, d } = useIsland('loop');
   if (!d) return <div ref={root} />;
   const toks: string[] = d.toks;
   const steps: { n: number; next: string }[] = d.steps;
@@ -23,7 +19,7 @@ export default function GenLoop({ split = false }: { split?: boolean }) {
         const decode = split && i > 0;
         return (
           <div class={`row ${step >= i ? 'on' : ''}`}>
-            {split ? <span class={`kind ${decode ? 'muted' : 'accent'}`}>{decode ? 'decode' : 'prefill'}</span> : <span />}
+            {split ? <span class={`kind ${decode ? 'muted' : 'accent'}`}>{decode ? 'one new token' : 'whole prompt'}</span> : <span />}
             <span class="seq">
               <span class={`old ${decode ? 'cached' : ''}`}>
                 {toks.slice(0, decode ? s.n - 1 : s.n).map((t, j) => <span class={`chip ${!split && i > 0 && j >= steps[0].n ? 'added' : ''}`}><Tok t={t} /></span>)}
@@ -37,11 +33,11 @@ export default function GenLoop({ split = false }: { split?: boolean }) {
       })}
       <div class={`cap muted fade ${step >= steps.length - 1 ? 'on' : ''}`}>
         {split
-          ? <>same tokens out. prefill puts the prompt's k, v in the cache; each decode step feeds in one token and adds one row</>
+          ? <>same answer. the prompt goes in all at once, then each new token goes in alone and reads the cache</>
           : <>every step: the whole sequence in, one token out, append it, repeat</>}
       </div>
       <style>{`
-        .gl { display: grid; grid-template-columns: auto auto auto auto; justify-content: start; gap: .7em .8em; align-items: center; font-size: .56em; }
+        .gl { display: grid; grid-template-columns: auto auto auto auto; justify-content: start; gap: .7em .8em; align-items: center; font-size: .75em; }
         .gl .row { display: contents; }
         .gl .row > * { opacity: 0; transition: opacity .35s; }
         .gl .row.on > * { opacity: 1; }

@@ -92,6 +92,7 @@ the variables at the top of that file.
 Copy `src/components/TemplateIsland.tsx`. Hooks (`src/deck/hooks.ts`):
 
 - `useSlideStep(ref)`: current step, for step-driven animation. Render purely from it.
+- `useIsland(name)` (viz): `{ root, step, d }`: a root ref, the step, and `public/data/<name>.json`, the usual start of a data-driven island.
 - `useSlideActive(ref)`: is this slide on screen
 - `useFrame(ref, ms => …)`: per-frame callback while on screen, ms since entering
 - `useTicker(ref, ms)`: a counter that runs by itself while on screen
@@ -109,7 +110,7 @@ Copy `src/components/TemplateIsland.tsx`. Hooks (`src/deck/hooks.ts`):
   - `Terminal`: types out new output
   - `StepCode`: `Code` whose highlighted lines follow the slide step (`hl={{ 1: [0], 2: [1] }}`), to show the real code beside an island
   - `ZoomStage`, `ZoomView`, `nest`: a picture you zoom into, views nested in views (put it in a `.fill`)
-  - `Strip`, `Heatmap`, `HeatCanvas`, `Bars`, `Shape`, `Tok`, `Crumbs`: data marks
+  - `Strip`, `Heatmap`, `HeatCanvas`, `ByteHeat` (big matrices, 1 byte per cell), `Bars`, `Shape`, `Tok`, `Chip`, `Crumbs`: data marks
   - `useMeasure`, `box`: measure rendered HTML inside an island (to point Arrows at it, box cells)
   - `diverging`, `sequential`, `COLORS`, `useData('name')` (loads `public/data/name.json`), `tip`
 

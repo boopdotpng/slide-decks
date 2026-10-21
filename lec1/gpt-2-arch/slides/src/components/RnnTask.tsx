@@ -1,7 +1,5 @@
 /** @jsxImportSource preact */
-import { useRef } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { Bars, useData } from './viz';
+import { Bars, useIsland } from './viz';
 import { Ch, CH_CSS } from './RnnCommon';
 
 /**
@@ -9,9 +7,7 @@ import { Ch, CH_CSS } from './RnnCommon';
  * One context per step, real outputs of the trained rnn (rnn/export.py).
  */
 export default function RnnTask() {
-  const root = useRef<HTMLDivElement>(null);
-  const step = useSlideStep(root);
-  const d = useData<{ ctx: string; top: [string, number][] }[]>('rnn_task');
+  const { root, step, d } = useIsland<{ ctx: string; top: [string, number][] }[]>('rnn_task');
   if (!d) return <div ref={root} />;
   const at = Math.min(step, d.length - 1);
   const cur = d[at];

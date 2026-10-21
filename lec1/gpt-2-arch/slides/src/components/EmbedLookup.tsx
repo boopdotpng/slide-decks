@@ -1,15 +1,15 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import { useSlideStep } from '../deck/hooks';
-import { Arrow, Shape, Strip, Tok, box, useData, useMeasure } from './viz';
+import { Arrow, Strip, Tok, box, useData, useMeasure } from './viz';
 
 /**
  * wte is a lookup table: token id -> row. Steps:
  *  1. the table, with this prompt's rows marked (common words have small ids)
- *  2. the rows come out, one per token: (S, 768), an arrow from each mark to its row
+ *  2. the rows come out, one per token, an arrow from each mark to its row
  *  3. zoom on one row: a token is just 768 numbers
  */
-const SUB = 6000; // every id in the prompt is < 6000 (' Mary' = 5335), so only draw these rows of the 50257
+const SUB = 2000; // every id in the prompt is < 2000 (' States' = 1829), so only draw these rows of the 50257
 
 // where the marks and rows sit, measured from the layout, for the arrows
 type Geo = { x0: number; top: number; h: number; rows: [number, number][] };
@@ -31,37 +31,32 @@ export default function EmbedLookup() {
   }, [d]);
 
   if (!d) return <div ref={root} />;
-  const S = d.ids.length;
   const scale = 0.25;
   const markY = (id: number) => (id / SUB) * 100;
 
   return (
     <div class="el" ref={root}>
       <div class="table">
-        <div class="lbl">wte · rows 0 … {SUB - 1}</div>
+        <div class="lbl">a table: one row per token</div>
         <div class="mat" ref={mat}>
           {d.ids.map((id: number, i: number) => (
             <div class={`mark ${step >= 1 ? 'on' : ''}`} style={{ top: `${markY(id)}%`, transitionDelay: `${i * 50}ms` }} />
           ))}
         </div>
-        <Shape dims={[50257, 768]} names={['V', 'D']} />
-        <div class="lbl">a subset: {SUB.toLocaleString()} of 50,257 rows</div>
+        <div class="lbl">(the first {SUB.toLocaleString()} of 50,257 rows)</div>
       </div>
 
       <div class={`rows fade ${step >= 2 ? 'on' : ''}`} ref={rowsEl}>
         {d.tok_emb.map((v: number[], i: number) => (
           <div class={`r ${step >= 3 && i !== 1 ? 'dim' : ''}`} style={{ transitionDelay: `${i * 50}ms` }}>
             <span class="t"><Tok t={d.toks[i]} /></span>
-            <Strip values={v} scale={scale} height={step >= 3 && i === 1 ? 40 : 16} label={d.toks[i]} />
+            <Strip values={v} scale={scale} height={step >= 3 && i === 1 ? 70 : 34} label={d.toks[i]} />
           </div>
         ))}
-        <div class="foot">
-          tok_emb <Shape dims={[S, 768]} names={['S', 'D']} />
-        </div>
       </div>
 
       <div class={`zoom fade ${step >= 3 ? 'on' : ''}`}>
-        <Tok t={d.toks[1]} /> = [{d.tok_emb[1].slice(0, 6).map((x: number) => x.toFixed(3)).join(', ')}, … ] <span class="muted">768 numbers</span>
+        <Tok t={d.toks[1]} /> is now just <b>768 numbers</b>, learned in training <span class="muted">· red = positive, blue = negative</span>
       </div>
 
       {geo && geo.h > 0 && (
@@ -84,13 +79,13 @@ export default function EmbedLookup() {
         .el .mark { position: absolute; left: -4px; right: -4px; height: 3px; background: var(--accent);
           opacity: 0; transform: scaleX(.3); transition: opacity .3s, transform .4s; }
         .el .mark.on { opacity: 1; transform: none; }
-        .el .rows { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .el .rows { display: flex; flex-direction: column; gap: 10px; min-width: 0; justify-content: center; }
         .el .r { display: grid; grid-template-columns: 6em 1fr; align-items: center; gap: .6em; transition: opacity .4s; }
         .el .r.dim { opacity: .2; }
         .el .r .strip { transition: height .4s; }
-        .el .r .t { font-size: .75em; text-align: right; }
+        .el .r .t { font-size: .9em; text-align: right; }
         .el .foot { margin-top: .5em; font-size: .8em; }
-        .el .zoom { font-family: var(--mono); font-size: .8em; }
+        .el .zoom { font-size: .8em; }
         .el .arrows { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
         .el .arrows g { transition: opacity .4s; }
         .el .arrows g.dim { opacity: .15; }

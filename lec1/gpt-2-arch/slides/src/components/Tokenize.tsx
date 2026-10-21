@@ -1,13 +1,9 @@
 /** @jsxImportSource preact */
-import { useRef } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { COLORS, Shape, Tok, useData } from './viz';
+import { COLORS, Tok, useIsland } from './viz';
 
 /** text -> token chips (step 1) -> token ids (step 2) -> tokens aren't words or letters: rarer words split (step 3). */
 export default function Tokenize() {
-  const root = useRef<HTMLDivElement>(null);
-  const step = useSlideStep(root);
-  const d = useData('embed');
+  const { root, step, d } = useIsland('embed');
   if (!d) return <div ref={root} />;
 
   return (
@@ -21,12 +17,9 @@ export default function Tokenize() {
           </div>
         ))}
       </div>
-      <div class={`fade ${step >= 2 ? 'on' : ''} foot`}>
-        tokens <Shape dims={[d.ids.length]} names={['S']} />
-        <span class="muted small"> · vocab = 50,257</span>
-      </div>
+      <div class={`fade ${step >= 2 ? 'on' : ''} foot muted`}>every token is a number from a list of 50,257</div>
       <div class={`fade ${step >= 3 ? 'on' : ''} splits`}>
-        <div class="lbl muted">not words, not letters: somewhere in between. common words are one token, rarer ones split into pieces</div>
+        <div class="lbl muted">common words are one token. rarer ones split into pieces</div>
         {d.splits.map((w: { word: string; toks: string[]; ids: number[] }) => (
           <div class="split">
             <span class="w">"{w.word.trim()}"</span><span class="muted">→</span>
@@ -37,12 +30,12 @@ export default function Tokenize() {
       <style>{`
         .tkz .text { font-size: 1em; transition: opacity .4s, transform .4s; margin-bottom: .6em; }
         .tkz .text.gone { opacity: .25; transform: translateY(-4px); }
-        .tkz .chips { display: flex; flex-wrap: wrap; gap: .4em; font-size: .8em; }
+        .tkz .chips { display: flex; flex-wrap: wrap; gap: .5em; font-size: 1.1em; }
         .tkz .col { display: flex; flex-direction: column; align-items: center; gap: .2em;
           opacity: 0; transform: translateY(10px); transition: opacity .35s, transform .35s; }
         .tkz .chips.on .col { opacity: 1; transform: none; }
         .tkz .id { font-family: var(--mono); font-size: .7em; color: ${COLORS.hot}; }
-        .tkz .foot { margin-top: 1.2em; }
+        .tkz .foot { margin-top: 1.2em; font-size: .7em; }
         .tkz .splits { margin-top: 1.4em; display: flex; flex-direction: column; gap: .5em; font-size: .8em; }
         .tkz .splits .lbl { font-size: .75em; }
         .tkz .split { display: flex; align-items: flex-start; gap: .5em; }

@@ -1,3 +1,7 @@
+/* text font: Inter (OFL, public/fonts/Inter-OFL.txt), served locally so linux / windows don't fall back to an arial
+   clone. macs still use the system font (-apple-system comes first in --sans) */
+@font-face { font-family: 'Inter'; src: url('/fonts/Inter.woff2') format('woff2');
+  font-weight: 100 900; font-style: normal; font-display: block; }
 /* code font: Paper Mono (OFL, public/fonts/PaperMono-OFL.txt), served locally */
 @font-face { font-family: 'Paper Mono'; src: url('/fonts/PaperMono.woff2') format('woff2');
   font-weight: 100 900; font-style: normal; font-display: block; }
@@ -5,7 +9,7 @@
 /* theme: change these per deck */
 :root { --bg:#0a0a0a; --fg:#e5e5e5; --muted:#8a8a8a; --accent:#60a5fa; --code:#171717;
   --hl: rgba(96, 165, 250, .16); --panel:#141414; --border:#262626;
-  --sans: -apple-system, 'Segoe UI', Inter, Helvetica, Arial, sans-serif;
+  --sans: -apple-system, Inter, 'Segoe UI', Helvetica, Arial, sans-serif;
   --mono: 'Paper Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   /* slide padding; fixed px in print mode */
   --pad-y: 4vh; --pad-x: 4.5vw; --inset-y: 2vh; --inset-x: 2vw;

@@ -8,7 +8,7 @@ import { range } from './viz';
  *   0 rnn: the last character reaches the first only through 18 hand-offs of h
  *   1 attention: the last character looks straight at every earlier one
  *   2 every position does that, all at once
- *   3 → gpt-2
+ *   3 → gpt-2: the strips become the residual stream
  */
 const TEXT = 'To be, or not to be';
 const W = 1400, X0 = 60, DX = (W - 2 * X0) / (TEXT.length - 1), Y = 440;
@@ -18,10 +18,10 @@ const arc = (i: number, j: number) => {
   return `M ${x(i)} ${Y - 34} C ${x(i)} ${Y - 34 - h}, ${x(j)} ${Y - 34 - h}, ${x(j)} ${Y - 34}`;
 };
 const CAPS = [
-  <>rnn: the last character only hears about <b class="o">T</b> through 18 hand-offs of h, each one squeezing and overwriting</>,
-  <>attention: the last character looks <b>straight at</b> every earlier one, and picks what it needs</>,
+  <>rnn: one strip of memory. <b class="o">T</b> only reaches the end through 18 rewrites of it</>,
+  <>instead: keep every character's strip. the newest one <b>looks straight back</b> and picks what it needs</>,
   <>every position does this, all at the same time. nothing is handed along, nothing has to wait</>,
-  <>that's gpt-2: tokens instead of characters, and this look-back stacked 12 layers deep</>,
+  <>that's gpt-2. one strip per token, never overwritten, only <b>added to</b></>,
 ];
 export default function RnnToAttn() {
   const root = useRef<HTMLDivElement>(null);

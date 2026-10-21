@@ -5,11 +5,11 @@ lecture decks, each an astro project made from the template at **[boopdotpng/sli
 | dir | what |
 |---|---|
 | `lec1/risc-v` | assembly and the cpu |
-| `lec1/gpt-2-arch` | rnn → gpt-2 architecture, with real weights |
-| `lec1/rnn` | char rnn on tiny shakespeare, tinygrad (no slides; the rnn slides are in `gpt-2-arch`) |
+| `lec1/gpt-2-arch` | rnn → gpt-2 for beginners: one 4-token prompt through the whole model, real weights |
+| `lec1/rnn` | char rnn on tiny shakespeare, pytorch (no slides; the rnn slides are in `gpt-2-arch`) |
 | `lec2/os` | how an os executes programs, plus `rv`, the risc-v emulator lec 1 runs assembly on |
 
-`lec1/PLAN.md` is the run sheet for lec 1. in any deck: `cd slides && bun install && bun run dev` (:4321).
+in any deck: `cd slides && bun install && bun run dev` (:4321).
 
 ## new deck
 

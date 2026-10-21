@@ -3,28 +3,29 @@ import { useEffect, useRef } from 'preact/hooks';
 import * as THREE from 'three';
 import { useSlideActive, useSlideStep } from '../deck/hooks';
 import { Tok, diverging, sequential, useData } from './viz';
+import { headColor } from './common';
 
 /**
- * 12 heads through one attention layer, in 3d. Real block 10 attention maps (prefill.json) on the score plates.
+ * 12 heads through one attention layer, in 3d. Real block 3 attention maps (forward.json) on the score plates.
  * Every position, rotation and opacity is a function of the step (TARGET below); a step change tweens from wherever
  * things are to the new target, and entering the slide snaps straight to it, so #N.K always shows the same picture.
  * Steps:
- *  0. x (14, 768)
- *  1. x @ c_attn → q, k, v, each (14, 768)
+ *  0. the 4 strips
+ *  1. the glued grids: query, key, value for every token
  *  2. color the 12 heads: 64 columns each
- *  3. reshape (14, 12, 64): the cuts open up
- *  4. transpose (12, 14, 64): each head's band slides back into a stack
- *  5. k flips to kᵀ; q @ kᵀ / 8 = 12 score maps (12, 14, 14)
- *  6. mask + softmax
- *  7. the 12 maps fanned out side by side
- *  8. @ v = out (12, 14, 64)
- *  9. transpose back + reshape: (14, 768) again
- * 10. @ c_proj: the heads mix
+ *  3. the cuts open up
+ *  4. each head's piece slides back into a stack
+ *  5. match: every head scores every pair of tokens, all at once
+ *  6. block the future, turn scores into budgets
+ *  7. the 12 patterns side by side
+ *  8. copy: each head's result
+ *  9. the 12 results side by side again
+ * 10. the output grid: the only place the heads mix
  */
 export const LAST = 10;
-const S = 14, NH = 12;
-// world units per channel / per token. not to scale with each other: 768 channels would be 55× wider than 14 tokens
-const CW = 0.006, TH = 0.14;
+const S = 4, NH = 12;
+// world units per channel / per token. not to scale with each other: 768 channels would be 190× wider than 4 tokens
+const CW = 0.006, TH = 0.49;
 const WD = 768 * CW, BW = 64 * CW, SH = S * TH, DEPTH = 0.04;
 const DZ = 0.22; // gap between heads in a stack
 const MIDZ = -5.5 * DZ; // the middle of a stack, where the operators between stacks float
@@ -33,8 +34,6 @@ const Y = { x: 3.6, q: 1.2, k: -1.2, v: -3.6 };
 const X = { q: -6, k: -3.4, s: 0.2, v: 3.4, o: 5.6 }; // stack centers
 const CONCAT_Y = 1.4, PROJ_Y = -1.4;
 const NEUTRAL = '#5b6b80';
-// one hue per head, 30° apart; head 7 lands on the deck's accent blue
-export const headColor = (h: number) => `hsl(${(h * 30 + 3) % 360}, 72%, 64%)`;
 const grid = (h: number) => [((h % 4) - 1.5) * 2.5 + X.s, (1 - Math.floor(h / 4)) * 2.75, 0] as V3;
 
 type V3 = [number, number, number];
@@ -42,7 +41,7 @@ type St = { p: V3; r: number; o: number; c: number }; // position, z-rotation, o
 const st = (p: V3, o = 1, r = 0, c = 1): St => ({ p, r, o, c });
 const HIDE = (p: V3): St => st(p, 0, 0, 0);
 
-// band h of q/k/v: in the (14, 768) slab, cut apart, or stacked as (12, 14, 64)
+// band h of q/k/v: in the (4, 768) slab, cut apart, or stacked by head
 const bandX = (h: number, gap: number) => (h - 5.5) * (BW + gap);
 function band(m: 'q' | 'k' | 'v', h: number, s: number): St {
   const stacked: V3 = [X[m], 0, -h * DZ];
@@ -82,50 +81,52 @@ const L = (show: (s: number) => boolean, p: (s: number) => V3, html: preact.Comp
 const between = (a: number, b: number) => (s: number) => s >= a && s <= b;
 const under = (x: number): V3 => [x, -SH / 2 - 0.12, 0];
 
+const NAME = { q: 'query', k: 'key', v: 'value' };
+const FH = 3; // the head we followed (forward.json focus)
 function labels(toks: string[]): Label[] {
   const out: Label[] = [
-    L(between(0, 2), () => [0, Y.x + SH / 2 + 0.05, 0], <>x <span class="shp">(14, 768)</span></>, 'up'),
+    L(between(0, 2), () => [0, Y.x + SH / 2 + 0.05, 0], <>the 4 strips</>, 'up'),
     ...toks.map((t, r) => L((s) => s === 0, () => [-WD / 2 - 0.06, Y.x + SH / 2 - (r + 0.5) * TH, 0], <Tok t={t} />, 'left tokl')),
     ...(['q', 'k', 'v'] as const).flatMap((m) => [
-      L(between(1, 2), () => [-WD / 2 - 0.1, Y[m], 0], <>{m} <span class="shp">(14, 768)</span></>, 'left'),
-      L((s) => s === 3, () => [bandX(0, GAP) - BW / 2 - 0.1, Y[m], 0], <>{m} <span class="shp">(14, 12, 64)</span></>, 'left'),
+      L(between(1, 2), () => [-WD / 2 - 0.1, Y[m], 0], <>{NAME[m]}</>, 'left'),
+      L((s) => s === 3, () => [bandX(0, GAP) - BW / 2 - 0.1, Y[m], 0], <>{NAME[m]}</>, 'left'),
     ]),
     ...Array.from({ length: NH }, (_, h) =>
       L(between(2, 3), (s) => [bandX(h, s >= 3 ? GAP : 0), Y.q + SH / 2 + 0.05, 0], <>{h}</>, 'up hd', headColor(h))),
-    L(between(4, 6), () => under(X.q), <>q <span class="shp">(12, 14, 64)</span></>, 'down'),
-    L((s) => s === 4, () => under(X.k), <>k <span class="shp">(12, 14, 64)</span></>, 'down'),
-    L(between(5, 6), () => [X.k, -BW / 2 - 0.12, 0], <>kᵀ <span class="shp">(12, 64, 14)</span></>, 'down'),
-    L((s) => s >= 4 && s <= 8 && s !== 7, () => under(X.v), <>v <span class="shp">(12, 14, 64)</span></>, 'down'),
-    L(between(5, 6), () => [(X.q + BW / 2 + X.k - SH / 2) / 2, 0, MIDZ], '@', 'op'),
+    L(between(4, 6), () => under(X.q), <>query</>, 'down'),
+    L((s) => s === 4, () => under(X.k), <>key</>, 'down'),
+    L(between(5, 6), () => [X.k, -BW / 2 - 0.12, 0], <>key, turned</>, 'down'),
+    L((s) => s >= 4 && s <= 8 && s !== 7, () => under(X.v), <>value</>, 'down'),
+    L(between(5, 6), () => [(X.q + BW / 2 + X.k - SH / 2) / 2, 0, MIDZ], '·', 'op'),
     L(between(5, 6), () => [(X.k + SH / 2 + X.s - SH / 2) / 2, 0, MIDZ], '=', 'op'),
-    L((s) => s === 5, () => under(X.s), <>scores <span class="shp">(12, 14, 14)</span></>, 'down'),
-    L((s) => s === 6 || s === 8, () => under(X.s), <>probs <span class="shp">(12, 14, 14)</span></>, 'down'),
-    L((s) => s === 8, () => [(X.s + SH / 2 + X.v - BW / 2) / 2, 0, MIDZ], '@', 'op'),
+    L((s) => s === 5, () => under(X.s), <>scores</>, 'down'),
+    L((s) => s === 6 || s === 8, () => under(X.s), <>budgets</>, 'down'),
+    L((s) => s === 8, () => [(X.s + SH / 2 + X.v - BW / 2) / 2, 0, MIDZ], '·', 'op'),
     L((s) => s === 8, () => [(X.v + X.o) / 2, 0, MIDZ], '=', 'op'),
-    L((s) => s === 8, () => under(X.o), <>out <span class="shp">(12, 14, 64)</span></>, 'down'),
+    L((s) => s === 8, () => under(X.o), <>results</>, 'down'),
     ...Array.from({ length: NH }, (_, h) => L((s) => s === 7, () => {
       const [x, y] = grid(h);
       return [x, y + SH / 2 + 0.06, 0];
-    }, h === 7 ? <>head 7 · the one we followed</> : <>head {h}</>, 'up hd', headColor(h))),
-    L(between(9, 10), () => [-WD / 2 - 0.1, CONCAT_Y, 0], <>concat <span class="shp">(14, 768)</span></>, 'left'),
-    L((s) => s === 10, () => [0, (CONCAT_Y + PROJ_Y) / 2, 0], <>@ c_proj <span class="shp">(768, 768)</span></>, 'mid'),
-    L((s) => s === 10, () => [-WD / 2 - 0.1, PROJ_Y, 0], <>out <span class="shp">(14, 768)</span></>, 'left'),
+    }, h === FH ? <>head {h} · ours</> : <>head {h}</>, 'up hd', headColor(h))),
+    L(between(9, 10), () => [-WD / 2 - 0.1, CONCAT_Y, 0], <>12 results</>, 'left'),
+    L((s) => s === 10, () => [0, (CONCAT_Y + PROJ_Y) / 2, 0], <>output grid</>, 'mid'),
+    L((s) => s === 10, () => [-WD / 2 - 0.1, PROJ_Y, 0], <>back to the stream</>, 'left'),
   ];
   return out;
 }
 
 const CAP = [
-  <>x, going into attention: 14 tokens, each a row of <b>768</b> numbers</>,
-  <>one matmul makes q, k and v for every token: <b>x @ c_attn</b> (768 × 2304) = (14, 2304), split three ways into (14, 768)</>,
-  <>each 768 is really <b>12 heads × 64</b>, side by side. head h owns columns h·64 … h·64 + 63, in q, k and v</>,
-  <><b>reshape(14, 12, 64)</b>: no math. it just says where the cuts are</>,
-  <><b>transpose → (12, 14, 64)</b>: "head" becomes the first dimension. now it's 12 small q, k, v, one per head, stacked</>,
-  <><b>q @ kᵀ / 8</b>. @ only multiplies the last two dims, so this is 12 separate one-head score matrices, in one call</>,
-  <>mask the future, softmax each row: <b>12 attention patterns</b> (real, block 10)</>,
-  <>side by side: every head learned to look for something different. head 7 is " to" → " Mary"</>,
-  <><b>probs @ v</b>: each head's output, (12, 14, 64). still 12 separate attentions, none saw another</>,
-  <><b>transpose + reshape</b> back to (14, 768): the 12 outputs sit side by side again, exactly where they were cut</>,
-  <><b>@ c_proj</b> (768 × 768): every output number reads all 12 heads. this is the only place the heads mix</>,
+  <>the 4 strips, going into one attention block</>,
+  <>one multiply through the glued grid: <b>query</b>, <b>key</b> and <b>value</b> strips for every token</>,
+  <>each of them is really <b>12 heads × 64</b> numbers, side by side</>,
+  <>cut along the lines. no numbers change, they're just grouped by head</>,
+  <>stack each head's pieces: 12 small heads, each the one we just walked through</>,
+  <>match: every head scores every token against every other, all at once</>,
+  <>block the future, turn scores into budgets: <b>12 attention patterns</b> (real, block 3)</>,
+  <>side by side: every head learned to look for something different</>,
+  <>copy: each head's result, still 12 separate heads. none of them saw another</>,
+  <>the 12 results lined up side by side again</>,
+  <>through the <b>output grid</b>: every number reads all 12 heads. the only place they mix</>,
 ];
 
 // ── scene ─────────────────────────────────────────────────────────────────
@@ -207,11 +208,10 @@ function build(el: HTMLElement, labelEls: HTMLElement[], labelDefs: Label[], d: 
   const bandGeo = plateGeo(BW, SH);
   for (const m of ['q', 'k', 'v'] as const)
     for (let h = 0; h < NH; h++) plate(bandGeo, rows, [NEUTRAL, headColor(h)], '#0a0a0a', (s) => band(m, h, s));
-  const Lr = d.focus[0];
-  const mapGeo = plateGeo(SH, SH);
+    const mapGeo = plateGeo(SH, SH);
   for (let h = 0; h < NH; h++) {
-    const sc = keep(mapTexture(d.scores[Lr][h], (v) => diverging(v, 3)));
-    const pr = keep(mapTexture(d.probs[Lr][h], (v, r, c) => (c > r ? '#111111' : sequential(Math.sqrt(v)))));
+    const sc = keep(mapTexture(d.scores_focus_block[h], (v) => diverging(v, 3)));
+    const pr = keep(mapTexture(d.probs_focus_block[h], (v, r, c) => (c > r ? '#111111' : sequential(Math.sqrt(v)))));
     plate(mapGeo, sc, '#ffffff', headColor(h), (s) => scorePlate(h, s, false));
     plate(mapGeo, pr, '#ffffff', headColor(h), (s) => scorePlate(h, s, true));
   }
@@ -303,7 +303,7 @@ export default function Heads3D() {
   const img = useRef<HTMLImageElement>(null);
   const step = useSlideStep(root);
   const active = useSlideActive(root);
-  const d = useData('prefill');
+  const d = useData('forward');
   const defs = useRef<Label[] | null>(null);
   if (d && !defs.current) defs.current = labels(d.toks);
   const print = typeof location !== 'undefined' && new URLSearchParams(location.search).has('print');

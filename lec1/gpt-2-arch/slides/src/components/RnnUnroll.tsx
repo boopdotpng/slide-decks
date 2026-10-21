@@ -1,7 +1,5 @@
 /** @jsxImportSource preact */
-import { useRef } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { Strip, useData } from './viz';
+import { Strip, useIsland } from './viz';
 import { Ch, CH_CSS } from './RnnCommon';
 
 /**
@@ -11,9 +9,7 @@ import { Ch, CH_CSS } from './RnnCommon';
  */
 const SHOW = [1, 2, 5, 10, 19];
 export default function RnnUnroll() {
-  const root = useRef<HTMLDivElement>(null);
-  const step = useSlideStep(root);
-  const d = useData<{ chars: string[]; h: number[][]; top: [string, number][][] }>('rnn_unroll');
+  const { root, step, d } = useIsland<{ chars: string[]; h: number[][]; top: [string, number][][] }>('rnn_unroll');
   if (!d) return <div ref={root} />;
   const n = SHOW[Math.min(step, SHOW.length - 1)];
   const right = d.chars.map((_, t) => d.chars[t + 1] !== undefined && d.top[t][0][0] === d.chars[t + 1]);
@@ -26,7 +22,7 @@ export default function RnnUnroll() {
             <Ch c={d.top[t][0][0]} /><span class="p">{Math.round(d.top[t][0][1] * 100)}%</span>
           </div>
         ))}
-        <div class="rl muted">h</div>
+        <div class="rl muted">memory</div>
         {d.chars.map((_, t) => (
           <div class={`h ${t < n ? 'on' : ''}`}>
             <Strip values={d.h[t]} scale={1} vertical height={230} width={18} />
@@ -37,7 +33,7 @@ export default function RnnUnroll() {
         {d.chars.map((c, t) => <div class={`x ${t < n ? 'on' : ''} ${t === n - 1 ? 'cur' : ''}`}><Ch c={c} /></div>)}
       </div>
       <div class={`cap muted fade ${step >= SHOW.length - 1 ? 'on' : ''}`}>
-        the same mix, {d.chars.length} times. the only thing handed from one step to the next is h
+        one strip of {d.h[0].length} numbers, rewritten after every character. it's all the rnn remembers
       </div>
       <style>{`
         ${CH_CSS}

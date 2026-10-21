@@ -1,0 +1,15 @@
+<div class="section">that's the machine</div>
+<h2>a base llm</h2>
+<div class="end">
+  <div class="flow">
+    <span class="chip">tokens</span><span class="ar">→</span><span class="chip">word + position</span><span class="ar">→</span>
+    <span class="chip on">12 × ( attention + mlp )</span><span class="ar">→</span><span class="chip">next token</span>
+  </div>
+  <p class="muted step">newer models keep this shape and swap parts: how position is added, how heads share keys, many mlps instead of one, and more training after this</p>
+</div>
+<style>
+  .end { font-size: .8em; }
+  .flow { display: flex; gap: .6em; align-items: center; font-size: .9em; }
+  .ar { color: var(--muted); }
+  .end p { margin-top: 1.4em; font-size: .7em; max-width: 34em; }
+</style>
