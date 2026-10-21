@@ -28,6 +28,7 @@ WORDS = [" king", " queen", " man", " woman", " boy", " girl",
          " run", " walk", " jump"]
 NEIGHBOR_QUERIES = [" king", " Paris", " dog", " blue"]
 SPLIT_WORDS = [" tokenization", " ChatGPT", " 2026"]
+BPE_WORD = " tokenization" # built merge by merge on the bpe slide
 
 def r(x, d=3):
   x = np.asarray(x, dtype=np.float64)
@@ -129,8 +130,22 @@ def main():
   phase = np.angle(spec[dom, np.arange(emb_dim)])
   order = np.lexsort((phase, dom))
   logits, t = forward(ids)
+  # byte-pair encoding: gpt-2's 50,000 merges, in the order they were learned. build one word by applying them
+  merges = json.load(open(os.path.join(HERE, "weights", "tokenizer.json")))["model"]["merges"]
+  rank = {tuple(m.split(" ")): i for i, m in enumerate(merges)}
+  show = lambda p: p.replace("Ġ", " ") # gpt-2 writes a leading space as Ġ
+  pieces, bpe_steps = list("Ġ" + BPE_WORD.strip()), []
+  while True:
+    pairs = [(rank.get((a, b), 1e9), k) for k, (a, b) in enumerate(zip(pieces, pieces[1:]))]
+    best, k = min(pairs, default=(1e9, 0))
+    if best == 1e9: break
+    pieces = pieces[:k] + [pieces[k] + pieces[k + 1]] + pieces[k + 2:]
+    bpe_steps.append({"rank": int(best) + 1, "at": k, "pieces": [show(x) for x in pieces]})
+  assert [show(x) for x in pieces] == [dec(i) for i in TOK.encode(BPE_WORD).ids], pieces
   write("embed.json", {
     "words": WORDS, "word_ids": word_ids,
+    "bpe": {"word": BPE_WORD, "start": [show(c) for c in "Ġ" + BPE_WORD.strip()], "steps": bpe_steps,
+            "first": [[show(x) for x in m.split(" ")] for m in merges[:8]], "n": len(merges)},
     "splits": [{"word": w, "toks": [dec(i) for i in TOK.encode(w).ids], "ids": TOK.encode(w).ids} for w in SPLIT_WORDS],
     "cos": r(Wn @ Wn.T), "neighbors": neighbors,
     "wte_shape": shape(wte), "wpe_shape": shape(wpe),
