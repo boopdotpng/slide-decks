@@ -26,6 +26,9 @@ export default function MatchOne() {
         <span class="v">{fmt(d.dots[S - 1][J], 1)}</span>
         <span class="muted">one number: how well <Tok t={d.toks[J]} /> matches what <Tok t={d.toks[S - 1]} /> is looking for</span>
       </div>
+      <div class={`cap ${at(step, 2)}`}>
+        the same move as the grid: multiply pairs, add up. negative is fine, it's the <b>gaps</b> between the four scores that matter (next slide)
+      </div>
       <style>{`
         .m1 { display: flex; flex-direction: column; gap: .8em; font-size: .8em; }
         .m1 .r, .m1 .sum { display: grid; grid-template-columns: 13em auto; gap: 1em; align-items: center; }
@@ -34,6 +37,8 @@ export default function MatchOne() {
         .m1 .sum { grid-template-columns: 13em auto 1fr; margin-top: .6em; }
         .m1 .sum .v { font-family: var(--mono); font-size: 1.4em; color: var(--accent); }
         .m1 .sum .muted { font-size: .6em; }
+        .m1 .cap { margin-top: 1em; font-size: .62em; color: var(--muted); }
+        .m1 .cap b { color: var(--fg); }
       `}</style>
     </div>
   );

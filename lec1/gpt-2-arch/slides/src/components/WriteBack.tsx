@@ -21,8 +21,15 @@ export default function WriteBack() {
     <div class="wb" ref={root}>
       <div class="r"><span class="k">this head's result</span>
         <div style={{ width: `${(64 / 768) * 100}%` }}><Strip values={d.head_out[me]} height={30} /></div></div>
-      <div class={`r ${at(step, 1)}`}><span class="k">the output grid</span>
-        <ByteHeat m={d.W_o_img} w="100%" h={110} /></div>
+      <div class={`r ${at(step, 1)}`}><span class="k">{all ? <>the <b>whole</b> output grid · 768 × 768</> : <>the output grid · 64 × 768</>}</span>
+        {all
+          ? <ByteHeat m={d.W_o_full_img} w="100%" h={200}>
+              {Array.from({ length: 12 }, (_, h) => (
+                <div class={`slab ${h === H ? 'ours' : ''}`} style={{ top: `${(h / 12) * 100}%`, height: `${100 / 12}%`, borderColor: headColor(h) }} />
+              ))}
+            </ByteHeat>
+          : <ByteHeat m={d.W_o_img} w="100%" h={110} />}
+      </div>
       <div class={`r ${at(step, 1)}`}><span class="k">{all ? '12 notes' : 'its note, 768 wide'}</span>
         <div class="notes">
           {(all ? msgs : [msgs[H]]).map((m, h) => (
@@ -38,14 +45,17 @@ export default function WriteBack() {
       </div>
       <div class="cap">
         {[<>what one head found: 64 numbers, in the head's own shorthand</>,
-          <>one more grid spreads it back out to 768: a note the size of the stream</>,
+          <>one more grid, the same move turned on its side: 64 numbers in along the rows, 768 out along the columns. a note the size of the stream</>,
           <>the note is <b>added</b> onto the strip. nothing is overwritten</>,
-          <>the other 11 heads did the same thing at the same time. every note gets added on</>][Math.min(step, 3)]}
+          <>the other 11 heads did the same at the same time. the real output grid is 768 × 768, cut every 64 <b>rows</b>: each head's slab makes its note, and all 12 notes get added on. 12 × 64 = 768</>][Math.min(step, 3)]}
       </div>
       <style>{`
         .wb { display: flex; flex-direction: column; gap: .5em; font-size: .8em; }
         .wb .r { display: grid; grid-template-columns: 11em 1fr; gap: 1em; align-items: center; }
         .wb .k { text-align: right; font-size: .58em; color: var(--muted); white-space: nowrap; }
+        .wb .k b { color: var(--fg); }
+        .wb .slab { position: absolute; left: 0; right: 0; border-top: 1px solid; opacity: .5; box-sizing: border-box; }
+        .wb .slab.ours { opacity: 1; border: 2px solid var(--accent); }
         .wb .notes { display: flex; flex-direction: column; gap: 2px; }
         .wb .note { border-left: 6px solid; padding-left: 4px; }
         .wb .stream { display: flex; flex-direction: column; gap: .4em; margin-top: .6em; padding-top: .6em; border-top: 1px solid var(--border); }

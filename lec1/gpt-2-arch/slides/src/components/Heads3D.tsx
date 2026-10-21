@@ -126,7 +126,7 @@ const CAP = [
   <>side by side: every head learned to look for something different</>,
   <>copy: each head's result, still 12 separate heads. none of them saw another</>,
   <>the 12 results lined up side by side again</>,
-  <>through the <b>output grid</b>: every number reads all 12 heads. the only place they mix</>,
+  <>through the <b>output grid</b>: every number reads all 12 heads. the only place they mix. same thing as before: each head's 64 rows of the grid make its note, and the notes add up</>,
 ];
 
 // ── scene ─────────────────────────────────────────────────────────────────

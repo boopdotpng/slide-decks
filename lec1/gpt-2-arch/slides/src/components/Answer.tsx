@@ -13,9 +13,9 @@ export default function Answer() {
   return (
     <div class="an" ref={root}>
       <div class="r"><span class="k">final strip for <Tok t={d.toks[S - 1]} /></span><Strip values={d.final} scale={3} height={40} /></div>
-      <div class={`r ${at(step, 1)}`}><span class="k" /><span class="msg">compare it with every token's row in the table from the start: <b>50,257 scores</b></span></div>
+      <div class={`r ${at(step, 1)}`}><span class="k" /><span class="msg">match it against every token's row in the table from the start, like key against query: <b>50,257 scores</b>. one more multiply, 768 × 50,257</span></div>
       <div class={`dist ${at(step, 2)}`}>
-        <div class="lbl">the chances for what comes after <Chip t={d.toks[S - 1]} /></div>
+        <div class="lbl">the budget trick again (e to each score, share of the total): the chances for what comes after <Chip t={d.toks[S - 1]} /></div>
         <Bars values={top.map((t) => t.p)} labels={top.map((t) => <Tok t={t.tok} />)} max={1} width={460} hl={0}
           color={(v) => sequential(0.4 + v)} fmtV={(v) => (v >= 0.01 ? pct(v) : `${(v * 100).toFixed(1)}%`)} />
       </div>

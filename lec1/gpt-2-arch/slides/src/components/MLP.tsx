@@ -35,9 +35,11 @@ export default function MLP() {
         </div>
       </div>
       <div class="cap">
-        {step < 4
-          ? <>attention moved information between tokens. the mlp works on each token alone</>
-          : <>block {m.layer}'s mlp: a few neurons fire on "United States of" and push toward <Tok t=" America" /></>}
+        {[<>attention moved information between tokens. the mlp works on each token alone</>,
+          <>the same move, through a wide grid: 768 × 3072. one column = one <b>neuron</b>: one multiply-and-add with the strip, 3072 of them</>,
+          <>the gate: a neuron that came out below zero is switched off. most of them are</>,
+          <>a second grid, 3072 × 768, narrows it back to the size of the strip. added on, like attention's note</>,
+          <>block {m.layer}'s mlp: a few neurons fire on "United States of" and push toward <Tok t=" America" /></>][Math.min(step, 4)]}
       </div>
       <style>{`
         .mp { display: flex; flex-direction: column; gap: .7em; font-size: .8em; }
@@ -47,7 +49,8 @@ export default function MLP() {
         .mp .cnt { font-size: .65em; color: var(--muted); }
         .mp .cnt b { color: var(--accent); font-size: 1.6em; font-family: var(--mono); }
         .mp .top .lbl { margin-bottom: .4em; }
-        .mp .cap { margin-top: .6em; font-size: .7em; color: var(--muted); }
+        .mp .cap { margin-top: .6em; font-size: .7em; color: var(--muted); min-height: 1.6em; }
+        .mp .cap b { color: var(--fg); }
       `}</style>
     </div>
   );

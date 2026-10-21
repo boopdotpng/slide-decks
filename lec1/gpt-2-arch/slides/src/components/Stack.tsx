@@ -24,7 +24,9 @@ export default function Stack() {
           </div>
         );
       })}
+      <div class="cap">each line: pretend that block was the last one and read the strip out the way the next slide does. the answer firms up as the blocks go by</div>
       <style>{`
+        .sk .cap { grid-column: 1 / -1; margin-top: 1em; font-size: .95em; color: var(--muted); }
         .sk { display: grid; grid-template-columns: auto 7em 18em 3.5em auto; gap: .25em 1em; align-items: center; font-size: .7em; }
         .sk .r { display: contents; }
         .sk .r > * { opacity: 0; transition: opacity .35s; }

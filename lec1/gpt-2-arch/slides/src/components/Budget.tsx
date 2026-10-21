@@ -17,11 +17,12 @@ export default function Budget() {
   const best = sc.indexOf(Math.max(...sc));
   return (
     <div class="bg" ref={root}>
+      <div class="main">
       <div class="left">
         <div class="me"><span class="k" style={{ color: LENS.q.color }}><Tok t={d.toks[me]} /> is looking for</span>
           <Strip values={d.lenses.q.out[me]} height={26} /></div>
         <div class="hdr"><span /><span class="muted">{LENS.k.plain}</span>
-          <span class={`muted ${at(step, 1)}`}>score <span class="ax">worse ← → better</span></span>
+          <span class={`muted ${at(step, 1)}`}>score ÷ 8 <span class="ax">worse ← → better</span></span>
           <span class={`muted ${at(step, 2)}`}>budget</span></div>
         {d.toks.map((t: string, j: number) => (
           <div class={`row ${step >= 2 && j === best ? 'top' : ''}`}>
@@ -41,8 +42,18 @@ export default function Budget() {
           tipFn={(r, c, v) => (v === null ? 'the future: blocked' : `${pct(v)}`)} />
         <div class="lbl">striped: the future. a token can't look at words that come after it</div>
       </div>
+      </div>
+      <div class="cap">
+        {[<>every token's advertise strip, against what <Tok t={d.toks[me]} /> is looking for</>,
+          <>the match score for each, ÷ 8 (the square root of 64, keeps the numbers tame). all negative, and that's fine: only the <b>gaps</b> matter</>,
+          <>the budget: raise e to each score, then take each one's share of the total. a gap of 2.5 becomes 87% against 7%. it always adds up to 100%</>,
+          <>every token does this. the future is blocked because in training the next word <b>is</b> the answer: a token must guess it, not read it</>][Math.min(step, 3)]}
+      </div>
       <style>{`
-        .bg { display: flex; gap: 3em; align-items: center; font-size: .8em; }
+        .bg { display: flex; flex-direction: column; gap: 1em; font-size: .8em; }
+        .bg .main { display: flex; gap: 3em; align-items: center; }
+        .bg .cap { font-size: .7em; color: var(--muted); min-height: 1.6em; max-width: 60em; }
+        .bg .cap b { color: var(--fg); }
         .bg .left { display: flex; flex-direction: column; gap: .5em; flex: 1; }
         .bg .me { display: grid; grid-template-columns: 9em 1fr; gap: .8em; align-items: center; margin-bottom: .8em; }
         .bg .k { font-size: .6em; text-align: right; }

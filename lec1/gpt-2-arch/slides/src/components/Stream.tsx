@@ -13,7 +13,7 @@ const laneX = (i: number) => LX + i * (LW + LG);
 const R = laneX(3) + LW; // right edge of the stream
 const CAP = [
   <>the four strips run straight down through the model</>,
-  <>attention: a rescaled copy goes out, the tokens read from each other, and the result is <b>added</b> back on</>,
+  <>attention: a rescaled copy goes out (shifted and stretched to a standard spread, so every block sees the same range), the tokens read from each other, and the result is <b>added</b> back on</>,
   <>the mlp: same again, but each token is worked on alone</>,
   <>that's one block. gpt-2 is twelve of them in a row, all adding to the same strips</>,
   <>the rnn had one strip and rewrote it every step. here every token keeps its own, and nothing is ever erased</>,

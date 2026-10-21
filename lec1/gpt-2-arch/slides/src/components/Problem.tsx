@@ -2,15 +2,16 @@
 import { Bars, Strip, Tok, at, pct, useIsland } from './viz';
 
 /**
- * The problem attention solves. Each strip only knows its own token.
- *  0 four separate strips   1 what the model guesses after " of" before any reading (the guess after block 0)
+ * The problem attention solves. Each strip starts out knowing only its own token.
+ *  0 four separate strips, nothing has read anything yet
+ *  1 what the whole model says when it's given " of" and nothing else (a real one-token run): " the", and unsure
  *  2 the answer is in the other strips: " of" has to look back
  */
 export default function Problem() {
   const { root, step, d } = useIsland('forward');
   if (!d) return <div ref={root} />;
   const S = d.toks.length;
-  const early = d.lens[0].slice(0, 3) as { tok: string; p: number }[];
+  const alone = d.alone as { tok: string; p: number }[]; // the model run on the last token by itself
   return (
     <div class="pb" ref={root}>
       <div class="cols">
@@ -21,14 +22,14 @@ export default function Problem() {
           </div>
         ))}
         <div class={`guess ${at(step, 1)}`}>
-          <div class="lbl">guess after <Tok t={d.toks[S - 1]} />, on its own</div>
-          <Bars values={early.map((e) => e.p)} labels={early.map((e) => <Tok t={e.tok} />)} max={1} fmtV={pct} width={160} />
+          <div class="lbl">the whole model, given only <Tok t={d.toks[S - 1]} /></div>
+          <Bars values={alone.map((e) => e.p)} labels={alone.map((e) => <Tok t={e.tok} />)} fmtV={pct} width={160} />
         </div>
       </div>
       <div class="cap">
-        {step < 2
-          ? <>each strip only knows its own word. <Tok t={d.toks[S - 1]} /> alone is a generic word</>
-          : <>the answer is in <b>other</b> strips. how does <Tok t={d.toks[S - 1]} /> read them?</>}
+        {[<>four strips, one per token. so far each one knows only its own word and place: nothing has read anything</>,
+          <>run the model on <Tok t={d.toks[S - 1]} /> by itself and it says <Tok t={alone[0].tok} />, at {pct(alone[0].p)}: a lone <Tok t={d.toks[S - 1]} /> is a generic word with no idea what comes next</>,
+          <>the answer is in <b>other</b> strips. how does <Tok t={d.toks[S - 1]} /> read them?</>][Math.min(step, 2)]}
       </div>
       <style>{`
         .pb { font-size: .8em; }
@@ -42,7 +43,7 @@ export default function Problem() {
         .pb .guess { margin-left: 1.5em; align-self: center; }
         .pb .guess .bars { font-size: .9em; }
         .pb .guess .lbl { margin-bottom: .5em; }
-        .pb .cap { margin-top: 1em; font-size: .75em; color: var(--muted); }
+        .pb .cap { margin-top: 1em; font-size: .75em; color: var(--muted); max-width: 60em; }
         .pb .cap b { color: var(--fg); }
       `}</style>
     </div>

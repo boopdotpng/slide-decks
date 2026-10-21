@@ -33,7 +33,7 @@ export default function Cache() {
       <div class="cap">
         {[<>the first run: every token gets its key and value strips</>,
           <>run it again with <Tok t={d.toks[4]} /> on the end: the old strips come out <b>exactly</b> the same</>,
-          <>so keep them. each new token only works out its own strips, then looks back at the saved ones</>][Math.min(step, 2)]}
+          <>so keep them. each new token only works out its own strips, then looks back at the saved ones. queries aren't kept: only the newest token is looking</>][Math.min(step, 2)]}
       </div>
       <style>{`
         .kc { font-size: .8em; }

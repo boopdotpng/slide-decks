@@ -28,7 +28,9 @@ WORDS = [" king", " queen", " man", " woman", " boy", " girl",
          " run", " walk", " jump"]
 NEIGHBOR_QUERIES = [" king", " Paris", " dog", " blue"]
 SPLIT_WORDS = [" tokenization", " ChatGPT", " 2026"]
-BPE_WORD = " tokenization" # built merge by merge on the bpe slide
+# split into pieces merge by merge on the bpe slide: uses all of the first 8 merges, " the" three times, one rare name
+BPE_TEXT = "The cat sat on the mat, and then the other cat sat there in the water. Its name? Grumpkin."
+BPE_AT = [1, 2, 3, 4, 5, 6, 7, 8, 100, 1000, None] # slide steps: merges #1 … #8 one at a time, then everything up to #100, #1000, all
 SAME = "I saw the cat and the dog" # the same word twice: identical strips until position is added
 
 def r(x, d=3):
@@ -136,14 +138,23 @@ def main():
   merges = json.load(open(os.path.join(HERE, "weights", "tokenizer.json")))["model"]["merges"]
   rank = {tuple(m.split(" ")): i for i, m in enumerate(merges)}
   show = lambda p: p.replace("Ġ", " ") # gpt-2 writes a leading space as Ġ
-  pieces, bpe_steps = list("Ġ" + BPE_WORD.strip()), []
-  while True:
-    pairs = [(rank.get((a, b), 1e9), k) for k, (a, b) in enumerate(zip(pieces, pieces[1:]))]
-    best, k = min(pairs, default=(1e9, 0))
-    if best == 1e9: break
-    pieces = pieces[:k] + [pieces[k] + pieces[k + 1]] + pieces[k + 2:]
-    bpe_steps.append({"rank": int(best) + 1, "at": k, "pieces": [show(x) for x in pieces]})
-  assert [show(x) for x in pieces] == [dec(i) for i in TOK.encode(BPE_WORD).ids], pieces
+  def bpe(word, upto): # gpt-2's bpe on one word, using only merges #1 … #upto: the earliest merge that fits, until none does
+    p = list(word)
+    while True:
+      best, k = min([(rank.get(ab, 1e9), k) for k, ab in enumerate(zip(p, p[1:]))], default=(1e9, 0))
+      if best >= upto: return p
+      p = p[:k] + [p[k] + p[k + 1]] + p[k + 2:]
+  # merges never cross words: gpt-2 first cuts the text at spaces and punctuation. each word keeps its leading space
+  bpe_words = [w for w, _ in TOK.pre_tokenizer.pre_tokenize_str(BPE_TEXT)]
+  spans = lambda p: [(sum(map(len, p[:i])), len(x)) for i, x in enumerate(p)] # (start, length) of each piece
+  prev, bpe_steps = [list(w) for w in bpe_words], []
+  for upto in BPE_AT:
+    cur = [bpe(w, upto or 1e9) for w in bpe_words]
+    # the pieces this step made, and how many merges that took (a piece of n characters is n - 1 merges, minus the old ones inside it)
+    on = [[wi, i] for wi, (p, q) in enumerate(zip(prev, cur)) for i, sp in enumerate(spans(q)) if sp not in spans(p)]
+    bpe_steps.append({"upto": upto, "on": on, "n": sum(len(p) - len(q) for p, q in zip(prev, cur)), "words": [[show(x) for x in p] for p in cur]})
+    prev = cur
+  assert [show(x) for p in prev for x in p] == [dec(i) for i in TOK.encode(BPE_TEXT).ids], prev
   # without the position table, order is invisible: " of" gets the same budget in a scrambled prompt
   PERM = [2, 0, 1, 3] # "States The United of"
   _, tn = forward(ids, pos=False)
@@ -156,7 +167,7 @@ def main():
   assert np.array_equal(wte[sids[si]], wte[sids[sj]])
   write("embed.json", {
     "words": WORDS, "word_ids": word_ids,
-    "bpe": {"word": BPE_WORD, "start": [show(c) for c in "Ġ" + BPE_WORD.strip()], "steps": bpe_steps,
+    "bpe": {"text": BPE_TEXT, "start": [[show(c) for c in w] for w in bpe_words], "steps": bpe_steps,
             "first": [[show(x) for x in m.split(" ")] for m in merges[:8]], "n": len(merges)},
     "order": {"perm": PERM, "head": NH0, "probs": r(P0[NH0]), "probs_perm": r(tp["0.probs"][NH0, -1])},
     "same": {"toks": [dec(i) for i in sids], "i": si, "j": sj, "word": r(wte[sids[si]]), "pos_i": r(wpe[si]), "pos_j": r(wpe[sj]),
@@ -188,9 +199,13 @@ def main():
     assert np.abs(got - t[f"{L}.{name}"][:, hs]).max() < 1e-3
     lenses[name] = {"img": q8(Wl, 2 * rms(Wl)), "out": r(got)} # out: (4, 64)
   CELL = int(np.abs(lenses["q"]["out"][-1]).argmax()) # the output cell we animate: the biggest one in the last token's q
+  ROW = int(np.abs(x_in[-1]).argmax()) # the grid row we light up for the row view: the strip's biggest number
   for j, name in enumerate("qkv"):
     lenses[name]["col"] = r(c_attn[:, j * emb_dim + H * head_dim + CELL]) # (768,) that cell's weights
+    lenses[name]["col_next"] = r(c_attn[:, j * emb_dim + H * head_dim + (CELL + 1) % head_dim]) # the column after it
     lenses[name]["bias"] = round(float(c_attn_b[j * emb_dim + H * head_dim + CELL]), 3)
+    lenses[name]["row"] = ROW
+    lenses[name]["row_vals"] = r(c_attn[ROW, j * emb_dim:(j + 1) * emb_dim][hs]) # (64,) that row of the grid
   ho = t[f"{L}.head_out"] # (12, 4, 64)
   msgs = np.stack([ho[h, -1] @ W_o[h * head_dim:(h + 1) * head_dim] for h in range(n_heads)]) # (12, 768): what each head writes, last token
   assert np.abs(msgs.sum(0) + W_o_b - t[f"{L}.attn_out"][-1]).max() < 1e-3
@@ -210,9 +225,14 @@ def main():
   pl, ph = np.unravel_index(prev.argmax(), prev.shape)
   probs = softmax(logits[-1])
   top = probs.argsort()[::-1][:10]
+  # the last token on its own: the whole model on a one-token prompt. with nothing else to read, " of" says " the", unsure
+  lg1, _ = forward([ids[-1]])
+  p1 = softmax(lg1[-1])
+  alone = [{"tok": dec(i), "p": round(float(p1[i]), 3)} for i in p1.argsort()[::-1][:3]]
   write("forward.json", {
     "prompt": PROMPT, "toks": toks, "ids": ids, "focus": FOCUS, "cell": CELL,
     "embed": r(t["embed"]), # (4, 768)
+    "alone": alone, # top guesses for the last token by itself
     # the focus block, the focus head
     "resid_in": r(t[f"{L}.resid_in"]), "ln1": r(x_in), # (4, 768)
     "ln1_stats": {"mean": r(t[f"{L}.resid_in"].mean(-1)), "std": r(t[f"{L}.resid_in"].std(-1))},
@@ -245,7 +265,8 @@ def main():
     "top": [{"tok": dec(i), "id": int(i), "logit": round(float(logits[-1, i]), 2), "p": round(float(probs[i]), 4)} for i in top],
   })
   print(f"forward: {toks} -> {dec(top[0])!r} p={probs[top[0]]:.3f}; focus L{L}.H{H} row {r(P[L, H, -1], 2)}; "
-        f"prev-token head L{pl}.H{ph} ({prev[pl, ph]:.2f}); mlp block {ML} (push {push[ML]:+.1f}), cell {CELL}")
+        f"prev-token head L{pl}.H{ph} ({prev[pl, ph]:.2f}); mlp block {ML} (push {push[ML]:+.1f}), cell {CELL}; "
+        f"{toks[-1]!r} alone -> {alone[0]['tok']!r} p={alone[0]['p']:.3f}")
 
   # ── generating: the loop, and why the cache works ────────────────────────
   gen, steps = list(ids), []
