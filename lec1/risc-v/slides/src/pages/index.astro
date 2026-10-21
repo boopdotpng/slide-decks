@@ -29,6 +29,8 @@ const notes = readNotes(process.cwd(), slides.map((s) => s.name.replace(/\.\w+$/
        extends the canvas the long way instead of letterboxing. --k is the scale; inline so the first paint is right -->
   <script is:inline>
     (() => {
+      // ?print lays slides out unscaled, ?overview scales them itself (deck.ts)
+      if (/[?&](print|overview)\b/.test(location.search)) return;
       const W = 1600, H = 900, r = document.documentElement.style;
       const fit = () => {
         const k = Math.min(innerWidth / W, innerHeight / H);

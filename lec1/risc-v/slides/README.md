@@ -33,7 +33,7 @@ islands, `public/` assets and `deck.config.ts` are never touched, so keep deck-s
 |---|---|
 | → space l j | next step / slide |
 | ← h k | back (going back into a slide lands fully revealed) |
-| g | slide picker: type a number + enter, or ↑↓ + enter (or click the counter) |
+| g | slide grid: every slide as a thumbnail at its last step. arrows / hjkl or a number, then enter; or click one (or click the counter to open it) |
 | p | presenter window: notes (editable under `bun dev`: click or e), next-step preview, timer. Synced both ways with the deck |
 | f | fullscreen |
 | home / end | first / last |

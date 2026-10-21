@@ -6,7 +6,7 @@ Astro + Preact. `bun dev`, `bun run build`, `bun run check`, `bun run record` (m
 
 - Every file in `src/slides/` is one slide (`.astro` or `.mdx`), ordered by filename (`01-`, `02-`, …). `pages/index.astro` renders them all as `<section class="slide">` on one page.
 - `deck/deck.ts` owns navigation; `deck/presenter.ts` is the ?presenter window; `deck/notes-file.ts` + `notes-server.ts` read / write notes.md. A slide's step count = number of `.step` elements + the sum of every `data-steps="N"`. Islands get the step through `useSlideStep` (`deck/hooks.ts`).
-- URL modes: `?presenter` (notes + previews, synced over BroadcastChannel), `?embed` (used by presenter iframes), `?print` (all slides, all steps revealed).
+- URL modes: `?presenter` (notes + previews, synced over BroadcastChannel), `?embed` (used by presenter iframes), `?print` (all slides, all steps revealed), `?overview` (the g picker's thumbnail grid, loaded in an iframe; the picker drives it through `window.deckOverview`).
 
 ## conventions
 

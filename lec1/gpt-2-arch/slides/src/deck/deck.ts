@@ -12,7 +12,7 @@
  *
  * Don't mix both kinds on one slide: .step elements are revealed first.
  *
- * Keys: → / space next, ← back, g picker (type a number + enter, or ↑↓ + enter),
+ * Keys: → / space next, ← back, g slide grid (arrows / click, or type a number, then enter),
  * f fullscreen, p presenter window, home / end.
  *
  * The URL picks a mode:
@@ -21,14 +21,16 @@
  *               with the deck window over a BroadcastChannel, both ways.
  *   ?embed      no ui, no keys; follows its #hash. Used for the presenter previews.
  *   ?print      every slide fully revealed, one per page: cmd+p → save as pdf.
+ *   ?overview   every slide fully revealed, as a grid of thumbnails. The g picker
+ *               is this page in an iframe, driven through window.deckOverview.
  */
 import { initPresenter } from './presenter';
 
-export type Mode = 'main' | 'presenter' | 'embed' | 'print';
+export type Mode = 'main' | 'presenter' | 'embed' | 'print' | 'overview';
 
 export function initDeck() {
   const q = new URLSearchParams(location.search);
-  const mode: Mode = q.has('print') ? 'print' : q.has('presenter') ? 'presenter' : q.has('embed') ? 'embed' : 'main';
+  const mode: Mode = q.has('print') ? 'print' : q.has('overview') ? 'overview' : q.has('presenter') ? 'presenter' : q.has('embed') ? 'embed' : 'main';
   document.body.classList.add(`mode-${mode}`);
 
   const slides = [...document.querySelectorAll<HTMLElement>('.slide')];
@@ -41,7 +43,15 @@ export function initDeck() {
     [...s.querySelectorAll<HTMLElement>('[data-steps]')].reduce((n, e) => n + Number(e.dataset.steps), 0);
   const stepOf = (s: HTMLElement) => Number(s.dataset.step ?? 0);
 
+  // a slide's name in the picker
+  const title = (s: HTMLElement) =>
+    s.querySelector<HTMLElement>('[data-title]')?.dataset.title ||
+    s.querySelector(':is(h1, h2):not(.notes *)')?.textContent?.trim() ||
+    s.querySelector<HTMLImageElement>('img:not(.notes *)')?.alt ||
+    (s.dataset.file ?? '').replace(/^\d+-|\.\w+$/g, '');
+
   if (mode === 'print') return printAll();
+  if (mode === 'overview') return overview();
 
   // ── sync between the deck and presenter windows ───────────────────────────
   const channel = mode === 'embed' ? null : new BroadcastChannel(`deck:${location.pathname}`);
@@ -108,52 +118,69 @@ export function initDeck() {
     return [(n || 1) - 1, k || 0] as const;
   };
 
-  // ── slide picker ──────────────────────────────────────────────────────────
-  const title = (s: HTMLElement) =>
-    s.querySelector<HTMLElement>('[data-title]')?.dataset.title ||
-    s.querySelector(':is(h1, h2):not(.notes *)')?.textContent?.trim() ||
-    s.querySelector<HTMLImageElement>('img:not(.notes *)')?.alt ||
-    (s.dataset.file ?? '').replace(/^\d+-|\.\w+$/g, '');
-
+  // ── slide picker: a grid of every slide, fully revealed ────────────────────
+  // The thumbnails are the deck itself at ?overview in an iframe (live islands, final step), made on the
+  // first g and kept. Keys stay here; the iframe just draws the grid (see overview() below).
   const picker = document.createElement('div');
   picker.id = 'picker';
-  picker.innerHTML = `<div class="box"><div class="typed"></div><ol></ol></div>`;
+  picker.innerHTML = `<div class="box"><div class="typed"></div><div class="grid"><span class="loading">loading…</span></div></div>`;
   document.body.append(picker);
-  const list = picker.querySelector('ol')!;
   const typed = picker.querySelector<HTMLElement>('.typed')!;
-  slides.forEach((s, j) => {
-    const li = document.createElement('li');
-    li.innerHTML = `<span class="n">${j + 1}</span> `;
-    li.append(title(s));
-    li.onclick = () => { closePicker(); show(j); };
-    list.append(li);
-  });
+  let frame: HTMLIFrameElement | undefined;
+  let grid: Overview | undefined; // set once the iframe has loaded
   let sel = 0;
   let digits = '';
 
   const pickerOpen = () => picker.classList.contains('open');
   function renderPicker() {
-    [...list.children].forEach((li, j) => li.classList.toggle('sel', j === sel));
-    list.children[sel]?.scrollIntoView({ block: 'nearest' });
-    typed.textContent = digits ? `go to ${digits}` : 'type a number, or ↑↓ + enter';
+    grid?.select(sel, i);
+    typed.innerHTML = digits ? `go to <b>${digits}</b>` :
+      `<b>${sel + 1}</b> / ${slides.length}<span>arrows or a number, then enter · esc to close</span>`;
   }
   function openPicker() {
     sel = i;
     digits = '';
     picker.classList.add('open');
+    if (!frame) {
+      frame = document.createElement('iframe');
+      frame.src = `${location.pathname}?overview`;
+      frame.onload = () => {
+        const w = frame!.contentWindow as Window & { deckOverview?: Overview };
+        grid = w.deckOverview;
+        if (!grid) return;
+        grid.onPick = (j) => { closePicker(); show(j); };
+        // keys typed after clicking into the grid
+        w.addEventListener('keydown', (e) => { if (pickerOpen()) { pickerKey(e); e.preventDefault(); } });
+        if (pickerOpen()) grid.open();
+        renderPicker();
+      };
+      picker.querySelector('.grid')!.append(frame);
+    }
+    grid?.open();
     renderPicker();
   }
-  function closePicker() { picker.classList.remove('open'); }
+  function closePicker() {
+    picker.classList.remove('open');
+    grid?.close();
+    frame?.blur();
+    window.focus();
+  }
   picker.addEventListener('click', (e) => { if (e.target === picker) closePicker(); });
 
   function pickerKey(e: KeyboardEvent) {
+    const move = (d: number) => { sel = Math.max(0, Math.min(slides.length - 1, sel + d)); digits = ''; };
+    const cols = grid?.cols() ?? 1;
     if (/^\d$/.test(e.key)) {
       digits += e.key;
       const n = Number(digits) - 1;
       if (n >= 0 && n < slides.length) sel = n;
     } else if (e.key === 'Backspace') digits = digits.slice(0, -1);
-    else if (e.key === 'ArrowDown' || e.key === 'j') { sel = Math.min(slides.length - 1, sel + 1); digits = ''; }
-    else if (e.key === 'ArrowUp' || e.key === 'k') { sel = Math.max(0, sel - 1); digits = ''; }
+    else if (e.key === 'ArrowRight' || e.key === 'l') move(1);
+    else if (e.key === 'ArrowLeft' || e.key === 'h') move(-1);
+    else if (e.key === 'ArrowDown' || e.key === 'j') move(cols);
+    else if (e.key === 'ArrowUp' || e.key === 'k') move(-cols);
+    else if (e.key === 'Home') move(-sel);
+    else if (e.key === 'End') move(slides.length);
     else if (e.key === 'Enter') { closePicker(); show(sel); return; }
     else if (e.key === 'Escape' || e.key === 'g') { closePicker(); return; }
     else return;
@@ -217,7 +244,7 @@ export function initDeck() {
   }
 
   // ── print: everything at once ─────────────────────────────────────────────
-  function printAll() {
+  function revealAll() {
     for (const s of slides) {
       const k = total(s);
       s.classList.add('active');
@@ -228,4 +255,74 @@ export function initDeck() {
       s.dispatchEvent(new CustomEvent('slide:enter'));
     }
   }
+  function printAll() { revealAll(); }
+
+  // ── overview (?overview): the g picker's grid ─────────────────────────────
+  // Every slide fully revealed and scaled down into a grid, each with a clickable frame and its title under it.
+  // Slides stay where astro put them (moving them would re-hydrate islands); they're positioned absolutely.
+  function overview() {
+    const stage = document.getElementById('stage')!;
+    const cells = slides.map((s, j) => {
+      const cell = document.createElement('div');
+      cell.className = 'ov-cell';
+      cell.innerHTML = `<div class="ov-label"><span class="n">${j + 1}</span> </div>`;
+      cell.firstElementChild!.append(title(s));
+      cell.onclick = () => api.onPick(j);
+      stage.append(cell);
+      return cell;
+    });
+
+    // thumbnails about 300px wide, slides scaled by t; --k = t so islands measure in canvas px (deckScale)
+    const GAP = 20, PAD = 20, LABEL = 28;
+    let cols = 1;
+    function layout() {
+      const w = document.documentElement.clientWidth;
+      if (w < 100) return; // hidden
+      cols = Math.max(2, Math.floor((w - 2 * PAD + GAP) / (300 + GAP)));
+      const cw = (w - 2 * PAD - (cols - 1) * GAP) / cols, ch = cw * 9 / 16, t = cw / 1600;
+      document.documentElement.style.setProperty('--k', String(t));
+      slides.forEach((s, j) => {
+        const x = PAD + (j % cols) * (cw + GAP), y = PAD + Math.floor(j / cols) * (ch + LABEL + GAP);
+        s.style.transform = `translate(${x}px, ${y}px) scale(${t})`;
+        Object.assign(cells[j].style, { left: `${x}px`, top: `${y}px`, width: `${cw}px`, height: `${ch}px` });
+      });
+      stage.style.height = `${2 * PAD + Math.ceil(slides.length / cols) * (ch + LABEL + GAP)}px`;
+    }
+    layout();
+    addEventListener('resize', layout);
+
+    revealAll();
+    // islands run (timers, frames) only while the grid is open
+    const setActive = (on: boolean) => slides.forEach((s) => {
+      if (s.classList.contains('active') === on) return;
+      s.classList.toggle('active', on);
+      s.dispatchEvent(new CustomEvent(on ? 'slide:enter' : 'slide:leave'));
+    });
+    setActive(false);
+
+    const api: Overview = {
+      onPick: () => {},
+      cols: () => cols,
+      open() { layout(); setActive(true); },
+      close() { setActive(false); },
+      select(j, current) {
+        cells.forEach((c, n) => { c.classList.toggle('sel', n === j); c.classList.toggle('cur', n === current); });
+        // scroll it into view (scrollIntoView could scroll the deck behind the iframe too)
+        const c = cells[j], el = document.scrollingElement!;
+        if (!c) return;
+        const top = c.offsetTop - PAD, bottom = c.offsetTop + c.offsetHeight + LABEL + PAD;
+        if (top < el.scrollTop) el.scrollTop = top;
+        else if (bottom > el.scrollTop + innerHeight) el.scrollTop = bottom - innerHeight;
+      },
+    };
+    (window as Window & { deckOverview?: Overview }).deckOverview = api;
+  }
 }
+
+type Overview = {
+  onPick: (slide: number) => void;
+  cols: () => number;
+  open: () => void;
+  close: () => void;
+  select: (slide: number, current: number) => void;
+};
