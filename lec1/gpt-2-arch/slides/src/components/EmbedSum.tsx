@@ -23,11 +23,13 @@ export default function EmbedSum() {
         <div class={`op ${at(step, 2)}`}>=</div>
         <div class={at(step, 2)}><Strip values={d.embed[i]} scale={SC} height={44} label="start" /></div>
       </>)}
+      <div class={`cap ${at(step, 2)}`}>added once, right after the lookup, before block 0. everything after reads these</div>
       <style>{`
         .es { display: grid; grid-template-columns: auto 1fr auto 1fr auto 1fr; gap: .7em .6em; align-items: center; font-size: .8em; }
         .es .hdr { font-size: .6em; }
         .es .t { text-align: right; font-size: .9em; }
         .es .op { font-size: 1.2em; color: var(--muted); }
+        .es .cap { grid-column: 1 / -1; font-size: .7em; color: var(--muted); margin-top: .6em; }
       `}</style>
     </div>
   );

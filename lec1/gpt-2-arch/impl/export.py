@@ -29,6 +29,7 @@ WORDS = [" king", " queen", " man", " woman", " boy", " girl",
 NEIGHBOR_QUERIES = [" king", " Paris", " dog", " blue"]
 SPLIT_WORDS = [" tokenization", " ChatGPT", " 2026"]
 BPE_WORD = " tokenization" # built merge by merge on the bpe slide
+SAME = "I saw the cat and the dog" # the same word twice: identical strips until position is added
 
 def r(x, d=3):
   x = np.asarray(x, dtype=np.float64)
@@ -48,12 +49,13 @@ write = lambda name, obj: json.dump(obj, open(os.path.join(OUT, name), "w"), sep
 
 def ln(x, p): return F.layer_norm(x, (emb_dim,), W[p + ".weight"], W[p + ".bias"], 1e-5)
 
-def forward(ids):
-  """the whole model on one sequence (no batch). returns final logits (S, vocab) and every intermediate, as numpy"""
+def forward(ids, pos=True):
+  """the whole model on one sequence (no batch). returns final logits (S, vocab) and every intermediate, as numpy.
+  pos=False leaves the position table out (only for the slide on why it's needed)"""
   T = {}
   tap = lambda k, v: T.__setitem__(k, v.detach().numpy().copy())
   S = len(ids)
-  tok_emb, pos_emb = W["wte.weight"][ids], W["wpe.weight"][:S]
+  tok_emb, pos_emb = W["wte.weight"][ids], W["wpe.weight"][:S] * (1.0 if pos else 0.0)
   x = tok_emb + pos_emb
   tap("tok_emb", tok_emb); tap("pos_emb", pos_emb); tap("embed", x)
   mask = torch.full((S, S), float("-inf")).triu(1) # token i can't see tokens after it
@@ -142,10 +144,23 @@ def main():
     pieces = pieces[:k] + [pieces[k] + pieces[k + 1]] + pieces[k + 2:]
     bpe_steps.append({"rank": int(best) + 1, "at": k, "pieces": [show(x) for x in pieces]})
   assert [show(x) for x in pieces] == [dec(i) for i in TOK.encode(BPE_WORD).ids], pieces
+  # without the position table, order is invisible: " of" gets the same budget in a scrambled prompt
+  PERM = [2, 0, 1, 3] # "States The United of"
+  _, tn = forward(ids, pos=False)
+  _, tp = forward([ids[k] for k in PERM], pos=False)
+  P0 = tn["0.probs"][:, -1] # (12 heads, 4): block 0, the last token's budget
+  NH0 = int(np.argmax(P0[:, :-1].max(-1))) # the block-0 head that leans hardest on another token
+  assert np.abs(tp["0.probs"][:, -1][:, np.argsort(PERM)] - P0).max() < 1e-5
+  sids = TOK.encode(SAME).ids
+  si, sj = [k for k, i in enumerate(sids) if dec(i) == " the"]
+  assert np.array_equal(wte[sids[si]], wte[sids[sj]])
   write("embed.json", {
     "words": WORDS, "word_ids": word_ids,
     "bpe": {"word": BPE_WORD, "start": [show(c) for c in "Ġ" + BPE_WORD.strip()], "steps": bpe_steps,
             "first": [[show(x) for x in m.split(" ")] for m in merges[:8]], "n": len(merges)},
+    "order": {"perm": PERM, "head": NH0, "probs": r(P0[NH0]), "probs_perm": r(tp["0.probs"][NH0, -1])},
+    "same": {"toks": [dec(i) for i in sids], "i": si, "j": sj, "word": r(wte[sids[si]]), "pos_i": r(wpe[si]), "pos_j": r(wpe[sj]),
+             "diff_after": round(float(np.abs(wpe[si] - wpe[sj]).mean() / np.abs(wte[sids[si]] + wpe[si]).mean()), 2)},
     "splits": [{"word": w, "toks": [dec(i) for i in TOK.encode(w).ids], "ids": TOK.encode(w).ids} for w in SPLIT_WORDS],
     "cos": r(Wn @ Wn.T), "neighbors": neighbors,
     "wte_shape": shape(wte), "wpe_shape": shape(wpe),
