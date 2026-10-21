@@ -45,7 +45,7 @@ JS-driven animations (`LatencyRace`, `auto` Walkthrough, `Terminal`) set their o
 element to make a slide linger. Needs Google Chrome and ffmpeg.
 
 `bun run shot 3.0 3.2 14-stack.1` screenshots slides at given steps from a running deck (default `--url http://localhost:4400/`)
-into `/tmp/shots/`, and prints any page errors. Options: `--url`, `--out`, `--wait`, `--width`, `--height`.
+into `/tmp/shots/`, and prints any page errors. Options: `--url`, `--out`, `--wait`, `--width`, `--height`, `--jobs` (pages in parallel, default 8).
 
 `?print` shows every slide fully revealed, one per page: cmd+p → save as pdf (1600×900 pages, backgrounds on).
 
