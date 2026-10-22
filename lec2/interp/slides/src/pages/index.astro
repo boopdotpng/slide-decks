@@ -1,0 +1,94 @@
+---
+import '../styles/deck.css';
+import '../styles/viz.css';
+import * as config from '../deck.config';
+
+const { title } = config;
+// optional per-deck type size, 1 = the template's (decks made before it don't export it)
+const scale = (config as { scale?: number }).scale ?? 1;
+import { readNotes } from '../deck/notes-file';
+
+// every file in src/slides is one slide, ordered by filename (01-, 02-, ...)
+const modules = import.meta.glob<{ default: any }>('../slides/*.{astro,mdx}', { eager: true });
+const slides = Object.entries(modules)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([path, mod]) => ({ name: path.split('/').pop()!, Slide: mod.default }));
+
+// speaker notes from src/slides/notes.md (read from disk, not imported, so saving
+// notes from the presenter window doesn't reload the page). Rendered in the presenter.
+const notes = readNotes(process.cwd(), slides.map((s) => s.name.replace(/\.\w+$/, '')));
+---
+<!doctype html>
+<html lang="en" style={`--scale: ${scale}`}>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{title}</title>
+  <!-- every slide is laid out on a W×H canvas (1600×900, the print / shot size) that's scaled to fit the window, so
+       a slide looks the same at every size: as big as the screen allows, never cut off. A window that isn't 16:9
+       extends the canvas the long way instead of letterboxing. --k is the scale; inline so the first paint is right -->
+  <script is:inline>
+    (() => {
+      // ?print lays slides out unscaled, ?overview scales them itself (deck.ts)
+      if (/[?&](print|overview)\b/.test(location.search)) return;
+      const W = 1600, H = 900, r = document.documentElement.style;
+      const fit = () => {
+        const k = Math.min(innerWidth / W, innerHeight / H);
+        r.setProperty('--k', k);
+        r.setProperty('--stage-w', `${innerWidth / k}px`);
+        r.setProperty('--stage-h', `${innerHeight / k}px`);
+      };
+      fit();
+      addEventListener('resize', fit);
+    })();
+  </script>
+  <!-- theme: auto (the browser's light / dark setting) / light / dark, from the nav switch (deck.ts) and remembered in
+       localStorage, so every deck, tab and the presenter window follow it. ?theme=light|dark overrides it for that page
+       (shots, print). Sets <html data-theme="light|dark"> before the first paint and fires `deck:theme` on window
+       when it changes, so canvas islands can redraw -->
+  <script is:inline>
+    (() => {
+      const KEY = 'deck:theme', root = document.documentElement, dark = matchMedia('(prefers-color-scheme: dark)');
+      const forced = new URLSearchParams(location.search).get('theme');
+      const pref = () => (/^(light|dark)$/.test(forced ?? '') ? forced : localStorage.getItem(KEY) || 'dark');
+      const apply = () => {
+        const p = pref(), t = p === 'auto' ? (dark.matches ? 'dark' : 'light') : p;
+        root.dataset.themePref = p;
+        if (root.dataset.theme === t) return;
+        root.dataset.theme = t;
+        dispatchEvent(new CustomEvent('deck:theme', { detail: { theme: t } }));
+      };
+      window.deckTheme = {
+        get: pref,
+        set(p) { localStorage.setItem(KEY, p); apply(); },
+      };
+      apply();
+      dark.addEventListener('change', apply);
+      addEventListener('storage', (e) => { if (e.key === KEY) apply(); });
+    })();
+  </script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%2360a5fa'/></svg>">
+</head>
+<body>
+  <div id="stage">
+    {slides.map(({ name, Slide }) => (
+      <section class="slide" data-file={name}><Slide /></section>
+    ))}
+  </div>
+  <script type="application/json" id="deck-notes" set:html={JSON.stringify(Object.fromEntries(notes)).replace(/</g, '\\u003c')} />
+
+  <div id="nav">
+    <button id="prev" title="previous (←)">←</button>
+    <span id="counter" title="go to slide (g)"></span>
+    <button id="next" title="next (→)">→</button>
+    <button id="notes-btn" title="presenter view (p)">notes</button>
+    <button id="theme" title="theme: auto / light / dark (t)"></button>
+    <button id="fs" title="fullscreen (f)">⛶</button>
+  </div>
+
+  <script>
+    import { initDeck } from '../deck/deck';
+    initDeck();
+  </script>
+</body>
+</html>

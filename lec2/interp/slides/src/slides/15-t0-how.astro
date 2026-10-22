@@ -1,0 +1,10 @@
+---
+import { HowDigits } from '../components/TaskCharts.tsx';
+---
+<header>
+  <div class="section">task 0 · hidden digit, no layers</div>
+  <h2>how did it learn to only say digits?</h2>
+  <p class="sub">the score of every token, averaged over all 26 possible last letters</p>
+</header>
+<div data-steps="4" class="w"><HowDigits client:load data="task0" /></div>
+<style>.w { width: 100%; }</style>

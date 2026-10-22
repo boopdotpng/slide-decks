@@ -1,0 +1,8 @@
+---
+import { LetterTable } from '../components/TaskCharts.tsx';
+---
+<div class="section">task 0 · hidden digit, no layers</div>
+<h2>does the last letter change the guess?</h2>
+<p class="muted small">P(digit | last letter): one row per last letter</p>
+<div  class="w"><LetterTable client:load data="task0" /></div>
+<style>.w { width: 100%; }</style>

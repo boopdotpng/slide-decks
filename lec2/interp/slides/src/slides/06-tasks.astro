@@ -1,0 +1,35 @@
+<header>
+  <div class="section">overview</div>
+  <h2>what we will cover</h2>
+</header>
+<table class="tasks">
+  <tr><th>task</th><th>problem</th><th>input → output</th><th>network</th></tr>
+  <tr class="step"><td>0</td><td>hidden digit</td><td><code>qwdk7mzpa</code> → <code>7</code></td><td>embed → unembed, no layers</td></tr>
+  <tr class="step"><td>1</td><td>hidden digit</td><td><code>qwdk7mzpa</code> → <code>7</code></td><td>+ one attention head</td></tr>
+  <tr class="step muted"><td>2+</td><td colspan="3">harder problems, bigger networks</td></tr>
+</table>
+<p class="step small muted">every answer is one digit, read off the last position. guessing gets 10%</p>
+<div class="step plan">
+  <div class="plan-h">the plan</div>
+  <div class="flow">
+    <span>start with the smallest network</span><b>→</b>
+    <span>it can't solve a task</span><b>→</b>
+    <span>add one piece, retrain</span><b>→</b>
+    <span>look at the weights: what did it learn?</span>
+  </div>
+  <div class="again">↻ then the next task</div>
+</div>
+<style>
+  .tasks { border-collapse: collapse; margin-bottom: .6em; }
+  .tasks td, .tasks th { padding: .2em 1.4em .2em 0; text-align: left; }
+  .tasks th { font-size: .7em; color: var(--muted); font-weight: 400; }
+  .tasks td:first-child { font-family: var(--mono); color: var(--accent); }
+  .tasks code { font-size: 1.05em; letter-spacing: .05em; }
+  .plan { margin-top: .6em; padding: .7em 1em; border: 2px solid var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .plan-h { font-size: .55em; text-transform: uppercase; letter-spacing: .15em; color: var(--accent); margin-bottom: .4em; }
+  .flow { display: flex; align-items: center; gap: .4em; white-space: nowrap; font-size: .66em; }
+  .flow span { padding: .3em .6em; border-radius: 8px; background: var(--panel); border: 1px solid var(--border); }
+  .flow span:last-child { border-color: var(--accent); color: var(--fg); font-weight: 600; }
+  .flow b { color: var(--accent); }
+  .again { margin-top: .4em; font-size: .6em; color: var(--accent); }
+</style>

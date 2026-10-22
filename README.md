@@ -8,6 +8,7 @@ lecture decks, each an astro project made from the template at **[boopdotpng/sli
 | `lec1/gpt-2-arch` | rnn → gpt-2 for beginners: one 4-token prompt through the whole model, real weights |
 | `lec1/rnn` | char rnn on tiny shakespeare, pytorch (no slides; the rnn slides are in `gpt-2-arch`) |
 | `lec2/os` | how an os executes programs, plus `rv`, the risc-v emulator lec 1 runs assembly on |
+| `lec2/interp` | transformers from the residual stream up, on tiny models from ~/code/ml/interp (`export.py` writes the slide data) |
 
 in any deck: `cd slides && bun install && bun run dev` (:4321).
 

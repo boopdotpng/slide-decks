@@ -1,0 +1,34 @@
+---
+const VOCAB = [...'abcdefghijklmnopqrstuvwxyz0123456789'];
+const TEXT = [...'a2f5c9d3f'];
+const isDigit = (c: string) => /\d/.test(c);
+---
+<header>
+  <div class="section">recap: tokens</div>
+  <h2>tokenization: one character, one token</h2>
+  <p class="sub">our vocab is 26 letters + 10 digits = <b>36 tokens</b></p>
+</header>
+<div class="vocab">
+  {VOCAB.map((c, i) => (
+    <div class="v"><span class:list={['c', { dg: isDigit(c) }]}>{c}</span><span class="id">{i}</span></div>
+  ))}
+</div>
+<div class="step enc">
+  <div class="lbl">our input <code>a2f5c9d3f</code> becomes 9 token ids</div>
+  <div class="row">
+    {TEXT.map((c) => (
+      <div class="v"><span class:list={['c', { dg: isDigit(c) }]}>{c}</span><span class="id">{VOCAB.indexOf(c)}</span></div>
+    ))}
+  </div>
+</div>
+<style>
+  .vocab, .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .vocab { max-width: 30em; margin: .6em 0 1.4em; }
+  .v { display: flex; flex-direction: column; align-items: center; width: 2.2em; padding: .25em 0;
+       background: var(--panel); border: 1px solid var(--border); border-radius: 6px; }
+  .row .v { width: 2.8em; }
+  .c { font-family: var(--mono); }
+  .c.dg { color: var(--hot); }
+  .id { font-family: var(--mono); font-size: .5em; color: var(--muted); }
+  .lbl { font-size: .7em; color: var(--muted); margin-bottom: .5em; }
+</style>

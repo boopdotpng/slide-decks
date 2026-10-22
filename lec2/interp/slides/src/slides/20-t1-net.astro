@@ -1,0 +1,10 @@
+---
+import Net from '../components/Net.tsx';
+---
+<header>
+  <div class="section">task 1 · hidden digit, one head</div>
+  <h2>our network now: one attention head</h2>
+  <p class="sub">same task, same embed and unembed. one new piece in between: a single attention head that can read other positions</p>
+</header>
+<div class="net-wrap"><Net client:load text="qwdk7mzpa" layers={[{ heads: 1 }]} weights="task1" /></div>
+<style>.net-wrap { width: 100%; }</style>

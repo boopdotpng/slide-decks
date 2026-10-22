@@ -1,0 +1,10 @@
+---
+import Net from '../components/Net.tsx';
+---
+<header>
+  <div class="section">task 0 · hidden digit, no layers</div>
+  <h2>our current network</h2>
+  <p class="sub">no layers yet: each token's embedding goes straight to the unembedding. we'll add pieces as the tasks need them</p>
+</header>
+<div class="net-wrap"><Net client:load text="qwdk7mzpa" layers={[]} weights="task0" /></div>
+<style>.net-wrap { width: 100%; }</style>
