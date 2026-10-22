@@ -78,7 +78,7 @@ export default function Inline({ callAsm, inlineAsm }: { callAsm: string; inline
         .inline-fn .in-pane { flex: none; }
         .inline-fn .in-arrow { font-size: 1.3em; align-self: center; }
         .inline-fn .in-title { font-size: .5em; margin-bottom: .3em; white-space: nowrap; }
-        .inline-fn .in-count { color: #f69d50; margin-left: 1em; }
+        .inline-fn .in-count { color: var(--hot); margin-left: 1em; }
         .inline-fn pre { font-size: .55em; margin: 0; }
         .inline-fn .in-when { font-size: .66em; flex: 1; min-width: 0; padding-left: .4em; }
         .inline-fn .in-when .in-title { font-size: .76em; }

@@ -106,7 +106,7 @@ export default function StackFrames() {
               const top = written && isRa;
               return (
                 <div class={`sf-row ${r === 0 ? 'caller' : ''} ${written ? 'w' : ''} ${freed ? 'freed' : ''} ${top ? 'ftop' : ''}`}
-                  style={{ '--fc': k % 2 ? '#1c2a3d' : '#1d2a1f' }}>
+                  style={{ '--fc': k % 2 ? 'var(--tint-blue)' : 'var(--tint-green)' }}>
                   <span class="sf-addr muted">0x{addr.toString(16)}</span>
                   <span class="sf-val">{r === 0 ? '…' : written ? (isRa ? f.ra : f.s0) : ''}</span>
                   <span class="sf-note muted">{r === 0 ? "_start's" : written ? (isRa ? <><b class="sf-fname">{f.name}</b>saved ra {f.raNote}</> : <>saved s0 · {f.s0Note}</>) : ''}</span>
@@ -136,11 +136,11 @@ export default function StackFrames() {
           height: var(--row); padding: 0 .5em; border: 1px dashed var(--border); border-top: none;
           transition: background .35s, opacity .35s; }
         .stack-frames .sf-row:first-child { border-top: 1px dashed var(--border); }
-        .stack-frames .sf-row.caller { background: #141414; }
+        .stack-frames .sf-row.caller { background: var(--panel); }
         .stack-frames .sf-row.w { background: var(--fc); border-style: solid; }
-        .stack-frames .sf-row.ftop { border-top: 2px solid #555; }
+        .stack-frames .sf-row.ftop { border-top: 2px solid var(--faint); }
         .stack-frames .sf-row.freed { opacity: .35; }
-        .stack-frames .sf-val { color: #f69d50; }
+        .stack-frames .sf-val { color: var(--hot); }
         .stack-frames .sf-note { font-size: .85em; white-space: nowrap; }
         .stack-frames .sf-fname { color: var(--fg); font-weight: normal; margin-right: .6em; }
         .stack-frames .sf-sp { position: absolute; left: 0; height: var(--row); display: flex; align-items: center;

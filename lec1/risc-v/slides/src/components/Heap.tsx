@@ -51,7 +51,7 @@ export default function Heap({ c, asm }: { c: string; asm: string }) {
   const markers: Marker[] = [];
   if (step >= 1) markers.push({ region: 'heap', at: 0.85, label: 'p' });
   if (cur.brk || (cur.heap ?? 0) > 1) markers.push({ region: 'heap', at: 0, label: 'break', color: 'var(--muted)' });
-  if (cur.bad) markers.push({ region: 'stack', at: 0.7, label: 'x', color: '#f47067' });
+  if (cur.bad) markers.push({ region: 'stack', at: 0.7, label: 'x', color: 'var(--bad)' });
   const cells = (
     <div class="hp-cells">
       {[0, 1, 2, 3].map((i) => (
@@ -90,8 +90,8 @@ export default function Heap({ c, asm }: { c: string; asm: string }) {
         .heap-isl .state-table { font-size: .5em; align-self: flex-start; }
         .heap-isl .hp-cells { display: flex; gap: 3px; align-items: center; font-family: var(--mono); }
         .heap-isl .hp-cell { width: 2.2em; height: 1.6em; display: inline-flex; align-items: center; justify-content: center;
-          background: #1c1c1c; border-radius: 3px; color: var(--fg); transition: background .3s; }
-        .heap-isl .hp-cell.on { background: #14532d; }
+          background: var(--surface); border-radius: 3px; color: var(--fg); transition: background .3s; }
+        .heap-isl .hp-cell.on { background: var(--fill-green); }
         .heap-isl .hp-cell.at { box-shadow: inset 0 0 0 2px var(--accent); }
         .heap-isl .hp-a2 { margin-left: .6em; color: var(--accent); white-space: nowrap; }
         .heap-isl .hp-text { font-size: .75em; min-height: 2.8em; margin-top: .4em; }

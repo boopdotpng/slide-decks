@@ -5,7 +5,7 @@ import { ByteHeat, at, useIsland } from './viz';
  * The position table: 1024 rows (one per position), 768 numbers each, learned. Drawn every 2nd row.
  *  0 the table (each column scaled to its own spread; columns sorted by how fast they wave)   1 four of its columns, plotted down the positions: slow waves   2 there is no row 1024   3 our 4 tokens use rows 0–3
  */
-const LINE = ['#3987e5', '#d95926', '#199e70', '#9085e9'];
+const LINE = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)', 'var(--series-4)'];
 const TW = 560, TH = 440, PW = 380;
 
 export default function PosTable() {
@@ -46,7 +46,7 @@ export default function PosTable() {
         .pt .tbl { display: flex; flex-direction: column; gap: .3em; }
         .pt .col { position: absolute; top: 0; bottom: 0; width: 3px; margin-left: -1px; }
         .pt .ours { position: absolute; left: -6px; right: -6px; top: -3px; height: 8px; border: 2px solid var(--accent); border-radius: 3px; }
-        .pt .missing { margin-top: .2em; padding: .3em .6em; border: 2px dashed #f47067; border-radius: 6px; color: #f47067; font-size: .65em; }
+        .pt .missing { margin-top: .2em; padding: .3em .6em; border: 2px dashed var(--bad); border-radius: 6px; color: var(--bad); font-size: .65em; }
         .pt .side { position: relative; display: flex; flex-direction: column; padding-top: 1.1em; }
         .pt .tw { display: flex; gap: .5em; }
         .pt .ticks { height: ${TH}px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end;

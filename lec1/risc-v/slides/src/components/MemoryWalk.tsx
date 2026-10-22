@@ -56,11 +56,11 @@ export function MemRow({ mem, ptrs = {}, touch, write }: {
         .mem-row .mw-cell { display: flex; flex-direction: column; align-items: center; flex: 1; }
         .mem-row .mw-name { font-size: .8em; color: var(--fg); height: 1.5em; line-height: 1.5em; }
         .mem-row .mw-addr { font-size: .7em; color: var(--muted); }
-        .mem-row .mw-v { width: 100%; text-align: center; background: #1c1c1c; border-radius: 4px; padding: .3em 0;
+        .mem-row .mw-v { width: 100%; text-align: center; background: var(--surface); border-radius: 4px; padding: .3em 0;
           box-shadow: inset 0 0 0 2px transparent; transition: box-shadow .25s, background .25s; }
-        .mem-row .mw-cell:last-child .mw-v { background: #1c2433; }
+        .mem-row .mw-cell:last-child .mw-v { background: var(--tint-blue); }
         .mem-row .read .mw-v { box-shadow: inset 0 0 0 2px var(--accent); }
-        .mem-row .write .mw-v { box-shadow: inset 0 0 0 2px #f69d50; }
+        .mem-row .write .mw-v { box-shadow: inset 0 0 0 2px var(--hot); }
         .mem-row .mw-ptr { color: var(--accent); min-height: 1.4em; }
       `}</style>
     </div>

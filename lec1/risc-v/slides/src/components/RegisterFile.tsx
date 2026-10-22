@@ -35,7 +35,7 @@ export function RegGrid({ looks = {} }: { looks?: Record<number, RegLook> }) {
       {ABI.map((abi, i) => {
         const l = looks[i] ?? {};
         return (
-          <div class={`rg-cell ${l.mark ?? ''} ${l.dim ? 'dim' : ''}`} style={{ background: l.fill ?? '#161616' }}>
+          <div class={`rg-cell ${l.mark ?? ''} ${l.dim ? 'dim' : ''}`} style={{ background: l.fill ?? 'var(--panel)' }}>
             <span class="rg-x">x{i}</span>
             <span class="rg-abi">{abi}</span>
             <span class="rg-v">{l.value ?? ''}</span>
@@ -50,7 +50,7 @@ export function RegGrid({ looks = {} }: { looks?: Record<number, RegLook> }) {
         .reg-grid .rg-cell.dim { opacity: .35; }
         .reg-grid .rg-x { font-size: .5em; color: var(--muted); }
         .reg-grid .rg-abi { font-size: .78em; color: var(--fg); }
-        .reg-grid .rg-v { font-size: .6em; color: #f69d50; min-height: 1.2em; }
+        .reg-grid .rg-v { font-size: .6em; color: var(--hot); min-height: 1.2em; }
         .reg-grid .rg-cell.ok { box-shadow: inset 0 0 0 2px ${COLORS.good}; }
         .reg-grid .rg-cell.bad { box-shadow: inset 0 0 0 2px ${COLORS.bad}; }
         .reg-grid .rg-cell.hl { box-shadow: inset 0 0 0 2px var(--accent); }

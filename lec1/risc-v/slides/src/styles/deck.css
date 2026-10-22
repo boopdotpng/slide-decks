@@ -6,9 +6,33 @@
 @font-face { font-family: 'Paper Mono'; src: url('/fonts/PaperMono.woff2') format('woff2');
   font-weight: 100 900; font-style: normal; font-display: block; }
 
-/* theme: change these per deck */
-:root { --bg:#0a0a0a; --fg:#e5e5e5; --muted:#8a8a8a; --accent:#60a5fa; --code:#171717;
-  --hl: rgba(96, 165, 250, .16); --panel:#141414; --border:#262626;
+/* theme: every color a deck uses comes from here (or COLORS in viz/color.ts, which points back here).
+   No hex / rgb() literals anywhere else: `bun run check` fails on them (scripts/colors.mjs). Need a tint?
+   color-mix(in srgb, var(--good) 16%, transparent). Need a new color? add it here, for every deck. */
+:root {
+  /* surfaces, darkest to lightest */
+  --bg:#0a0a0a; --sunken:#111; --panel:#141414; --code:#171717; --surface:#1c1c1c; --raised:#262626; --raised-2:#333;
+  --term:#000;
+  /* text */
+  --fg:#e5e5e5; --muted:#8a8a8a; --faint:#555;
+  --on-color:#0a0a0a; /* text on a bright fill (accent, hot, good, …) */
+  /* lines */
+  --border:#262626; --line:#333; --line-2:#444;
+  /* meaning: readable as text and as strokes */
+  --accent:#60a5fa; --hot:#f69d50; --good:#8ddb8c; --bad:#f47067; --purple:#dcbdfb;
+  --hl: rgba(96, 165, 250, .16);
+  /* region fills, with --fg text on top */
+  --fill-slate:#334155; --fill-blue:#1e3a8a; --fill-green:#14532d; --fill-amber:#713f12; --fill-red:#7f1d1d; --fill-violet:#4c1d95;
+  /* surfaces with a hint of color */
+  --tint-blue:#1c2a3d; --tint-green:#1d2a1f; --tint-violet:#2a1d3d;
+  /* matrices / tensors */
+  --steel:#1e3a5f; --steel-2:#2a4a73; --steel-line:#3a4a5c;
+  /* data: diverging ends + midpoint (mirrored in viz/color.ts, which interpolates them), categorical series */
+  --neg:#3987e5; --pos:#e66767; --mid:#2a2a28;
+  --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70; --series-4:#9085e9;
+  /* syntax (components/Code.tsx) */
+  --tok-kw:#f47067; --tok-reg:#6cb6ff; --tok-num:#f69d50; --tok-str:#96d0ff; --tok-com:#768390; --tok-dir:#8ddb8c;
+  --tok-sym:#dcbdfb;
   --sans: -apple-system, Inter, 'Segoe UI', Helvetica, Arial, sans-serif;
   --mono: 'Paper Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   /* everything on a slide is in canvas px (the canvas is 1600×900, scaled to the window: #stage below), so px, em and
@@ -101,20 +125,20 @@ pre.code { padding: .6em .4em; }
 .code .ln { white-space: pre; padding: 0 .5em; border-radius: 4px; transition: background .25s, opacity .25s; }
 .code.has-hl .ln:not(.hl) { opacity: .4; }
 .code .ln.hl { background: var(--hl); }
-.tok-kw { color: #f47067; }
-.tok-reg { color: #6cb6ff; }
-.tok-num { color: #f69d50; }
-.tok-str { color: #96d0ff; }
-.tok-com { color: #768390; font-style: italic; }
-.tok-dir { color: #8ddb8c; }
-.tok-label { color: #dcbdfb; }
-.tok-sym { color: #dcbdfb; }
-.tok-fn { color: #dcbdfb; }
-.tok-type { color: #f69d50; }
+.tok-kw { color: var(--tok-kw); }
+.tok-reg { color: var(--tok-reg); }
+.tok-num { color: var(--tok-num); }
+.tok-str { color: var(--tok-str); }
+.tok-com { color: var(--tok-com); font-style: italic; }
+.tok-dir { color: var(--tok-dir); }
+.tok-label { color: var(--tok-sym); }
+.tok-sym { color: var(--tok-sym); }
+.tok-fn { color: var(--tok-sym); }
+.tok-type { color: var(--tok-num); }
 
 /* ── slide picker (g): the ?overview page in an iframe ─────────────────────── */
 #picker { position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
-  background: rgba(0, 0, 0, .6); z-index: 10; }
+  background: color-mix(in srgb, var(--term) 60%, transparent); z-index: 10; }
 #picker.open { display: flex; }
 #picker .box { position: absolute; inset: 3vh 3vw; display: flex; flex-direction: column; overflow: hidden;
   background: var(--panel); border: 1px solid var(--border); border-radius: 12px; font-size: 16px; }

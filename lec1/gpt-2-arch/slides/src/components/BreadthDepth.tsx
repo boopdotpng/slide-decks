@@ -80,12 +80,12 @@ export default function BreadthDepth() {
         .bd .r.on { opacity: 1; }
         .bd .r .bn { font-size: .45em; color: var(--muted); width: 5em; text-align: right; margin-right: .4em; }
         .bd .c { border-radius: 4px; opacity: .8; }
-        .bd .c.ours { outline: 3px solid #fff; outline-offset: 1px; opacity: 1; }
-        .bd .c.prev { outline: 3px dashed #fff; outline-offset: 1px; opacity: 1; }
+        .bd .c.ours { outline: 3px solid var(--fg); outline-offset: 1px; opacity: 1; }
+        .bd .c.prev { outline: 3px dashed var(--fg); outline-offset: 1px; opacity: 1; }
         .bd .legend { display: flex; flex-direction: column; gap: .3em; font-size: .5em; color: var(--muted); margin-left: 5.2em; }
         .bd .legend .sw { display: inline-block; width: .9em; height: .9em; border-radius: 3px; background: var(--accent); vertical-align: -.1em; margin-right: .4em; }
-        .bd .legend .sw.ours { outline: 2px solid #fff; }
-        .bd .legend .sw.prev { outline: 2px dashed #fff; }
+        .bd .legend .sw.ours { outline: 2px solid var(--fg); }
+        .bd .legend .sw.prev { outline: 2px dashed var(--fg); }
         .bd .side { display: flex; flex-direction: column; gap: 1em; max-width: 44em; }
         .bd .pt { display: flex; flex-direction: column; gap: .25em; }
         .bd .pt .h { font-size: .8em; margin-bottom: .2em; }

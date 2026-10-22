@@ -105,7 +105,7 @@ export default function CallRet() {
         .call-ret .cr-addr { font-size: .8em; }
         .call-ret .cr-code { padding-left: 1.2em; white-space: pre; }
         .call-ret .cr-tag { font-size: .75em; }
-        .call-ret .cr-tag .out { color: #f69d50; }
+        .call-ret .cr-tag .out { color: var(--hot); }
         .call-ret .cr-tag .in { color: var(--accent); }
         .call-ret .cr-gap { padding: .2em 0 .2em 7.6em; }
         .call-ret .cr-side { font-size: .8em; padding-top: .4em; }

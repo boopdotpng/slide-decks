@@ -59,7 +59,7 @@ export default function WhichOne() {
         .wo .lbl { margin-bottom: .5em; min-height: 1.8em; display: flex; align-items: center; gap: .3em; }
         .wo .ord { display: flex; gap: .6em; align-items: flex-end; }
         .wo .col { display: flex; flex-direction: column; align-items: center; gap: .2em; }
-        .wo .bar { width: 46px; height: 110px; background: #1a1a1a; border-radius: 4px; display: flex; align-items: flex-end; overflow: hidden; }
+        .wo .bar { width: 46px; height: 110px; background: var(--surface); border-radius: 4px; display: flex; align-items: flex-end; overflow: hidden; }
         .wo .bar div { width: 100%; background: var(--accent); transition: height .5s; }
         .wo .p { font: .55em var(--mono); color: var(--muted); }
         .wo .col .chip { font-size: .75em; }

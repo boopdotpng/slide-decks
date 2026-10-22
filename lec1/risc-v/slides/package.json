@@ -6,7 +6,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check",
+    "check": "bun scripts/colors.mjs && astro check",
     "record": "bun scripts/record.mjs",
     "sync": "bun scripts/sync.mjs",
     "shot": "bun scripts/shot.mjs"

@@ -31,7 +31,7 @@ export default function KernelLayers() {
         <Box x={10} y={200} w={1080} h={120} title="kernel" sub="can touch everything" tag="ring 0" />
         <Box x={10} y={390} w={1080} h={120} title="hardware" sub="disk · network · timer">
           {/* the device both routes are trying to reach: a pcie card */}
-          <rect x={460} y={420} width={420} height={60} rx={10} fill="#1c1c1c" stroke="#333" />
+          <rect x={460} y={420} width={420} height={60} rx={10} fill="var(--surface)" stroke="var(--line)" />
           <text x={670} y={459} font-size="24" fill="var(--fg)" text-anchor="middle">accelerator <tspan fill="var(--muted)">(pcie card)</tspan></text>
         </Box>
 

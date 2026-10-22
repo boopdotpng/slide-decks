@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'preact/hooks';
 import * as THREE from 'three';
 import { deckScale, useSlideActive, useSlideStep } from '../deck/hooks';
-import { Tok, diverging, sequential, useData } from './viz';
+import { Tok, diverging, resolve, sequential, useData } from './viz';
 import { headColor } from './common';
 
 /**
@@ -33,7 +33,7 @@ const GAP = 0.14; // gap between bands once they're cut
 const Y = { x: 3.6, q: 1.2, k: -1.2, v: -3.6 };
 const X = { q: -6, k: -3.4, s: 0.2, v: 3.4, o: 5.6 }; // stack centers
 const CONCAT_Y = 1.4, PROJ_Y = -1.4;
-const NEUTRAL = '#5b6b80';
+const NEUTRAL = '#5b6b80'; // colors-ok: 3d plate shading, reads on any background
 const grid = (h: number) => [((h % 4) - 1.5) * 2.5 + X.s, (1 - Math.floor(h / 4)) * 2.75, 0] as V3;
 
 type V3 = [number, number, number];
@@ -140,8 +140,8 @@ function rowsTexture() { // white with a faint line between token rows, multipli
   const c = document.createElement('canvas');
   c.width = 64; c.height = S * 8;
   const g = c.getContext('2d')!;
-  g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
-  g.fillStyle = '#a9a9a9';
+  g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); // colors-ok: texture base, tinted by the plate color
+  g.fillStyle = '#a9a9a9'; // colors-ok
   for (let r = 1; r < S; r++) g.fillRect(0, r * 8 - 1, c.width, 1);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
@@ -161,7 +161,7 @@ function mixedTexture() { // c_proj's output: every column is a blend of all 12 
     cols.forEach((col, h) => m.add(col.clone().multiplyScalar(w[h] / sum)));
     g.fillStyle = `#${m.getHexString()}`; g.fillRect(x, 0, 4, c.height);
   }
-  g.fillStyle = 'rgba(0,0,0,.35)';
+  g.fillStyle = 'rgba(0,0,0,.35)'; // colors-ok
   for (let r = 1; r < S; r++) g.fillRect(0, r * 8 - 1, c.width, 1);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
@@ -203,19 +203,19 @@ function build(el: HTMLElement, labelEls: HTMLElement[], labelDefs: Label[], d: 
     items.push({ obj: mesh, mats: [mat, lmat], color: [new THREE.Color(c0), new THREE.Color(c1)], target });
   }
 
-  plate(plateGeo(WD, SH), rows, NEUTRAL, '#8796aa', (s) => st([0, Y.x, 0], s <= 2 ? 1 : 0, 0, 0));
+  plate(plateGeo(WD, SH), rows, NEUTRAL, '#8796aa', (s) => st([0, Y.x, 0], s <= 2 ? 1 : 0, 0, 0)); // colors-ok
   const bandGeo = plateGeo(BW, SH);
   for (const m of ['q', 'k', 'v'] as const)
-    for (let h = 0; h < NH; h++) plate(bandGeo, rows, [NEUTRAL, headColor(h)], '#0a0a0a', (s) => band(m, h, s));
+    for (let h = 0; h < NH; h++) plate(bandGeo, rows, [NEUTRAL, headColor(h)], resolve('var(--bg)'), (s) => band(m, h, s));
     const mapGeo = plateGeo(SH, SH);
   for (let h = 0; h < NH; h++) {
     const sc = keep(mapTexture(d.scores_focus_block[h], (v) => diverging(v, 3)));
-    const pr = keep(mapTexture(d.probs_focus_block[h], (v, r, c) => (c > r ? '#111111' : sequential(Math.sqrt(v)))));
-    plate(mapGeo, sc, '#ffffff', headColor(h), (s) => scorePlate(h, s, false));
-    plate(mapGeo, pr, '#ffffff', headColor(h), (s) => scorePlate(h, s, true));
+    const pr = keep(mapTexture(d.probs_focus_block[h], (v, r, c) => (c > r ? resolve('var(--sunken)') : sequential(Math.sqrt(v)))));
+    plate(mapGeo, sc, '#ffffff', headColor(h), (s) => scorePlate(h, s, false)); // colors-ok
+    plate(mapGeo, pr, '#ffffff', headColor(h), (s) => scorePlate(h, s, true)); // colors-ok
   }
-  for (let h = 0; h < NH; h++) plate(bandGeo, rows, headColor(h), '#0a0a0a', (s) => outBand(h, s));
-  plate(plateGeo(WD, SH), keep(mixedTexture()), '#ffffff', '#8796aa', (s) => st([0, PROJ_Y, 0], s >= 10 ? 1 : 0));
+  for (let h = 0; h < NH; h++) plate(bandGeo, rows, headColor(h), resolve('var(--bg)'), (s) => outBand(h, s));
+  plate(plateGeo(WD, SH), keep(mixedTexture()), '#ffffff', '#8796aa', (s) => st([0, PROJ_Y, 0], s >= 10 ? 1 : 0)); // colors-ok
 
   // per-item and per-label current state, and where the tween started from
   let step = 0, t0 = 0, dirty = true;

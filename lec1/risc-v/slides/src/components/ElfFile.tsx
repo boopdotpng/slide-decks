@@ -13,16 +13,16 @@ import { useSlideStep } from '../deck/hooks';
 
 type Part = 'hdr' | 'phdr' | 'text' | 'data' | 'names' | 'shdr';
 const FILE: { key: Part; name: string; size: string; sub: ComponentChildren; color: string; grow: number }[] = [
-  { key: 'hdr', name: 'elf header', size: '64 B', sub: <><code>7f 45 4c 46</code> = "\x7fELF" · risc-v · 64-bit · start at 0x11158</>, color: '#333', grow: 1 },
-  { key: 'phdr', name: 'program headers', size: '280 B', sub: 'what to load, where, with what permissions', color: '#333', grow: 1.6 },
+  { key: 'hdr', name: 'elf header', size: '64 B', sub: <><code>7f 45 4c 46</code> = "\x7fELF" · risc-v · 64-bit · start at 0x11158</>, color: 'var(--raised-2)', grow: 1 },
+  { key: 'phdr', name: 'program headers', size: '280 B', sub: 'what to load, where, with what permissions', color: 'var(--raised-2)', grow: 1.6 },
   { key: 'text', name: '.text', size: '64 B', sub: <><code>97 12 00 00 93 82 02 04 …</code> our 16 instructions</>, color: COLORS.slate, grow: 1 },
   { key: 'data', name: '.data', size: '72 B', sub: <><code>03 00 00 00 00 00 00 00 01 …</code> nums, total</>, color: COLORS.blue, grow: 1 },
-  { key: 'names', name: '.symtab .strtab', size: '…', sub: <>names: <code>_start</code> <code>loop</code> <code>nums</code> <code>total</code></>, color: '#2a2a2a', grow: 1.6 },
-  { key: 'shdr', name: 'section headers', size: '448 B', sub: 'a table of contents for tools', color: '#2a2a2a', grow: 1 },
+  { key: 'names', name: '.symtab .strtab', size: '…', sub: <>names: <code>_start</code> <code>loop</code> <code>nums</code> <code>total</code></>, color: 'var(--raised)', grow: 1.6 },
+  { key: 'shdr', name: 'section headers', size: '448 B', sub: 'a table of contents for tools', color: 'var(--raised)', grow: 1 },
 ];
 
 const MEM: { key: Part | 'free' | 'later'; name: string; addr?: string; sub: string; color: string }[] = [
-  { key: 'later', name: 'stack, heap', sub: 'made while it runs (next lecture)', color: '#1a1a1a' },
+  { key: 'later', name: 'stack, heap', sub: 'made while it runs (next lecture)', color: 'var(--surface)' },
   { key: 'free', name: '', sub: '', color: 'transparent' },
   { key: 'data', name: '.data', addr: '0x12198', sub: 'read + write', color: COLORS.blue },
   { key: 'text', name: '.text', addr: '0x11158', sub: 'read + execute, not writable', color: COLORS.slate },
@@ -76,12 +76,12 @@ export default function ElfFile() {
         .elf-file .ef-box.on { box-shadow: inset 0 0 0 3px var(--accent); }
         .elf-file .ef-box.dim { opacity: .3; }
         .elf-file .ef-name { font-family: var(--mono); color: var(--fg); }
-        .elf-file .ef-size { font-family: var(--mono); color: rgba(255,255,255,.6); margin-left: auto; }
-        .elf-file .ef-sub { width: 100%; font-size: .8em; color: rgba(255,255,255,.7); }
+        .elf-file .ef-size { font-family: var(--mono); color: color-mix(in srgb, var(--fg) 60%, transparent); margin-left: auto; }
+        .elf-file .ef-sub { width: 100%; font-size: .8em; color: color-mix(in srgb, var(--fg) 70%, transparent); }
         .elf-file .ef-sub code { background: none; padding: 0; }
         .elf-file .ef-box.mem { flex-grow: 1; }
         .elf-file .ef-free { flex-grow: 2 !important; border: 1px dashed var(--border);
-          background: repeating-linear-gradient(135deg, #1a1a1a 0 2px, transparent 2px 9px) !important; }
+          background: repeating-linear-gradient(135deg, var(--surface) 0 2px, transparent 2px 9px) !important; }
         .elf-file .ef-later { border: 1px dashed var(--border); }
         .elf-file .ef-arrow { align-self: center; font-size: 1.4em; text-align: center; }
         .elf-file .ef-arrow .muted { font-size: .35em; }

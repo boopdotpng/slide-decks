@@ -66,7 +66,7 @@ export default function LoopRun() {
               .loop-mem { display: flex; gap: .3em; font-family: var(--mono); }
               .loop-mem .lm-cell { display: flex; flex-direction: column; align-items: center; min-width: 4.4em; }
               .loop-mem .lm-addr { font-size: .7em; color: var(--muted); }
-              .loop-mem .lm-v { width: 100%; text-align: center; background: #1c1c1c; border-radius: 4px; padding: .2em 0;
+              .loop-mem .lm-v { width: 100%; text-align: center; background: var(--surface); border-radius: 4px; padding: .2em 0;
                 box-shadow: inset 0 0 0 2px transparent; transition: box-shadow .25s; }
               .loop-mem .past .lm-v { background: none; color: var(--muted); }
               .loop-mem .on .lm-v { box-shadow: inset 0 0 0 2px var(--accent); }

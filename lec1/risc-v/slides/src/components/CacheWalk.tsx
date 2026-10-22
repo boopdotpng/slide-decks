@@ -117,17 +117,17 @@ export default function CacheWalk() {
         .cache-walk .cw-stats td:first-child { color: var(--muted); }
         .cache-walk .cw-stats .cw-total td { color: var(--fg); font-weight: 700; border-top: 1px solid var(--border); padding-top: .2em; }
         .cache-walk .cw-lines { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8em .7em; margin-top: 1em; }
-        .cache-walk .cw-line { border-radius: 8px; padding: .3em; background: #111; box-shadow: inset 0 0 0 2px transparent;
+        .cache-walk .cw-line { border-radius: 8px; padding: .3em; background: var(--sunken); box-shadow: inset 0 0 0 2px transparent;
           transition: background .3s, box-shadow .3s; }
-        .cache-walk .cw-line.in { background: ${COLORS.green}55; box-shadow: inset 0 0 0 2px ${COLORS.green}; }
+        .cache-walk .cw-line.in { background: color-mix(in srgb, ${COLORS.green} 33%, transparent); box-shadow: inset 0 0 0 2px ${COLORS.green}; }
         .cache-walk .cw-line.fetching { box-shadow: inset 0 0 0 2px ${COLORS.bad}; animation: cw-pulse .5s ease-in-out infinite alternate; }
-        @keyframes cw-pulse { to { box-shadow: inset 0 0 0 2px ${COLORS.bad}44; } }
+        @keyframes cw-pulse { to { box-shadow: inset 0 0 0 2px color-mix(in srgb, ${COLORS.bad} 27%, transparent); } }
         .cache-walk .cw-cells { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; }
         .cache-walk .cw-c { font-family: var(--mono); font-size: .5em; text-align: center; padding: .45em 0; border-radius: 3px;
-          background: #1f1f1f; color: var(--muted); transition: background .2s, color .2s; }
-        .cache-walk .cw-c.miss { background: ${COLORS.bad}; color: #000; }
-        .cache-walk .cw-c.hit { background: ${COLORS.good}; color: #000; }
-        .cache-walk .cw-c.pf { background: ${COLORS.accent}; color: #000; }
+          background: var(--surface); color: var(--muted); transition: background .2s, color .2s; }
+        .cache-walk .cw-c.miss { background: ${COLORS.bad}; color: var(--on-color); }
+        .cache-walk .cw-c.hit { background: ${COLORS.good}; color: var(--on-color); }
+        .cache-walk .cw-c.pf { background: ${COLORS.accent}; color: var(--on-color); }
         .cache-walk .cw-c.now { outline: 2px solid var(--fg); }
         .cache-walk .cw-label { font-size: .45em; color: var(--muted); text-align: center; margin-top: .25em; }
         .cache-walk .cw-key { display: flex; gap: 1.6em; font-size: .5em; margin-top: .9em; }
@@ -135,7 +135,7 @@ export default function CacheWalk() {
         .cache-walk .cw-key i.miss { background: ${COLORS.bad}; }
         .cache-walk .cw-key i.hit { background: ${COLORS.good}; }
         .cache-walk .cw-key i.pf { background: ${COLORS.accent}; }
-        .cache-walk .cw-key i.in { background: ${COLORS.green}55; box-shadow: inset 0 0 0 2px ${COLORS.green}; }
+        .cache-walk .cw-key i.in { background: color-mix(in srgb, ${COLORS.green} 33%, transparent); box-shadow: inset 0 0 0 2px ${COLORS.green}; }
         .cache-walk .cw-text { font-size: .8em; min-height: 2.6em; margin-top: .6em; }
       `}</style>
     </div>

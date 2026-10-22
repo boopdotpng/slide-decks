@@ -46,8 +46,8 @@ export default function Stream() {
       <svg viewBox="0 0 1260 620">
         <defs>
           <linearGradient id="lane" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" stop-color="#3987e5" stop-opacity=".55" /><stop offset=".5" stop-color="#e66767" stop-opacity=".55" />
-            <stop offset="1" stop-color="#3987e5" stop-opacity=".55" />
+            <stop offset="0" stop-color="var(--neg)" stop-opacity=".55" /><stop offset=".5" stop-color="var(--pos)" stop-opacity=".55" />
+            <stop offset="1" stop-color="var(--neg)" stop-opacity=".55" />
           </linearGradient>
         </defs>
         {TOKS.map((t, i) => (

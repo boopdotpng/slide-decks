@@ -104,11 +104,11 @@ export default function Rename() {
         .rename .rn-map tr.changed td { background: var(--hl); }
         .rename .rn-more { font: .75em var(--sans); padding-top: .5em; }
         .rename .rn-file { display: grid; grid-template-columns: repeat(8, 2.1em); gap: 3px; font: .42em var(--mono); }
-        .rename .rn-file span { height: 1.9em; border-radius: 3px; background: #161616; display: flex; align-items: center;
+        .rename .rn-file span { height: 1.9em; border-radius: 3px; background: var(--panel); display: flex; align-items: center;
           justify-content: center; transition: background .35s, color .35s; color: transparent; }
         .rename .rn-file span.live { background: ${COLORS.green}; color: var(--fg); }
         .rename .rn-file span.fresh { background: ${COLORS.blue}; box-shadow: inset 0 0 0 2px var(--accent); }
-        .rename .rn-file span.freed { background: #161616; color: var(--muted); text-decoration: line-through; }
+        .rename .rn-file span.freed { background: var(--panel); color: var(--muted); text-decoration: line-through; }
         .rename .rn-real { font-size: .45em; margin-top: .5em; }
         .rename .rn-text { font-size: .78em; min-height: 3em; margin-top: 1em; }
       `}</style>

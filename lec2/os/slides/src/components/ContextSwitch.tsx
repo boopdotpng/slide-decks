@@ -60,7 +60,7 @@ const VARS = [
 ];
 
 // time strip: [who, width]; k = kernel
-const COLOR: Record<string, string> = { A: COLORS.accent, B: COLORS.purple, C: COLORS.hot, k: '#3a3a3a' };
+const COLOR: Record<string, string> = { A: COLORS.accent, B: COLORS.purple, C: COLORS.hot, k: 'var(--raised-2)' };
 const ZOOMED: [string, number][] = [['A', 8], ['k', 1], ['B', 8]];
 const ZOOMED_OUT: [string, number][] = ['A', 'B', 'C', 'A', 'B', 'A', 'C', 'B', 'A', 'C']
   .flatMap((t, i) => (i ? [['k', .25], [t, 2]] : [[t, 2]]) as [string, number][]);
@@ -109,7 +109,7 @@ export default function ContextSwitch() {
       <style>{`
         .cs-strip { display: flex; align-items: center; gap: .6em; font-size: .6em; }
         .cs-bar { flex: 1; display: flex; gap: 2px; height: 1.8em; }
-        .cs-seg { border-radius: 4px; color: #0a0a0a; font-weight: 700; display: flex; align-items: center; justify-content: center;
+        .cs-seg { border-radius: 4px; color: var(--on-color); font-weight: 700; display: flex; align-items: center; justify-content: center;
           animation: cs-in .3s both; }
         @keyframes cs-in { from { opacity: 0; } }
         .cs-legend { font-size: .55em; margin: .3em 0 .8em 4.2em; }
@@ -123,10 +123,10 @@ export default function ContextSwitch() {
         .cs-regs { font-size: .6em; }
         .cs-regs-title { margin-bottom: .6em; }
         .cs-regs-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: .4em; font-family: var(--mono); }
-        .cs-reg { padding: .45em 0; text-align: center; border-radius: 6px; background: #1c1c1c; color: var(--muted); }
+        .cs-reg { padding: .45em 0; text-align: center; border-radius: 6px; background: var(--surface); color: var(--muted); }
         .cs-reg.saved { animation: cs-save .35s both; }
         .cs-reg.skip { animation: cs-skip .35s both; }
-        @keyframes cs-save { to { background: ${COLORS.accent}; color: #0a0a0a; } }
+        @keyframes cs-save { to { background: ${COLORS.accent}; color: var(--on-color); } }
         @keyframes cs-skip { to { opacity: .25; } }
         .cs-regs-note { margin-top: .6em; font-size: .9em; }
       `}</style>

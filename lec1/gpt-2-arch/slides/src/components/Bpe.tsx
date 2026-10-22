@@ -7,7 +7,7 @@ import { Chip, at, useIsland } from './viz';
  * into single characters, and the list applied top to bottom: each merge glues its pair everywhere it appears.
  * Shares a slide with Tokenize, so it starts at slide step `from` (fades in there) and counts from that.
  *  from: single characters   from+1 … from+8: merges #1 … #8, one each (the new pieces light up, and the merge in the list)
- *  from+9, from+10: everything up to #100, #1,000   from+11: the rest of the list, the paragraph as gpt-2 sees it
+ *  from+9, from+10: everything up to #100, #1,000   from+11: the rest of the list, the paragraph as gpt-2 sees it (colors-ok: not colors)
  */
 type Step = { upto: number | null; on: [number, number][]; n: number; words: string[][] };
 export default function Bpe({ from = 0 }: { from?: number }) {

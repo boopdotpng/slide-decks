@@ -70,7 +70,7 @@ export default function Glue() {
         .gl3 .g { width: ${BW}px; border-radius: 3px; opacity: 0; transform: translateY(-30px); transition: opacity .4s, transform .5s;
           display: flex; align-items: flex-end; justify-content: center; }
         .gl3 .g.on { opacity: .85; transform: none; }
-        .gl3 .g span { font-size: .5em; color: #000; padding-bottom: .4em; }
+        .gl3 .g span { font-size: .5em; color: var(--on-color); padding-bottom: .4em; }
         .gl3 .outs { grid-column: 3; grid-row: 2; width: ${NH * BW + (NH - 1) * 3}px; }
         .gl3 .cuts { display: flex; gap: 3px; margin-top: 3px; }
         .gl3 .o { width: ${BW}px; height: 8px; border-bottom: 4px solid; }
@@ -80,7 +80,7 @@ export default function Glue() {
         .gl3 .real { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; gap: 1.6em; }
         .gl3 .third { position: absolute; top: -4px; bottom: -4px; width: 33.33%; border: 3px solid; border-radius: 4px; }
         .gl3 .third span { position: absolute; top: -1.6em; left: 0; font: .55em var(--mono); }
-        .gl3 .cut { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(255, 255, 255, .35); }
+        .gl3 .cut { position: absolute; top: 0; bottom: 0; width: 1px; background: color-mix(in srgb, var(--fg) 35%, transparent); }
         .gl3 .real .ours { position: absolute; top: -4px; bottom: -4px; outline: 2px solid var(--accent); border-radius: 2px; }
         .gl3 .real .ours span { position: absolute; bottom: -1.7em; left: 50%; transform: translateX(-50%); font: .5em var(--mono); color: var(--accent); white-space: nowrap; }
       `}</style>

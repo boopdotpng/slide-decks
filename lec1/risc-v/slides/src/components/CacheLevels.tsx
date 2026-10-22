@@ -73,16 +73,16 @@ function Slots({ box, slots }: { box: { x: number; y: number; w: number; h: numb
       {slots.map((sl, k) => {
         const x = x0 + k * (SLOT_W + SLOT_GAP);
         const stroke = sl.mark === 'new' ? COLORS.accent : sl.mark === 'hit' || sl.mark === 'found' ? COLORS.good
-          : sl.mark === 'evict' ? COLORS.bad : '#333';
+          : sl.mark === 'evict' ? COLORS.bad : 'var(--line)';
         return (
           <g class="cl-slot">
-            <rect x={x} y={y} width={SLOT_W} height={SLOT_H} rx={8} fill={sl.tag ? '#1d1d1d' : 'none'}
+            <rect x={x} y={y} width={SLOT_W} height={SLOT_H} rx={8} fill={sl.tag ? 'var(--surface)' : 'none'}
               stroke={stroke} stroke-width={sl.mark ? 4 : 2} stroke-dasharray={sl.tag ? undefined : '6 6'} />
             <text x={x + SLOT_W / 2} y={y + SLOT_H / 2 + 8} text-anchor="middle" font-size="23" font-family="var(--mono)"
               fill={sl.tag ? 'var(--fg)' : 'var(--muted)'}>{sl.tag ?? 'empty'}</text>
             {sl.dirty && <g>
               <rect x={x + SLOT_W - 50} y={y - 18} width={68} height={32} rx={6} fill={COLORS.bad} />
-              <text x={x + SLOT_W - 16} y={y + 6} text-anchor="middle" font-size="22" font-weight="700" fill="#000">dirty</text>
+              <text x={x + SLOT_W - 16} y={y + 6} text-anchor="middle" font-size="22" font-weight="700" fill="var(--on-color)">dirty</text>
             </g>}
             {sl.age !== undefined && (
               <text x={x + SLOT_W / 2} y={y + SLOT_H + 30} text-anchor="middle" font-size="28" font-family="var(--mono)"
@@ -113,9 +113,9 @@ export default function CacheLevels() {
       <div class="cl-code">{st.code ? <Code lang="asm" code={st.code} /> : <pre class="code"> </pre>}</div>
       <svg viewBox={`0 -10 ${W} 820`} class="diagram">
         <Box {...CORE} title="core" />
-        <rect x={FETCH_X - 150} y={28} width={300} height={56} rx={10} fill="#1d1d1d" stroke="#333" />
+        <rect x={FETCH_X - 150} y={28} width={300} height={56} rx={10} fill="var(--surface)" stroke="var(--line)" />
         <text x={FETCH_X} y={65} text-anchor="middle" font-size="24" fill="var(--fg)">instruction fetch</text>
-        <rect x={LS_X - 150} y={28} width={300} height={56} rx={10} fill="#1d1d1d" stroke="#333" />
+        <rect x={LS_X - 150} y={28} width={300} height={56} rx={10} fill="var(--surface)" stroke="var(--line)" />
         <text x={LS_X} y={65} text-anchor="middle" font-size="24" fill="var(--fg)">loads / stores</text>
 
         <Box {...L1I} title="l1i" sub="32 KB · instructions" tag="~4 cycles" />

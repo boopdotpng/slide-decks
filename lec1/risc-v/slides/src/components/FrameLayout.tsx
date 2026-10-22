@@ -51,11 +51,11 @@ export default function FrameLayout({ asm }: { asm: string }) {
         .frame-layout .fl-frame { position: relative; display: flex; gap: 3px; font-family: var(--mono); font-size: .55em;
           margin-top: .4em; padding-bottom: 1.6em; transition: opacity .35s; }
         .frame-layout .fl-frame.gone .fl-slot:not(.ra) { opacity: .35; }
-        .frame-layout .fl-slot { position: relative; flex: 1; padding: .3em .5em; border-radius: 4px; background: #161616;
+        .frame-layout .fl-slot { position: relative; flex: 1; padding: .3em .5em; border-radius: 4px; background: var(--panel);
           display: flex; flex-direction: column; transition: background .35s, box-shadow .35s, opacity .35s;
           box-shadow: inset 0 0 0 2px transparent; }
-        .frame-layout .fl-slot.buf { background: #1d2a1f; }
-        .frame-layout .fl-slot.ra { background: #2a1d3d; }
+        .frame-layout .fl-slot.buf { background: var(--tint-green); }
+        .frame-layout .fl-slot.ra { background: var(--tint-violet); }
         .frame-layout .fl-slot.on { box-shadow: inset 0 0 0 2px var(--accent); }
         .frame-layout .fl-off { font-size: .8em; }
         .frame-layout .fl-ptr { position: absolute; left: .5em; bottom: -1.5em; color: var(--accent); }

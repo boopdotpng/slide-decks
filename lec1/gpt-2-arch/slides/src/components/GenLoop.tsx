@@ -44,7 +44,7 @@ export default function GenLoop({ split = false }: { split?: boolean }) {
         .gl .kind { text-align: right; font-size: .9em; }
         .gl .seq { display: flex; align-items: center; gap: .25em; }
         .gl .old { display: flex; flex-wrap: nowrap; gap: .25em; padding: .25em; border: 2px dashed transparent; border-radius: 8px; }
-        .gl .old.cached { border-color: #444; }
+        .gl .old.cached { border-color: var(--line-2); }
         .gl .old.cached .chip { opacity: .4; }
         .gl .chip.added { color: var(--accent); }
         .gl .chip.out { color: var(--accent); font-weight: 700; }

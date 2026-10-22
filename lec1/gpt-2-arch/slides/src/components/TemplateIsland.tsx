@@ -43,7 +43,7 @@ export default function TemplateIsland() {
       {/* styles scoped by the root class; put shared ones in styles/ instead */}
       <style>{`
         .template-island .boxes { display: flex; gap: .4em; }
-        .template-island .b { width: 2em; height: 2em; border-radius: 6px; background: #1c1c1c;
+        .template-island .b { width: 2em; height: 2em; border-radius: 6px; background: var(--surface);
           transition: background .3s, transform .3s; }
         .template-island .b.on { background: var(--accent); transform: translateY(-.3em); }
       `}</style>

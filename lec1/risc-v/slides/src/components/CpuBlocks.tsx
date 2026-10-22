@@ -109,7 +109,7 @@ export default function CpuBlocks() {
           return (
             <g class={`cb-tok ${t ? 'on' : ''}`} style={{ transform: `translate(${x}px, ${y}px)` }}>
               <rect x={-w / 2} y={-19} width={w} height={38} rx={19} fill={t?.color ?? COLORS.accent} />
-              <text y={7} text-anchor="middle" font-size="22" font-family="var(--mono)" fill="#0a0a0a">{t?.text}</text>
+              <text y={7} text-anchor="middle" font-size="22" font-family="var(--mono)" fill="var(--on-color)">{t?.text}</text>
             </g>
           );
         })}
@@ -117,11 +117,11 @@ export default function CpuBlocks() {
       <div class="caption cb-text">{cur.text}</div>
       <style>{`
         .cpu-blocks svg.diagram { max-height: 66cqh; }
-        .cpu-blocks .cb-block rect { fill: #141414; stroke: #262626; stroke-width: 2; transition: fill .35s, stroke .35s; }
+        .cpu-blocks .cb-block rect { fill: var(--panel); stroke: var(--border); stroke-width: 2; transition: fill .35s, stroke .35s; }
         .cpu-blocks .cb-block text { fill: var(--fg); transition: opacity .35s; }
         .cpu-blocks .cb-block .sub { fill: var(--muted); }
         .cpu-blocks .cb-block .tag { fill: var(--muted); font-style: italic; }
-        .cpu-blocks .cb-block.on rect { fill: #17263d; stroke: var(--accent); }
+        .cpu-blocks .cb-block.on rect { fill: var(--tint-blue); stroke: var(--accent); }
         .cpu-blocks .cb-block.later rect { stroke-dasharray: 8 6; }
         .cpu-blocks .cb-block.later text { opacity: .45; }
         .cpu-blocks .cb-tok { transition: transform .55s cubic-bezier(.5, 0, .3, 1), opacity .3s; opacity: 0; }

@@ -19,7 +19,7 @@ export const REGIONS: { key: RegionKey; name: string; sub?: string; color: strin
   { key: 'stack', name: 'stack', sub: 'grows ↓', color: COLORS.amber, size: 1.6, addr: '0x7fffffe0' },
   { key: 'free', name: '', color: 'transparent', size: 3 },
   { key: 'heap', name: 'heap', sub: 'grows ↑', color: COLORS.green, size: 1.1 },
-  { key: 'bss', name: '.bss', sub: 'zeroed globals', color: '#1e3a5f', size: 1 },
+  { key: 'bss', name: '.bss', sub: 'zeroed globals', color: 'var(--steel)', size: 1 },
   { key: 'data', name: '.data', sub: 'globals', color: COLORS.blue, size: 1 },
   { key: 'rodata', name: '.rodata', sub: 'read-only', color: COLORS.violet, size: 1 },
   { key: 'text', name: '.text', sub: 'code', color: COLORS.slate, size: 1, addr: '0x10000' },
@@ -71,12 +71,12 @@ export function AddressSpace({ lit = [], sizes = {}, notes = {}, markers = [], s
         .aspace .as-box { position: relative; width: 11em; flex: none; border-radius: 4px; margin: 1px 0;
           display: flex; align-items: center; gap: .6em; padding: 0 .6em; font-family: var(--mono);
           box-shadow: inset 0 0 0 2px transparent; transition: opacity .35s, box-shadow .35s; }
-        .aspace .as-free .as-box { background: repeating-linear-gradient(135deg, #1a1a1a 0 2px, transparent 2px 9px) !important;
+        .aspace .as-free .as-box { background: repeating-linear-gradient(135deg, var(--surface) 0 2px, transparent 2px 9px) !important;
           border: 1px dashed var(--border); }
         .aspace .as-box.on { box-shadow: inset 0 0 0 3px var(--accent); }
         .aspace .as-box.dim { opacity: .3; }
         .aspace .as-name { font-size: .9em; color: var(--fg); white-space: nowrap; }
-        .aspace .as-sub { font-size: .65em; color: rgba(255,255,255,.55); white-space: nowrap; font-family: var(--sans); }
+        .aspace .as-sub { font-size: .65em; color: color-mix(in srgb, var(--fg) 55%, transparent); white-space: nowrap; font-family: var(--sans); }
         .aspace .as-addr { position: absolute; right: calc(100% + .5em); font-size: .7em; color: var(--muted); }
         .aspace .as-top { top: 0; }
         .aspace .as-bot { bottom: 0; }

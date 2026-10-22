@@ -17,8 +17,8 @@ function Clock({ p, period }: { p: number; period: number }) {
   return (
     <div class="clk">
       <svg width={2 * R + 8} height={2 * R + 8} viewBox={`${-R - 4} ${-R - 4} ${2 * R + 8} ${2 * R + 8}`}>
-        <circle r={R} fill="#141414" stroke="var(--border)" stroke-width="2" />
-        {Array.from({ length: 12 }, (_, i) => <line x1="0" y1={-R + 4} x2="0" y2={-R + 12} stroke="#444" transform={`rotate(${i * 30})`} />)}
+        <circle r={R} fill="var(--panel)" stroke="var(--border)" stroke-width="2" />
+        {Array.from({ length: 12 }, (_, i) => <line x1="0" y1={-R + 4} x2="0" y2={-R + 12} stroke="var(--line-2)" transform={`rotate(${i * 30})`} />)}
         <g class="hand" style={{ transform: `rotate(${deg}deg)` }}>
           <line x1="0" y1="0" x2="0" y2={-R + 10} stroke="var(--accent)" stroke-width="5" stroke-linecap="round" />
         </g>

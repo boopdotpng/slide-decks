@@ -74,7 +74,7 @@ export default function Ask() {
         .ask .item .strip { outline: 2px solid var(--c); outline-offset: 1px; border-radius: 2px; }
         .ask .item.other.on { opacity: .45; }
         .ask .share .bar { display: flex; align-items: center; gap: .5em; }
-        .ask .share .track { flex: 1; height: 12px; background: #1a1a1a; border-radius: 3px; overflow: hidden; }
+        .ask .share .track { flex: 1; height: 12px; background: var(--surface); border-radius: 3px; overflow: hidden; }
         .ask .share .track div { height: 100%; background: var(--accent); transition: width .5s; }
         .ask .share .pv { font: .55em var(--mono); color: var(--fg); width: 2.4em; text-align: right; }
         .ask .got { margin-left: 1em; align-self: flex-end; padding-bottom: .8em; }

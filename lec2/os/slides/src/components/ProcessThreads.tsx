@@ -20,7 +20,7 @@ const CAPTIONS = [
 function Thread({ x, n, on, color = COLORS.accent }: { x: number; n: number; on: boolean; color?: string }) {
   return (
     <Reveal on={on}>
-      <rect x={x} y={150} width={190} height={150} rx={10} fill="#1c1c1c" stroke={color} stroke-width={2} />
+      <rect x={x} y={150} width={190} height={150} rx={10} fill="var(--surface)" stroke={color} stroke-width={2} />
       <text x={x + 20} y={192} font-size="26" font-weight="700" fill="var(--fg)">thread {n}</text>
       <text x={x + 20} y={232} font-size="20" fill="var(--muted)">pc · registers</text>
       <text x={x + 20} y={264} font-size="20" fill="var(--muted)">its own stack</text>
@@ -31,7 +31,7 @@ function Thread({ x, n, on, color = COLORS.accent }: { x: number; n: number; on:
 function Core({ x, n }: { x: number; n: number }) {
   return (
     <g>
-      <rect x={x} y={440} width={240} height={90} rx={10} fill="#141414" stroke="#262626" />
+      <rect x={x} y={440} width={240} height={90} rx={10} fill="var(--panel)" stroke="var(--border)" />
       <text x={x + 120} y={495} font-size="28" font-weight="700" fill="var(--fg)" text-anchor="middle">core {n}</text>
     </g>
   );

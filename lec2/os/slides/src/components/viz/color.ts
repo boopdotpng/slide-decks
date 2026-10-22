@@ -1,17 +1,35 @@
 /**
- * Color scales for data.
+ * Colors for islands. COLORS are css vars from styles/deck.css, so they work anywhere css does (style, svg fill /
+ * stroke, <style> blocks); tints are color-mix(in srgb, ${COLORS.good} 30%, transparent). Canvas and WebGL can't read
+ * css vars: pass colors through resolve() first (Strip and HeatCanvas already do).
+ *
+ * Data scales, computed here because they interpolate:
  * diverging: blue (negative) <-> red (positive), neutral gray midpoint so zeros recede.
  * sequential: one blue ramp, dark (near the background) -> light, for probabilities / similarity.
  */
+// same values as --neg / --pos / --mid in deck.css
 const NEG = '#3987e5', POS = '#e66767', MID = '#2a2a28';
 const SEQ = ['#161615', '#0d366b', '#1c5cab', '#3987e5', '#86b6ef', '#cde2fb'];
 
+const v = (name: string) => `var(--${name})`;
 export const COLORS = {
-  neg: NEG, pos: POS, mid: MID,
-  accent: '#60a5fa', hot: '#f69d50', good: '#8ddb8c', bad: '#f47067', purple: '#dcbdfb',
+  neg: v('neg'), pos: v('pos'), mid: v('mid'),
+  accent: v('accent'), hot: v('hot'), good: v('good'), bad: v('bad'), purple: v('purple'),
   // muted fills for regions / fields
-  slate: '#334155', green: '#14532d', blue: '#1e3a8a', amber: '#713f12', red: '#7f1d1d', violet: '#4c1d95',
+  slate: v('fill-slate'), green: v('fill-green'), blue: v('fill-blue'), amber: v('fill-amber'), red: v('fill-red'), violet: v('fill-violet'),
+  // categorical: lines / series that only need to differ from each other
+  series: [v('series-1'), v('series-2'), v('series-3'), v('series-4')],
 };
+
+const resolved = new Map<string, string>();
+/** 'var(--x)' -> its current value (for canvas / WebGL); anything else is returned as is */
+export function resolve(color: string) {
+  const m = /^var\((--[\w-]+)\)$/.exec(color);
+  if (!m || typeof document === 'undefined') return color;
+  let c = resolved.get(m[1]);
+  if (!c) resolved.set(m[1], (c = getComputedStyle(document.documentElement).getPropertyValue(m[1]).trim() || color));
+  return c;
+}
 
 const hex2rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 export const lerp = (a: string, b: string, t: number) => {

@@ -44,7 +44,7 @@ export default function RnnUnroll() {
         .ru .on { opacity: 1; }
         .ru .g { display: flex; flex-direction: column; align-items: center; font-size: .85em; line-height: 1.1; }
         .ru .g .p { font-size: .5em; color: var(--muted); }
-        .ru .g.ok .ch { color: #8ddb8c; }
+        .ru .g.ok .ch { color: var(--good); }
         .ru .h { position: relative; }
         .ru .h .to { position: absolute; left: calc(100% + .02em); top: 50%; transform: translateY(-50%); color: var(--accent); font-size: .6em; }
         .ru .x { font-size: 1.1em; padding: 0 .15em; border-radius: 5px; }

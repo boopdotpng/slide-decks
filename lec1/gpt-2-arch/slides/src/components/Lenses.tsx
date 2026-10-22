@@ -90,16 +90,16 @@ export default function Lenses() {
         .ln .x, .ln .prod { position: relative; display: flex; flex-direction: column; align-items: center; gap: .3em; }
         .ln .prod { opacity: 0; transition: opacity .35s; } .ln .prod.on { opacity: 1; }
         .ln .sw { position: relative; }
-        .ln .rowpick { position: absolute; left: -6px; right: -6px; height: 3px; background: #fff; border-radius: 2px; }
+        .ln .rowpick { position: absolute; left: -6px; right: -6px; height: 3px; background: var(--fg); border-radius: 2px; }
         .ln .lens { position: relative; display: flex; flex-direction: column; gap: .3em; width: ${GW}px; }
         .ln .lens .byteheat { outline: 3px solid var(--lc); outline-offset: 2px; border-radius: 3px; }
-        .ln .colhl { position: absolute; top: -6px; bottom: -6px; outline: 3px solid #fff; border-radius: 2px; opacity: 0; transition: opacity .3s, left .4s; }
+        .ln .colhl { position: absolute; top: -6px; bottom: -6px; outline: 3px solid var(--fg); border-radius: 2px; opacity: 0; transition: opacity .3s, left .4s; }
         .ln .colhl.on { opacity: 1; }
-        .ln .rowhl { position: absolute; left: -6px; right: -6px; min-height: 3px; background: #fff; border-radius: 2px; }
+        .ln .rowhl { position: absolute; left: -6px; right: -6px; min-height: 3px; background: var(--fg); border-radius: 2px; }
         .ln .out { opacity: 0; transition: opacity .35s; margin-top: .4em; outline: 2px solid var(--lc); border-radius: 3px; }
         .ln .out.on { opacity: 1; }
         .ln .one { position: absolute; top: calc(${H}px + 4.2em); transform: translateX(-50%); font-family: var(--mono); font-size: .7em;
-          color: #fff; opacity: 0; transition: opacity .3s, left .4s; }
+          color: var(--fg); opacity: 0; transition: opacity .3s, left .4s; }
         .ln .one.on { opacity: 1; }
         .ln .name { color: var(--lc); font-size: .6em; min-height: 1.4em; white-space: nowrap; }
         .ln .lbl { font-size: .5em; white-space: nowrap; }
@@ -108,7 +108,7 @@ export default function Lenses() {
         .ln .side { align-self: center; max-width: 22em; display: flex; flex-direction: column; gap: .6em; }
         .ln .rowview { display: flex; flex-direction: column; gap: .4em; font-size: .6em; }
         .ln .rowview .n { font-family: var(--mono); }
-        .ln .rowview .n b { color: #fff; }
+        .ln .rowview .n b { color: var(--fg); }
         .ln .cap { grid-column: 1 / -1; margin-top: 1em; font-size: .7em; color: var(--muted); min-height: 1.5em; max-width: 60em; }
         .ln .cap b { color: var(--fg); }
         .ln .cap code { font-family: var(--mono); color: var(--fg); }

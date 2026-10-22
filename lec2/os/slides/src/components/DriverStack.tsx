@@ -22,7 +22,7 @@ const CAPTIONS = [
   'once it\'s set up, the fast path skips the kernel entirely: plain stores straight to the card. next: how',
 ];
 
-const inner = { fill: '#1c1c1c', stroke: '#333' };
+const inner = { fill: 'var(--surface)', stroke: 'var(--line)' };
 
 // side panel, per step
 const INSTALL = `
@@ -49,12 +49,12 @@ export default function DriverStack() {
     <div class="drv" ref={root}>
       <div class="drv-cols">
       <svg viewBox="0 0 1100 600" class="diagram">
-        <Box x={10} y={10} w={1080} h={170} fill="#0f0f0f" tag="ring 3" />
+        <Box x={10} y={10} w={1080} h={170} fill="var(--sunken)" tag="ring 3" />
         <Box x={40} y={40} w={300} h={120} {...inner} title="your program" sub="python, c++, …" />
         <Box x={420} y={40} w={420} h={120} {...inner} title="a library" sub="tt-metal, blackhole-py, …" />
         <Arrow from={[340, 100]} to={[420, 100]} color="var(--muted)" />
 
-        <Box x={10} y={250} w={1080} h={170} fill="#0f0f0f" tag="ring 0" />
+        <Box x={10} y={250} w={1080} h={170} fill="var(--sunken)" tag="ring 0" />
         <text x={40} y={300} font-size="32" font-weight="700" fill="var(--fg)">kernel</text>
         <text x={40} y={340} font-size="22" fill="var(--muted)">scheduler · memory · …</text>
         <Box x={420} y={280} w={420} h={120} {...inner} stroke={step >= 1 ? COLORS.accent : inner.stroke}

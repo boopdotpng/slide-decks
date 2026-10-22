@@ -12,7 +12,7 @@ import type { ComponentChildren } from 'preact';
  *   </svg>
  */
 
-export function Box({ x, y, w, h, title, sub, tag, fill = '#141414', stroke = '#262626', rx = 14, children }: {
+export function Box({ x, y, w, h, title, sub, tag, fill = 'var(--panel)', stroke = 'var(--border)', rx = 14, children }: {
   x: number; y: number; w: number; h: number;
   title?: string; sub?: string;
   /** small accent text, top-right */

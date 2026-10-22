@@ -39,7 +39,7 @@ export default function Problem() {
           border: 2px solid transparent; transition: border-color .3s; }
         .pb .c .t { font-size: .9em; }
         .pb .c.me { border-color: var(--accent); }
-        .pb .c.src { border-color: #8ddb8c; border-style: dashed; }
+        .pb .c.src { border-color: var(--good); border-style: dashed; }
         .pb .guess { margin-left: 1.5em; align-self: center; }
         .pb .guess .bars { font-size: .9em; }
         .pb .guess .lbl { margin-bottom: .5em; }

@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useEffect, useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { COLORS, diverging } from './color';
+import { COLORS, diverging, resolve } from './color';
 import { fmt, rms, tip } from './util';
 
 /**
@@ -58,7 +58,7 @@ export function Strip({ values, scale, height = 22, width, vertical = false, lab
     c.height = vertical ? values.length : 1;
     const ctx = c.getContext('2d')!;
     values.forEach((v, i) => {
-      ctx.fillStyle = color ? color(v) : diverging(v, s);
+      ctx.fillStyle = color ? resolve(color(v)) : diverging(v, s);
       if (vertical) ctx.fillRect(0, i, 1, 1);
       else ctx.fillRect(i, 0, 1, 1);
     });
@@ -117,7 +117,7 @@ export function HeatCanvas({ data, color, size, w, h, tipFn }: {
     c.width = data[0].length;
     c.height = data.length;
     const ctx = c.getContext('2d')!;
-    data.forEach((row, r) => row.forEach((v, k) => { ctx.fillStyle = color(v); ctx.fillRect(k, r, 1, 1); }));
+    data.forEach((row, r) => row.forEach((v, k) => { ctx.fillStyle = resolve(color(v)); ctx.fillRect(k, r, 1, 1); }));
   }, [data, color]);
   const onMove = (e: MouseEvent) => {
     if (!tipFn) return;

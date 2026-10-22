@@ -134,10 +134,10 @@ export default function Pipeline() {
         .pipeline .pl-grid th { font-size: .42em; text-align: center; padding: 0; color: var(--muted); }
         .pipeline .pl-op { font-size: .6em; padding: 0 .8em 0 0; white-space: nowrap; }
         .pipeline .pl-op code { background: none; padding: 0; white-space: pre; }
-        .pipeline .pl-cell { width: 1.45em; height: 1.35em; padding: 0; background: #121212; border-radius: 4px; }
+        .pipeline .pl-cell { width: 1.45em; height: 1.35em; padding: 0; background: var(--sunken); border-radius: 4px; }
         .pipeline .pl-st { width: 100%; height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center;
           font: .55em var(--mono); color: var(--fg); animation: pl-in .25s both; }
-        .pipeline .pl-st.bubble { background: repeating-linear-gradient(135deg, #555 0 2px, transparent 2px 7px); }
+        .pipeline .pl-st.bubble { background: repeating-linear-gradient(135deg, var(--faint) 0 2px, transparent 2px 7px); }
         @keyframes pl-in { from { opacity: 0; transform: scale(.6); } }
         .pipeline tr.guess .pl-st { outline: 2px dashed ${COLORS.hot}; outline-offset: -2px; }
         .pipeline tr.flushed .pl-st { opacity: .3; }

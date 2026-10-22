@@ -42,7 +42,7 @@ export function BlackholeChip({ x = 0, y = 0, lit = [], dram = [], reg, regLabel
   const [px, py] = center(packet ?? { pcie: true });
   return (
     <g transform={`translate(${x} ${y})`} class="bh">
-      <rect width={820} height={640} rx={20} fill="#101010" stroke="#262626" stroke-width={2} />
+      <rect width={820} height={640} rx={20} fill="var(--sunken)" stroke="var(--border)" stroke-width={2} />
       <text x={24} y={40} font-size="26" font-weight="700" fill="var(--fg)">the card <tspan font-weight="400" fill="var(--muted)">· blackhole</tspan></text>
 
       <g class={`fade ${reg ? 'on' : ''}`}>
@@ -58,7 +58,7 @@ export function BlackholeChip({ x = 0, y = 0, lit = [], dram = [], reg, regLabel
       {CORE_X.flatMap((cx) => [2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((cy) => {
         const [tx, ty] = corePos([cx, cy]);
         const on = isLit([cx, cy]);
-        return <rect x={tx} y={ty} width={TILE} height={TILE} rx={5} fill={on ? COLORS.accent : '#1f1f1f'}
+        return <rect x={tx} y={ty} width={TILE} height={TILE} rx={5} fill={on ? COLORS.accent : 'var(--surface)'}
           style={{ transition: 'fill .3s' }} />;
       }))}
       <text x={GX} y={GY + 10 * PITCH + 26} font-size="18" fill="var(--muted)">120 risc-v cores (tensix), each at a noc (x, y)</text>
@@ -66,13 +66,13 @@ export function BlackholeChip({ x = 0, y = 0, lit = [], dram = [], reg, regLabel
       <text x={DX + 35} y={GY - 10} font-size="18" fill="var(--muted)" text-anchor="middle">dram</text>
       {[0, 1, 2, 3, 4, 5, 6, 7].map((b) => (
         <g>
-          <rect x={DX} y={GY + b * DH} width={70} height={DH - 6} rx={6} fill={dram.includes(b) ? COLORS.hot : '#1f1f1f'}
+          <rect x={DX} y={GY + b * DH} width={70} height={DH - 6} rx={6} fill={dram.includes(b) ? COLORS.hot : 'var(--surface)'}
             style={{ transition: 'fill .3s' }} />
-          <text x={DX + 35} y={GY + b * DH + DH / 2 + 4} font-size="18" fill={dram.includes(b) ? '#0a0a0a' : 'var(--muted)'} text-anchor="middle">{b}</text>
+          <text x={DX + 35} y={GY + b * DH + DH / 2 + 4} font-size="18" fill={dram.includes(b) ? 'var(--on-color)' : 'var(--muted)'} text-anchor="middle">{b}</text>
         </g>
       ))}
 
-      <circle r={13} cx={0} cy={0} fill="#fff" class={`bh-packet ${packet ? 'on' : ''}`}
+      <circle r={13} cx={0} cy={0} fill="var(--fg)" class={`bh-packet ${packet ? 'on' : ''}`}
         style={{ transform: `translate(${px}px, ${py}px)` }} />
       <style>{`
         .bh .bh-packet { opacity: 0; transition: transform .7s cubic-bezier(.5, 0, .3, 1), opacity .2s; }

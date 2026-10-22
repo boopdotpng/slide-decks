@@ -33,7 +33,7 @@ export default function Stack() {
         .sk .r.on > * { opacity: 1; }
         .sk .b { font-size: .75em; text-align: right; }
         .sk .r.chg .g { color: var(--accent); font-weight: 700; }
-        .sk .bar { height: .9em; background: #1a1a1a; border-radius: 4px; overflow: hidden; }
+        .sk .bar { height: .9em; background: var(--surface); border-radius: 4px; overflow: hidden; }
         .sk .bar span { display: block; height: 100%; background: var(--accent); }
         .sk .p { font: .8em var(--mono); }
         .sk .rest { font-size: .7em; }

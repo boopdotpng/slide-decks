@@ -52,7 +52,7 @@ export default function RnnToAttn() {
         .rta .c { font-family: var(--mono); font-size: 44px; fill: var(--fg); text-anchor: middle; transition: fill .3s; }
         .rta .c.sp { fill: var(--muted); }
         .rta .c.me { fill: var(--accent); font-weight: 700; }
-        .rta .c.first { fill: #f69d50; font-weight: 700; }
+        .rta .c.first { fill: var(--hot); font-weight: 700; }
         .rta path { fill: none; stroke-linecap: round; }
         .rta .chain path { stroke: var(--muted); stroke-width: 3; }
         .rta .chain { opacity: 0; transition: opacity .4s; }
@@ -65,7 +65,7 @@ export default function RnnToAttn() {
         .rta .all.on { opacity: 1; }
         .rta .cap { font-size: .75em; margin-top: 1em; min-height: 2.6em; }
         .rta .cap b { color: var(--accent); }
-        .rta .cap b.o { color: #f69d50; }
+        .rta .cap b.o { color: var(--hot); }
       `}</style>
     </div>
   );

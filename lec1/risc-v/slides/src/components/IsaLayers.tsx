@@ -60,18 +60,18 @@ export default function IsaLayers() {
         .isa-layers .il-prog { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
           padding: .7em 1em; display: flex; justify-content: space-between; align-items: center; }
         .isa-layers .il-band { border: 2px solid var(--accent); border-radius: 10px; padding: .6em 1em;
-          background: rgba(96, 165, 250, .08); }
+          background: color-mix(in srgb, var(--accent) 8%, transparent); }
         .isa-layers .il-band-sub { display: block; font-size: .8em; }
         .isa-layers .il-chips { display: flex; gap: .7em; }
         .isa-layers .il-chip { flex: 1; background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
           padding: .7em .8em; transition: border-color .4s; }
-        .isa-layers .il-chip.run { border-color: #2f5f2f; }
+        .isa-layers .il-chip.run { border-color: var(--fill-green); }
         .isa-layers .il-sub { font-size: .75em; margin-top: .3em; }
-        .isa-layers .il-ok { color: #8ddb8c; font-size: .75em; margin-top: .5em; }
+        .isa-layers .il-ok { color: var(--good); font-size: .75em; margin-top: .5em; }
         .isa-layers .il-other { font-size: .8em; margin: 0; }
         .isa-layers h3 { font-size: 1em; margin: 0 0 .2em; }
         .isa-layers ul { margin: 0; font-size: .9em; }
-        .isa-layers ul.not li::marker { content: '✗  '; color: #f47067; }
+        .isa-layers ul.not li::marker { content: '✗  '; color: var(--bad); }
         .isa-layers .il-later { font-size: .8em; margin: .4em 0 0; }
       `}</style>
     </div>

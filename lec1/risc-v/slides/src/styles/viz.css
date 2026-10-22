@@ -3,8 +3,8 @@
 /* ── marks.tsx ─────────────────────────────────────────────────────────────── */
 .tok { font-family: var(--mono); white-space: pre; }
 .tok .sp { color: var(--muted); opacity: .6; }
-.chip { display: inline-flex; align-items: center; padding: .1em .35em; border-radius: 6px; background: #1c1c1c;
-  border: 1px solid #2a2a2a; transition: background .3s, border-color .3s, opacity .3s, transform .4s; }
+.chip { display: inline-flex; align-items: center; padding: .1em .35em; border-radius: 6px; background: var(--surface);
+  border: 1px solid var(--raised); transition: background .3s, border-color .3s, opacity .3s, transform .4s; }
 .chip.on { border-color: var(--accent); background: var(--hl); }
 .chip.dim { opacity: .35; }
 
@@ -14,13 +14,13 @@
 .shape .dim:last-child { padding-right: 0; }
 .shape .dim .v { transition: color .3s; }
 .shape .dim .n { font-size: .7em; color: var(--muted); line-height: 1; }
-.shape .dim.hl .v { color: var(--hot, #f69d50); }
+.shape .dim.hl .v { color: var(--hot); }
 
 .strip { display: block; width: 100%; image-rendering: pixelated; border-radius: 3px; }
 
 .heat { display: grid; align-items: center; justify-content: start; align-self: flex-start; }
 .heat .hc { align-self: stretch; border-radius: 3px; transition: background .5s, outline-color .3s; outline: 2px solid transparent; outline-offset: -1px; }
-.heat .hc.masked { background: repeating-linear-gradient(135deg, #161616 0 3px, #222 3px 6px); }
+.heat .hc.masked { background: repeating-linear-gradient(135deg, var(--panel) 0 3px, var(--surface) 3px 6px); }
 .heat .rl { font-size: .62em; text-align: right; padding-right: .5em; white-space: nowrap; color: var(--muted); }
 .heat .cl { font-size: .62em; height: 100%; position: relative; color: var(--muted); }
 .heat .cl span { position: absolute; bottom: 4px; left: 50%; transform-origin: 0 50%; transform: rotate(-60deg); white-space: nowrap; }
@@ -33,15 +33,15 @@
 .bar-row { display: contents; }
 .bar-row .bl { text-align: right; white-space: nowrap; }
 .bar-row .track { position: relative; height: 1.1em; }
-.bars.signed .track::after { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; border-left: 1px solid #444; }
+.bars.signed .track::after { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; border-left: 1px solid var(--line-2); }
 .bar-row .fill { position: absolute; top: 0; bottom: 0; border-radius: 0 4px 4px 0; transition: width .5s, left .5s, background .4s; }
 .bar-row .bv { font-variant-numeric: tabular-nums; color: var(--muted); min-width: 3em; }
 .bar-row.hl .bl, .bar-row.hl .bv { color: var(--fg); font-weight: 600; }
 
-.viz-tip { position: fixed; pointer-events: none; z-index: 20; background: var(--panel); border: 1px solid #333;
+.viz-tip { position: fixed; pointer-events: none; z-index: 20; background: var(--panel); border: 1px solid var(--line);
   border-radius: 6px; padding: 4px 8px; font: 14px/1.3 var(--mono); opacity: 0; transition: opacity .1s; }
 
-.crumbs { position: absolute; top: var(--inset-y); right: var(--inset-x); display: flex; gap: .8em; font-size: 18px; color: #555; }
+.crumbs { position: absolute; top: var(--inset-y); right: var(--inset-x); display: flex; gap: .8em; font-size: 18px; color: var(--faint); }
 .crumbs .on { color: var(--accent); }
 .lbl { font-size: .62em; color: var(--muted); }
 .op { color: var(--muted); font-size: .9em; padding: 0 .3em; }
@@ -55,7 +55,7 @@
 .timeline .tl-h { width: 100%; }
 .timeline .tl-note { font-size: .75em; margin-left: .6em; }
 .timeline .tl { position: relative;
-  background: repeating-linear-gradient(90deg, #1c1c1c 0 calc(var(--cell) - 2px), var(--bg) calc(var(--cell) - 2px) var(--cell));
+  background: repeating-linear-gradient(90deg, var(--surface) 0 calc(var(--cell) - 2px), var(--bg) calc(var(--cell) - 2px) var(--cell));
   border-radius: 4px; }
 .timeline .tl-bar { position: absolute; top: 15%; height: 70%; background: var(--accent); border-radius: 4px;
   transform-origin: left; animation: tl-grow linear both; }
@@ -63,7 +63,7 @@
   background: repeating-linear-gradient(135deg, var(--muted) 0 2px, transparent 2px 7px);
   transform-origin: left; animation: tl-grow linear both; }
 @keyframes tl-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-.timeline .tl-after { min-width: 4em; color: #8ddb8c; }
+.timeline .tl-after { min-width: 4em; color: var(--good); }
 .pop { animation: pop .3s both; }
 @keyframes pop { from { opacity: 0; transform: translateY(6px); } }
 
@@ -75,16 +75,16 @@
 .bf-name { color: var(--muted); opacity: 0; transition: opacity .35s; }
 .bitfields.split .bf-name { opacity: 1; }
 .bf-val { font-weight: 600; }
-.bf-cells { display: flex; border-radius: 6px; background: #1c1c1c; transition: background .4s; }
+.bf-cells { display: flex; border-radius: 6px; background: var(--surface); transition: background .4s; }
 .bitfields.split .bf-cells { background: var(--fc); }
 .bf-cells span { flex: 1; text-align: center; padding: .25em 0; font-size: .85em; }
 
 .bytes-view { font-family: var(--mono); }
 .bv-addr { white-space: pre; font-size: .85em; }
 .bv-row { display: inline-flex; gap: 2px; padding-bottom: 1.6em; }
-.bv-b { position: relative; background: #1c1c1c; padding: .2em .35em; border-radius: 3px; min-width: 1.4em; text-align: center;
+.bv-b { position: relative; background: var(--surface); padding: .2em .35em; border-radius: 3px; min-width: 1.4em; text-align: center;
   box-shadow: 0 0 0 transparent; transition: box-shadow .3s; }
-.bv-b.in { box-shadow: 0 -2px 0 #f69d50 inset, 0 2px 0 #f69d50; }
+.bv-b.in { box-shadow: 0 -2px 0 var(--hot) inset, 0 2px 0 var(--hot); }
 .bv-ptr { position: absolute; top: 100%; left: 0; margin-top: .2em; white-space: nowrap; color: var(--accent); }
 
 /* ── LatencyRace.tsx ───────────────────────────────────────────────────────── */
@@ -120,7 +120,7 @@ svg.diagram { width: 100%; max-height: 62cqh; display: block; font-family: var(-
 .arrow.dashed.on .line { opacity: 1; }
 
 /* ── Terminal.tsx ──────────────────────────────────────────────────────────── */
-.term { background: #000; border: 1px solid var(--border); border-radius: 6px; padding: .6em .8em;
+.term { background: var(--term); border: 1px solid var(--border); border-radius: 6px; padding: .6em .8em;
   white-space: pre-wrap; min-height: 2.6em; }
 .term .cursor { animation: blink 1s steps(1) infinite; color: var(--muted); }
 @keyframes blink { 50% { opacity: 0; } }

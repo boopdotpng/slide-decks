@@ -77,7 +77,7 @@ export default function PageTable() {
         .pt-table th { font-family: var(--sans); font-size: .8em; padding-left: .4em; }
         .pt-table tr.on td { background: var(--hl); }
         .pt-table tr.missing td { color: ${COLORS.bad}; }
-        .pt-table tr.missing.on td { background: rgba(244, 112, 103, .14); }
+        .pt-table tr.missing.on td { background: color-mix(in srgb, var(--bad) 14%, transparent); }
         .pt-table.flags .pt-f { color: ${COLORS.hot}; }
         .pt-cr3 { margin-top: .8em; font-size: .75em; }
       `}</style>

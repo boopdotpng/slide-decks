@@ -62,12 +62,12 @@ export default function Budget() {
         .bg .ax { opacity: .7; margin-left: .5em; }
         .bg .row .chip { justify-self: end; font-size: .75em; }
         .bg .row.top .chip { border-color: var(--accent); background: var(--hl); }
-        .bg .line { position: relative; height: 26px; border-bottom: 1px solid #444; }
+        .bg .line { position: relative; height: 26px; border-bottom: 1px solid var(--line-2); }
         .bg .dot { position: absolute; bottom: -8px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: ${LENS.k.color}; }
         .bg .sv { position: absolute; right: 0; top: -2px; font: .5em var(--mono); color: var(--muted); }
-        .bg .bud { position: relative; height: 26px; background: #1a1a1a; border-radius: 4px; }
+        .bg .bud { position: relative; height: 26px; background: var(--surface); border-radius: 4px; }
         .bg .bud .fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 4px; transition: width .5s; }
-        .bg .bud span { position: absolute; left: .4em; top: 50%; transform: translateY(-50%); font: .55em var(--mono); color: #fff; }
+        .bg .bud span { position: absolute; left: .4em; top: 50%; transform: translateY(-50%); font: .55em var(--mono); color: var(--fg); }
         .bg .grid { display: flex; flex-direction: column; gap: .6em; max-width: 21em; }
         .bg .grid .heat .rl, .bg .grid .heat .cl { font-size: .55em; }
       `}</style>

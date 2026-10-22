@@ -18,7 +18,7 @@ Then:
 2. delete the demo slides in `src/slides/` (and `src/components/demos/`) once you've seen them
 3. write `src/slides/01-whatever.astro`, `02-….astro`, …
 
-`bun run build` makes a static site in `dist/`. `bun run check` typechecks.
+`bun run build` makes a static site in `dist/`. `bun run check` typechecks and fails on color literals outside the palette (`scripts/colors.mjs`).
 
 ## keeping decks up to date
 
@@ -98,7 +98,8 @@ converts, otherwise divide by `deckScale()` (`deck/hooks.ts`).
 
 Classes in `styles/deck.css`: `step`, `cols`, `small`, `muted`, `accent`,
 `center`, `full`, `fill`, `sub`, `caption`, `fade` + `on`, `notes` (and `section`, the kicker, in `viz.css`). Theme colors and fonts are
-the variables at the top of that file.
+the variables at the top of that file; every deck uses only those (no hex / rgb() in
+slides or islands, `bun run check` enforces it).
 
 ## islands
 

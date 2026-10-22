@@ -80,21 +80,21 @@ export default function NumsCache() {
       <div class="caption nc-text">{STEPS[k].text}</div>
       <style>{`
         .nums-cache .nc-lines { display: flex; flex-direction: column; gap: 1em; }
-        .nums-cache .nc-line { border-radius: 10px; padding: .4em .5em .5em; background: #111;
+        .nums-cache .nc-line { border-radius: 10px; padding: .4em .5em .5em; background: var(--sunken);
           box-shadow: inset 0 0 0 2px transparent; transition: background .3s, box-shadow .3s; }
-        .nums-cache .nc-line.in { background: ${COLORS.green}44; box-shadow: inset 0 0 0 2px ${COLORS.green}; }
+        .nums-cache .nc-line.in { background: color-mix(in srgb, ${COLORS.green} 27%, transparent); box-shadow: inset 0 0 0 2px ${COLORS.green}; }
         .nums-cache .nc-label { font-family: var(--mono); font-size: .5em; color: var(--muted); margin-bottom: .3em; }
         .nums-cache .nc-cells { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
         .nums-cache .nc-c { display: flex; flex-direction: column; align-items: center; padding: .3em 0; border-radius: 5px;
-          background: #1f1f1f; font-family: var(--mono); transition: background .25s; }
-        .nums-cache .nc-c.other { background: none; border: 1px dashed #333; }
-        .nums-cache .nc-c.miss { background: ${COLORS.bad}; color: #000; }
-        .nums-cache .nc-c.hit { background: ${COLORS.good}; color: #000; }
+          background: var(--surface); font-family: var(--mono); transition: background .25s; }
+        .nums-cache .nc-c.other { background: none; border: 1px dashed var(--line); }
+        .nums-cache .nc-c.miss { background: ${COLORS.bad}; color: var(--on-color); }
+        .nums-cache .nc-c.hit { background: ${COLORS.good}; color: var(--on-color); }
         .nums-cache .nc-c.now { outline: 3px solid var(--fg); }
         .nums-cache .nc-name { font-size: .45em; }
         .nums-cache .nc-v { font-size: .75em; min-height: 1.2em; }
         .nums-cache .nc-addr { font-size: .38em; opacity: .7; }
-        .nums-cache .nc-c.other .nc-name { color: #555; }
+        .nums-cache .nc-c.other .nc-name { color: var(--faint); }
         .nums-cache .nc-stats { font-family: var(--mono); font-size: .6em; margin-top: 1em; }
         .nums-cache .nc-stats td { padding: .1em 1.2em .1em 0; }
         .nums-cache .nc-miss { color: ${COLORS.bad}; }

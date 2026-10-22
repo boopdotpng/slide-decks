@@ -78,7 +78,7 @@ export default function FourAtOnce() {
         .fa .row.out { grid-template-columns: ${GW}px; }
         .fa .row .t { font-size: .75em; text-align: right; }
         .fa .row.dim { opacity: .25; }
-        .fa .row.hl { border-color: #fff; }
+        .fa .row.hl { border-color: var(--fg); }
         .fa .op { font-size: 1.6em; color: var(--muted); }
         .fa .code { display: flex; align-items: center; gap: 1.2em; }
         .fa .code .c { display: flex; flex-direction: column; gap: .3em; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: .6em .9em; }

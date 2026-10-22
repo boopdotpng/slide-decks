@@ -42,13 +42,13 @@ export default function Cache() {
         .kc .hd { font-size: .62em; margin-bottom: .3em; }
         .kc .saved { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 6px; border: 2px dashed transparent;
           border-radius: 8px; transition: border-color .4s; }
-        .kc .saved.on { border-color: #555; }
+        .kc .saved.on { border-color: var(--faint); }
         .kc .tag { position: absolute; right: 8px; bottom: -1.4em; font-size: .5em; color: var(--muted); }
         .kc .row { display: grid; grid-template-columns: 6em 1fr 3.5em; gap: .6em; align-items: center; }
         .kc .row.new { margin: 0 8px; opacity: 0; transform: translateX(30%); transition: opacity .5s, transform .6s cubic-bezier(.4, 0, .2, 1); }
         .kc .row.new.on { opacity: 1; transform: none; margin-top: 1.2em; }
         .kc .t { font-size: .7em; text-align: right; }
-        .kc .ok { font-size: .5em; color: #8ddb8c; }
+        .kc .ok { font-size: .5em; color: var(--good); }
         .kc .ok.nw { color: var(--accent); }
         .kc .cap { margin-top: 1.4em; font-size: .7em; color: var(--muted); min-height: 1.6em; }
         .kc .cap b { color: var(--fg); }

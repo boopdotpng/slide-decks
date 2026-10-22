@@ -35,14 +35,14 @@ export default function OpenCard() {
       <svg viewBox="0 0 1500 520" class="diagram">
         <Reveal on={step >= 1}>
           <text x={0} y={34} font-size="24" fill="var(--muted)">physical addresses (not to scale)</text>
-          <rect x={0} y={50} width={300} height={70} rx={8} fill="#1c1c1c" />
+          <rect x={0} y={50} width={300} height={70} rx={8} fill="var(--surface)" />
           <text x={150} y={94} font-size="24" fill="var(--muted)" text-anchor="middle">ram</text>
           <text x={350} y={94} font-size="24" fill="var(--muted)" text-anchor="middle">…</text>
-          <rect x={400} y={50} width={420} height={70} rx={8} fill={step === 2 ? COLORS.blue : '#26324a'} />
+          <rect x={400} y={50} width={420} height={70} rx={8} fill={step === 2 ? COLORS.blue : 'var(--tint-blue)'} />
           <text x={610} y={94} font-size="26" font-weight="700" fill="var(--fg)" text-anchor="middle">bar0 · 512 MiB</text>
-          <rect x={830} y={50} width={130} height={70} rx={8} fill="#26324a" />
+          <rect x={830} y={50} width={130} height={70} rx={8} fill="var(--tint-blue)" />
           <text x={895} y={94} font-size="24" fill="var(--fg)" text-anchor="middle">bar2</text>
-          <rect x={970} y={50} width={530} height={70} rx={8} fill={step === 3 ? COLORS.blue : '#26324a'} />
+          <rect x={970} y={50} width={530} height={70} rx={8} fill={step === 3 ? COLORS.blue : 'var(--tint-blue)'} />
           <text x={1235} y={94} font-size="26" font-weight="700" fill="var(--fg)" text-anchor="middle">bar4 · up to 32 GiB</text>
           <text x={895} y={150} font-size={SMALL} fill="var(--muted)" text-anchor="middle">pcie controller regs</text>
         </Reveal>

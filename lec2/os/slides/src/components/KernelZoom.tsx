@@ -59,14 +59,14 @@ function ThreadView({ n, pc }: { n: number; pc: string }) {
   );
   return (
     <g>
-      <rect width={W} height={H} rx={40} fill="#161616" stroke={COLORS.accent} stroke-width={6} />
+      <rect width={W} height={H} rx={40} fill="var(--panel)" stroke={COLORS.accent} stroke-width={6} />
       <T x={60} y={110} size={80} bold>thread {n}</T>
-      <rect x={60} y={170} width={700} height={540} rx={24} fill="#1c1c1c" />
+      <rect x={60} y={170} width={700} height={540} rx={24} fill="var(--surface)" />
       <T x={100} y={240} size={40} bold fill={COLORS.accent}>ring 3 side</T>
       {row(100, 330, 'pc', pc)}
       {row(100, 410, 'registers', 'rax, rdi, rsp, …')}
       {row(100, 490, 'user stack', 'locals, return addresses')}
-      <rect x={840} y={170} width={700} height={540} rx={24} fill="#1c1c1c" />
+      <rect x={840} y={170} width={700} height={540} rx={24} fill="var(--surface)" />
       <T x={880} y={240} size={40} bold fill={COLORS.hot}>kernel side</T>
       {row(880, 330, 'kernel stack', '16 KiB on linux')}
       {row(880, 410, 'saved regs', 'from the last pause')}
@@ -99,22 +99,22 @@ function WalkView({ split, walk }: { split: boolean; walk: boolean }) {
 
   return (
     <g>
-      <rect width={W} height={H} rx={40} fill="#161616" stroke={COLORS.accent} stroke-width={6} />
+      <rect width={W} height={H} rx={40} fill="var(--panel)" stroke={COLORS.accent} stroke-width={6} />
       <T x={50} y={60} size={34} fill="var(--muted)">virtual <tspan font-family="var(--mono)" fill="var(--fg)">0x10120</tspan> · 48 bits</T>
       {fields.map(({ x, w, i }) => (
         <g>
-          <rect x={x + 3} y={90} width={w - 6} height={80} rx={10} fill={split ? fieldColor(i) : '#262626'} style={{ transition: 'fill .4s' }} />
+          <rect x={x + 3} y={90} width={w - 6} height={80} rx={10} fill={split ? fieldColor(i) : 'var(--raised)'} style={{ transition: 'fill .4s' }} />
           <T x={x + w / 2} y={144} size={36} mono anchor="middle">{split ? vals[i] : ''}</T>
           <T x={x + w / 2} y={205} size={26} anchor="middle" fill="var(--muted)">{split ? `${names[i]} · ${bits[i]}` : ''}</T>
         </g>
       ))}
 
-      <rect x={40} y={300} width={140} height={60} rx={10} fill="#262626" />
+      <rect x={40} y={300} width={140} height={60} rx={10} fill="var(--raised)" />
       <T x={110} y={340} size={30} mono anchor="middle">cr3</T>
       {tables.map((t, k) => (
         <g>
           <T x={tx(k) + 110} y={275} size={30} bold anchor="middle">{t.name}</T>
-          <rect x={tx(k)} y={290} width={220} height={300} rx={12} fill="#1c1c1c" stroke="#333" />
+          <rect x={tx(k)} y={290} width={220} height={300} rx={12} fill="var(--surface)" stroke="var(--line)" />
           {t.rows.map((r, j) => (
             <g>
               {walk && j === t.hi && <rect x={tx(k) + 6} y={rowY(j)} width={208} height={50} rx={6} fill="var(--hl)" />}
@@ -123,7 +123,7 @@ function WalkView({ split, walk }: { split: boolean; walk: boolean }) {
           ))}
         </g>
       ))}
-      <rect x={1380} y={380} width={190} height={160} rx={12} fill={walk ? COLORS.blue : '#1c1c1c'} style={{ transition: 'fill .4s' }} />
+      <rect x={1380} y={380} width={190} height={160} rx={12} fill={walk ? COLORS.blue : 'var(--surface)'} style={{ transition: 'fill .4s' }} />
       <T x={1475} y={430} size={28} bold anchor="middle">{page.title}</T>
       <T x={1475} y={475} size={24} mono anchor="middle">{page.base}</T>
       <T x={1475} y={515} size={24} mono anchor="middle" fill="var(--muted)">{page.off}</T>
@@ -144,7 +144,7 @@ function WalkView({ split, walk }: { split: boolean; walk: boolean }) {
 function ProcessView({ name, pid, threads, walk }: { name: string; pid: number; threads: number; walk: ComponentChildren }) {
   return (
     <g>
-      <rect width={W} height={H} rx={40} fill="#141414" stroke="#333" stroke-width={4} />
+      <rect width={W} height={H} rx={40} fill="var(--panel)" stroke="var(--line)" stroke-width={4} />
       <T x={60} y={80} size={56} bold>{name}</T>
       <T x={60 + name.length * 34 + 30} y={80} size={32} fill="var(--muted)">process · pid {pid}</T>
       <ZoomView at={PT}>{walk}</ZoomView>
@@ -177,7 +177,7 @@ export default function KernelZoom() {
   return (
     <div class="kz" ref={root} data-hold="5000">
       <ZoomStage camera={CAMERA[step]}>
-        <rect width={W} height={KH} rx={24} fill="#0f0f0f" stroke="#262626" stroke-width={2} />
+        <rect width={W} height={KH} rx={24} fill="var(--sunken)" stroke="var(--border)" stroke-width={2} />
         <T x={40} y={70} size={44} bold>kernel</T>
         <T x={210} y={68} size={24} fill="var(--muted)">scheduler · memory manager · drivers · every process:</T>
         {[0, 1, 2, 3].map((c) => (
@@ -194,7 +194,7 @@ export default function KernelZoom() {
           return (
             <g style={{ transform: `translate(${tx + tw - 100}px, ${ty - 8}px)`, transition: 'transform .35s' }}>
               <rect width={104} height={34} rx={8} fill={COLORS.good} />
-              <T x={52} y={25} size={22} bold anchor="middle" fill="#0a0a0a">core {c}</T>
+              <T x={52} y={25} size={22} bold anchor="middle" fill="var(--on-color)">core {c}</T>
             </g>
           );
         })}
