@@ -93,3 +93,19 @@ export function useTicker(ref: RefObject<Element>, ms: number) {
   }, [active, ms]);
   return n;
 }
+
+/**
+ * The theme on screen, 'light' | 'dark'; re-renders when it changes. Css vars (COLORS, diverging(), …) switch by
+ * themselves, so only islands that draw colors into a canvas / WebGL need it: add it to the drawing effect's deps.
+ */
+export function useTheme() {
+  const get = () => (typeof document === 'undefined' ? 'dark' : document.documentElement.dataset.theme ?? 'dark');
+  const [theme, setTheme] = useState(get);
+  useEffect(() => {
+    const on = () => setTheme(get());
+    on();
+    addEventListener('deck:theme', on);
+    return () => removeEventListener('deck:theme', on);
+  }, []);
+  return theme;
+}

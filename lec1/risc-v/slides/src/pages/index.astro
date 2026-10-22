@@ -42,6 +42,31 @@ const notes = readNotes(process.cwd(), slides.map((s) => s.name.replace(/\.\w+$/
       addEventListener('resize', fit);
     })();
   </script>
+  <!-- theme: auto (the browser's light / dark setting) / light / dark, from the nav switch (deck.ts) and remembered in
+       localStorage, so every deck, tab and the presenter window follow it. ?theme=light|dark overrides it for that page
+       (shots, print). Sets <html data-theme="light|dark"> before the first paint and fires `deck:theme` on window
+       when it changes, so canvas islands can redraw -->
+  <script is:inline>
+    (() => {
+      const KEY = 'deck:theme', root = document.documentElement, dark = matchMedia('(prefers-color-scheme: dark)');
+      const forced = new URLSearchParams(location.search).get('theme');
+      const pref = () => (/^(light|dark)$/.test(forced ?? '') ? forced : localStorage.getItem(KEY) || 'dark');
+      const apply = () => {
+        const p = pref(), t = p === 'auto' ? (dark.matches ? 'dark' : 'light') : p;
+        root.dataset.themePref = p;
+        if (root.dataset.theme === t) return;
+        root.dataset.theme = t;
+        dispatchEvent(new CustomEvent('deck:theme', { detail: { theme: t } }));
+      };
+      window.deckTheme = {
+        get: pref,
+        set(p) { localStorage.setItem(KEY, p); apply(); },
+      };
+      apply();
+      dark.addEventListener('change', apply);
+      addEventListener('storage', (e) => { if (e.key === KEY) apply(); });
+    })();
+  </script>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%2360a5fa'/></svg>">
 </head>
 <body>
@@ -57,6 +82,7 @@ const notes = readNotes(process.cwd(), slides.map((s) => s.name.replace(/\.\w+$/
     <span id="counter" title="go to slide (g)"></span>
     <button id="next" title="next (→)">→</button>
     <button id="notes-btn" title="presenter view (p)">notes</button>
+    <button id="theme" title="theme: auto / light / dark (t)"></button>
     <button id="fs" title="fullscreen (f)">⛶</button>
   </div>
 

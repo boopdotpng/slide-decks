@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useEffect, useRef } from 'preact/hooks';
 import * as THREE from 'three';
-import { deckScale, useSlideActive, useSlideStep } from '../deck/hooks';
+import { deckScale, useSlideActive, useSlideStep, useTheme } from '../deck/hooks';
 import { Tok, diverging, resolve, sequential, useData } from './viz';
 import { headColor } from './common';
 
@@ -171,7 +171,7 @@ function mapTexture(m: number[][], color: (v: number, r: number, c: number) => s
   const data = new Uint8Array(S * S * 4);
   const col = new THREE.Color();
   for (let r = 0; r < S; r++) for (let c = 0; c < S; c++) {
-    const hex = col.setStyle(color(m[r][c], r, c)).getHex(); // srgb bytes, same as the css color
+    const hex = col.setStyle(resolve(color(m[r][c], r, c))).getHex(); // srgb bytes, same as the css color
     data.set([hex >> 16, (hex >> 8) & 255, hex & 255, 255], ((S - 1 - r) * S + c) * 4); // texture row 0 is the bottom
   }
   const t = new THREE.DataTexture(data, S, S);
@@ -307,6 +307,7 @@ export default function Heads3D() {
   const img = useRef<HTMLImageElement>(null);
   const step = useSlideStep(root);
   const active = useSlideActive(root);
+  const theme = useTheme(); // plate colors are baked into textures: rebuild on a theme change
   const d = useData('forward');
   const defs = useRef<Label[] | null>(null);
   if (d && !defs.current) defs.current = labels(d.toks);
@@ -328,7 +329,7 @@ export default function Heads3D() {
     v.start();
     view.current = v;
     return () => { v.dispose(); view.current = null; };
-  }, [d, active, print]);
+  }, [d, active, print, theme]);
   useEffect(() => { view.current?.go(s, false); }, [s]);
 
   return (

@@ -13,7 +13,7 @@
  * Don't mix both kinds on one slide: .step elements are revealed first.
  *
  * Keys: → / space next, ← back, g slide grid (arrows / click, or type a number, then enter),
- * f fullscreen, p presenter window, home / end.
+ * f fullscreen, p presenter window, t theme (auto → light → dark), home / end.
  *
  * The URL picks a mode:
  *   (none)      the deck
@@ -100,6 +100,19 @@ export function initDeck() {
     if (stepOf(slides[i]) > 0) setStep(stepOf(slides[i]) - 1);
     else if (i > 0) show(i - 1, true);
   }
+
+  // theme switch: the state lives in index.astro's inline script (window.deckTheme), which applies it before paint
+  const THEMES = ['auto', 'light', 'dark'] as const;
+  const theme = (window as unknown as { deckTheme: { get(): string; set(t: string): void } }).deckTheme;
+  const themeBtn = document.getElementById('theme')!;
+  const showTheme = () => { themeBtn.textContent = theme.get(); };
+  function cycleTheme() {
+    theme.set(THEMES[(THEMES.indexOf(theme.get() as (typeof THEMES)[number]) + 1) % THEMES.length]);
+    showTheme();
+  }
+  showTheme();
+  addEventListener('deck:theme', showTheme);
+  addEventListener('storage', showTheme); // a pref change that keeps the same look (dark -> auto) fires no deck:theme
 
   function fullscreen() {
     if (document.fullscreenElement) document.exitFullscreen();
@@ -201,6 +214,7 @@ export function initDeck() {
         case 'Home': show(0); break;
         case 'End': show(slides.length - 1); break;
         case 'f': fullscreen(); break;
+        case 't': cycleTheme(); break;
         case 'g': openPicker(); break;
         case 'p': if (mode === 'main') openPresenter(); break;
         default: return;
@@ -211,6 +225,7 @@ export function initDeck() {
     document.getElementById('prev')!.onclick = prev;
     document.getElementById('next')!.onclick = next;
     document.getElementById('fs')!.onclick = fullscreen;
+    themeBtn.onclick = cycleTheme;
     document.getElementById('notes-btn')!.onclick = openPresenter;
     counter.onclick = openPicker;
 

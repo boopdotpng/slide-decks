@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { COLORS, diverging, resolve } from './color';
 import { fmt, rms, tip } from './util';
+import { useTheme } from '../../deck/hooks';
 
 /**
  * Data marks: vectors as color strips, matrices as heatmaps, labeled bars,
@@ -52,17 +53,18 @@ export function Strip({ values, scale, height = 22, width, vertical = false, lab
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const s = scale ?? (rms(values) * 2 || 1);
+  const theme = useTheme();
   useEffect(() => {
     const c = ref.current!;
     c.width = vertical ? 1 : values.length;
     c.height = vertical ? values.length : 1;
     const ctx = c.getContext('2d')!;
     values.forEach((v, i) => {
-      ctx.fillStyle = color ? resolve(color(v)) : diverging(v, s);
+      ctx.fillStyle = resolve(color ? color(v) : diverging(v, s));
       if (vertical) ctx.fillRect(0, i, 1, 1);
       else ctx.fillRect(i, 0, 1, 1);
     });
-  }, [values, s]);
+  }, [values, s, theme]);
   const onMove = (e: MouseEvent) => {
     const r = ref.current!.getBoundingClientRect();
     const f = vertical ? (e.clientY - r.top) / r.height : (e.clientX - r.left) / r.width;
@@ -112,13 +114,14 @@ export function HeatCanvas({ data, color, size, w, h, tipFn }: {
   tipFn?: (r: number, c: number, v: number) => string;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const theme = useTheme();
   useEffect(() => {
     const c = ref.current!;
     c.width = data[0].length;
     c.height = data.length;
     const ctx = c.getContext('2d')!;
     data.forEach((row, r) => row.forEach((v, k) => { ctx.fillStyle = resolve(color(v)); ctx.fillRect(k, r, 1, 1); }));
-  }, [data, color]);
+  }, [data, color, theme]);
   const onMove = (e: MouseEvent) => {
     if (!tipFn) return;
     const b = ref.current!.getBoundingClientRect();
@@ -154,18 +157,19 @@ export function ByteHeat({ m, w, h, transpose = false, children, class: cls = ''
   m: Bytes8; w: number | string; h: number | string; transpose?: boolean; children?: ComponentChildren; class?: string;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const theme = useTheme();
   useEffect(() => {
     const c = ref.current!, b = bytes8(m), [R, C] = m.shape;
     c.width = transpose ? R : C; c.height = transpose ? C : R;
     const ctx = c.getContext('2d')!, img = ctx.createImageData(c.width, c.height);
     // the bytes already hold tanh(v / scale); undo the tanh so diverging() lands on the same color as Strip with that scale
-    const lut = Array.from({ length: 256 }, (_, v) => diverging(Math.atanh(Math.max(-0.999, Math.min(0.999, v / 127.5 - 1))), 1).match(/\d+/g)!.map(Number));
+    const lut = Array.from({ length: 256 }, (_, v) => resolve(diverging(Math.atanh(Math.max(-0.999, Math.min(0.999, v / 127.5 - 1))), 1)).match(/\d+/g)!.map(Number));
     for (let r = 0; r < R; r++) for (let k = 0; k < C; k++) {
       const [x, y] = transpose ? [r, k] : [k, r];
       img.data.set([...lut[b[r * C + k]], 255], (y * c.width + x) * 4);
     }
     ctx.putImageData(img, 0, 0);
-  }, [m, transpose]);
+  }, [m, transpose, theme]);
   const px = (v: number | string) => (typeof v === 'number' ? `${v}px` : v);
   return (
     <div class={`byteheat ${cls}`} style={{ width: px(w), height: px(h) }}>

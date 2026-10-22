@@ -36,6 +36,7 @@ islands, `public/` assets and `deck.config.ts` are never touched, so keep deck-s
 | g | slide grid: every slide as a thumbnail at its last step. arrows / hjkl or a number, then enter; or click one (or click the counter to open it) |
 | p | presenter window: notes (editable under `bun dev`: click or e), next-step preview, timer. Synced both ways with the deck |
 | f | fullscreen |
+| t | theme: auto (follows the browser / os) → light → dark, also the button in the corner. Remembered across decks and windows; dark until you pick |
 | home / end | first / last |
 
 The URL keeps your place: `#7.3` is slide 7, step 3.
@@ -48,6 +49,7 @@ element to make a slide linger. Needs Google Chrome and ffmpeg.
 into `/tmp/shots/`, and prints any page errors. Options: `--url`, `--out`, `--wait`, `--width`, `--height`, `--jobs` (pages in parallel, default 8).
 
 `?print` shows every slide fully revealed, one per page: cmd+p → save as pdf (1600×900 pages, backgrounds on).
+`?theme=light` / `?theme=dark` forces a theme for that page (works with `?print` and `bun run shot --url`).
 
 ## writing slides
 
@@ -98,8 +100,8 @@ converts, otherwise divide by `deckScale()` (`deck/hooks.ts`).
 
 Classes in `styles/deck.css`: `step`, `cols`, `small`, `muted`, `accent`,
 `center`, `full`, `fill`, `sub`, `caption`, `fade` + `on`, `notes` (and `section`, the kicker, in `viz.css`). Theme colors and fonts are
-the variables at the top of that file; every deck uses only those (no hex / rgb() in
-slides or islands, `bun run check` enforces it).
+the variables at the top of that file, once for dark and once for light (`:root[data-theme=light]`); every deck uses only
+those (no hex / rgb() in slides or islands, `bun run check` enforces it), so every slide works in both themes.
 
 ## islands
 
