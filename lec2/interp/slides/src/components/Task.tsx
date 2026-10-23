@@ -18,24 +18,24 @@ const Q = (c: string) => <b class="q">{c}</b>, V = (c: string) => <b class="v">{
 const QS = { 8: 'q', 9: 'q' } as const, BOTH = { ...QS, 2: 'q', 4: 'q', 3: 'v', 5: 'v' } as const;
 const FIND2: Arc[] = [[8, 2, 'q'], [9, 4, 'q']], COPY2: Arc[] = [...FIND2, [3, 9, 'v'], [5, 9, 'v']];
 const TWO_KEY = (last: ComponentChildren): Phase[] => [
-  { marks: QS, arcs: [], say: <>the last two tokens are the queries: {Q('f')} and {Q('c')}</> },
-  { marks: BOTH, arcs: FIND2, say: <>look back for each key: {Q('f')} → {V('5')}, {Q('c')} → {V('9')}</> },
-  { marks: BOTH, arcs: COPY2, say: <>bring both values to the end</> },
+  { marks: QS, arcs: [], say: <>queries: {Q('f')}, {Q('c')}</> },
+  { marks: BOTH, arcs: FIND2, say: <>{Q('f')} → {V('5')}, {Q('c')} → {V('9')}</> },
+  { marks: BOTH, arcs: COPY2, say: <>both to the end</> },
   { marks: BOTH, arcs: COPY2, say: last },
 ];
 
 const TASKS: Record<string, Def> = {
   digit: { input: 'qwdk7mzpa', answer: '7', phases: [
-    { marks: { 4: 'v' }, arcs: [], say: <>one digit hides among the letters: {V('7')}</> },
-    { marks: { 4: 'v' }, arcs: [[4, 8, 'v']], say: <>copy it to the last position: {V('7')}</> },
+    { marks: { 4: 'v' }, arcs: [], say: <>one digit among letters: {V('7')}</> },
+    { marks: { 4: 'v' }, arcs: [[4, 8, 'v']], say: <>only the last position answers, so the {V('7')} has to get there</> },
   ] },
   lookup: { input: 'a2f5c9d3f', answer: '5', phases: [
-    { marks: { 8: 'q' }, arcs: [], say: <>the last token is the query: {Q('f')}</> },
-    { marks: { 8: 'q', 2: 'q' }, arcs: [[8, 2, 'q']], say: <>look back for the key {Q('f')}</> },
-    { marks: { 8: 'q', 2: 'q', 3: 'v' }, arcs: [[8, 2, 'q'], [3, 8, 'v']], say: <>copy the digit right after it to the end: {V('5')}</> },
+    { marks: { 8: 'q' }, arcs: [], say: <>query: {Q('f')}</> },
+    { marks: { 8: 'q', 2: 'q' }, arcs: [[8, 2, 'q']], say: <>find the key {Q('f')}</> },
+    { marks: { 8: 'q', 2: 'q', 3: 'v' }, arcs: [[8, 2, 'q'], [3, 8, 'v']], say: <>copy the digit after it: {V('5')}</> },
   ] },
-  sum: { input: 'a2f5c9d3fc', answer: '4', phases: TWO_KEY(<>add them: {V('5')} + {V('9')} = 14, keep the last digit (mod 10): {V('4')}</>) },
-  diff: { input: 'a2f5c9d3fc', answer: '6', phases: TWO_KEY(<>first minus second: {V('5')} − {V('9')} = −4, wrap around (mod 10): {V('6')}. swap the queries (…{Q('cf')}) and it's 9 − 5 = 4</>) },
+  sum: { input: 'a2f5c9d3fc', answer: '4', phases: TWO_KEY(<>add: {V('5')} + {V('9')} = 14, and 14 mod 10 = {V('4')}</>) },
+  diff: { input: 'a2f5c9d3fc', answer: '6', phases: TWO_KEY(<>subtract: {V('5')} − {V('9')} = −4, and −4 mod 10 = {V('6')}</>) },
 };
 
 // px per token, box width, box height, room above (lookups) and below (copies) the boxes for arcs
@@ -77,7 +77,7 @@ export default function Task({ task }: { task: keyof typeof TASKS }) {
             {[...t.input].map((c, i) => <span class={`c ${/\d/.test(c) ? 'dg' : ''} ${ph.marks[i] ?? ''}`}>{c}</span>)}
           </div>
         </div>
-        <span class="arrow">→</span>
+        <span class="to">→</span>
         <span class={`c out ${done ? 'on' : ''}`}>{done ? t.answer : '?'}</span>
       </div>
       <ol class="work">
@@ -86,8 +86,8 @@ export default function Task({ task }: { task: keyof typeof TASKS }) {
       <style>{`
         .task { display: flex; flex-direction: column; gap: 1em; margin-top: .2em; }
         .task .line { display: flex; align-items: flex-start; gap: .6em; }
-        .task .line > .arrow, .task .line > .out { margin-top: ${ABOVE}px; }
-        .task .line > .arrow { line-height: ${BH}px; }
+        .task .line > .to, .task .line > .out { margin-top: ${ABOVE}px; }
+        .task .line > .to { line-height: ${BH}px; }
         .task .seq { position: relative; height: ${ABOVE + BH + BELOW}px; }
         .task .seq svg { position: absolute; inset: 0; overflow: visible; }
         .task .toks { position: absolute; top: ${ABOVE}px; display: flex; gap: ${PITCH - BOX}px; }
@@ -97,7 +97,7 @@ export default function Task({ task }: { task: keyof typeof TASKS }) {
         .task .c.dg { color: var(--hot); }
         .task .c.q { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
         .task .c.v { border-color: var(--good); background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
-        .task .arrow { color: var(--muted); font-size: 1.4em; margin: 0 .2em; }
+        .task .to { color: var(--muted); font-size: 1.4em; margin: 0 .2em; }
         .task .c.out { color: var(--muted); border-style: dashed; }
         .task .c.out.on { color: var(--good); border: 1px solid var(--good); background: color-mix(in srgb, var(--good) 16%, transparent); }
         .task .work { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: .35em; font-size: .8em; }

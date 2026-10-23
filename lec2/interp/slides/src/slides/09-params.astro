@@ -1,0 +1,30 @@
+---
+const ROWS = [
+  ['vocab_size', 'how many different tokens', '50,257', '36', '26 letters + 10 digits'],
+  ['seq_len', 'tokens per input', '1,024', '9 or 10', ''],
+  ['emb_dim', 'numbers per position: the stream’s width', '768', '32', ''],
+  ['n_layers', 'blocks, one after another', '12', '0 → 2', 'grows with the tasks'],
+  ['n_heads', 'attention heads per layer, side by side', '12', '1 or 2', ''],
+  ['head_dim', 'numbers in one query or key', '64', '32', ''],
+  ['mlp_size', 'hidden width of the mlp', '3,072', '64', 'only where a task needs one'],
+];
+---
+<header>
+  <div class="section">the models</div>
+  <h2>the knobs</h2>
+</header>
+<div class="pt">
+  <div class="h">name</div><div class="h">what it is</div><div class="h n">gpt-2 small</div><div class="h n">ours</div><div class="h" />
+  {ROWS.map(([k, what, gpt, ours, note]) => <>
+    <div class="k">{k}</div><div class="w">{what}</div><div class="n">{gpt}</div><div class="n o">{ours}</div><div class="note">{note}</div>
+  </>)}
+</div>
+<style>
+  .pt { display: grid; grid-template-columns: auto auto auto auto 1fr; column-gap: 1.6em; row-gap: .45em; font-size: .8em; align-items: baseline; }
+  .pt .h { font-size: .7em; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: .3em; }
+  .pt .k { font-family: var(--mono); color: var(--accent); }
+  .pt .w { color: var(--fg); }
+  .pt .n { font-family: var(--mono); text-align: right; color: var(--muted); }
+  .pt .n.o { color: var(--fg); font-weight: 700; }
+  .pt .note { font-size: .7em; color: var(--muted); }
+</style>

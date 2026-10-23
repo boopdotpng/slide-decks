@@ -11,12 +11,12 @@ const TRAIN: [string, string][] = [['w7nhibbae', '7'], ['vqxnpz0qo', '0'], ['oyh
 const TEST = ['vsri2bpgd', 't6oiwgtwm', 'ay4rotspx'];
 const PICKED = [1, 2, 4];
 const STEPS = [
-  <>pick <b>512</b> random training examples</>,
-  <>run the model on them: <b>36 scores</b> at the last position, turned into probabilities</>,
-  <><b>loss</b> = how surprised it was by the right answer: −log(probability it gave the answer).
-    <span class="eg">a 1-in-10 guess: <b>2.30</b> · 99% sure and right: <b>0.01</b></span></>,
-  <>the <b>optimizer</b> nudges every weight a little in the direction that lowers the loss. <b>repeat</b>, 1,000–2,000 times</>,
-  <><b>test</b>: run the held-out examples and count how many it gets right</>,
+  <>sample <b>512</b> examples</>,
+  <>forward → <b>36 scores</b> → probabilities</>,
+  <><b>loss</b> = −log p(answer)
+    <span class="eg">1-in-10 guess: <b>2.30</b> · 99% sure and right: <b>0.01</b></span></>,
+  <><b>optimizer</b> step · <b>repeat</b> ×1,000–2,000</>,
+  <><b>test</b> on held-out examples</>,
 ];
 
 export default function TrainLoop() {

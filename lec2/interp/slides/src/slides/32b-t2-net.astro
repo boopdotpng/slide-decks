@@ -1,0 +1,9 @@
+---
+import Net from '../components/Net.tsx';
+---
+<header>
+  <div class="section">task 2 · dictionary lookup</div>
+  <h2>two layers, plus positions</h2>
+</header>
+<div class="net-wrap"><Net client:load text="a2f5c9d3f" layers={[{ heads: 1 }, { heads: 1 }]} weights="task2w" pos /></div>
+<style>.net-wrap { width: 100%; }</style>

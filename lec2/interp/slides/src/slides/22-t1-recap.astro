@@ -1,0 +1,27 @@
+<header>
+  <div class="section">task 1 · hidden digit, one head</div>
+  <h2>what one head does</h2>
+</header>
+<div class="rc">
+  <div class="card">
+    <div class="k">QK · where to look</div>
+    <div class="v">picks a position by <b>what's in its stream</b></div>
+    <div class="ex">task 1: "is this a digit?" every letter's query asks it, the 7's key answers yes</div>
+  </div>
+  <div class="card step">
+    <div class="k">OV · what to bring back</div>
+    <div class="v">copies <b>what's in that stream</b> into this one</div>
+    <div class="ex">task 1: the 7's value, read by the unembedding, says 7</div>
+  </div>
+  <div class="so step">
+    so a head can only find what's <b>already written</b> in some stream. but it also <b>writes</b>: something a later head could find
+  </div>
+</div>
+<style>
+  .rc { display: grid; grid-template-columns: 1fr 1fr; gap: 1em 1.4em; }
+  .card { padding: .8em 1em; border: 2px solid var(--border); border-radius: 12px; background: var(--panel); display: flex; flex-direction: column; gap: .4em; }
+  .card .k { font-family: var(--mono); font-size: .6em; color: var(--accent); text-transform: uppercase; letter-spacing: .1em; }
+  .card .v { font-size: .95em; }
+  .card .ex { font-size: .6em; color: var(--muted); }
+  .so { grid-column: 1 / -1; padding: .7em 1em; border: 2px solid var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: .8em; }
+</style>

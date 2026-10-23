@@ -136,3 +136,20 @@ svg.diagram { width: 100%; max-height: 62cqh; display: block; font-family: var(-
 /* ── StepCode.tsx ──────────────────────────────────────────────────────────── */
 .step-code { align-self: flex-start; margin-top: .8em; }
 .step-code pre { font-size: .6em; margin: 0; }
+
+/* Mat / DotRow (viz/Matrix.tsx): matmuls as svg cells */
+.mx .c { transition: transform .8s cubic-bezier(.5, 0, .2, 1), fill .5s, opacity .35s; }
+.mx .c.empty { fill: var(--panel); stroke: var(--border); stroke-width: .02; }
+.mx .c.masked { fill: var(--panel); }
+.mx .c.dim, .mx .ct.dim { opacity: .18; }
+.mx text { transition: transform .8s cubic-bezier(.5, 0, .2, 1), opacity .35s; }
+.mx .ct { font-family: var(--mono); font-size: 13px; fill: var(--fg); text-anchor: middle; pointer-events: none; }
+.mx .rl { font-family: var(--mono); font-size: 18px; fill: var(--muted); text-anchor: middle; }
+.mx .nm { font-family: var(--mono); font-size: 20px; fill: var(--fg); }
+.mx .nm .sh { fill: var(--muted); }
+.mx .hlbox { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+.mx.dot .dl { font-family: var(--mono); font-size: 15px; fill: var(--muted); text-anchor: end; }
+.mx.sm .ct { font-size: 10.5px; letter-spacing: -.04em; }
+.mx .ct.inv { fill: var(--bg); }
+.mx.dot .rule { stroke: var(--line-2); }
+.mx.dot .sum { font-family: var(--mono); font-size: 20px; fill: var(--fg); }

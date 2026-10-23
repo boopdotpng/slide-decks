@@ -37,8 +37,8 @@ export default function RnnFade() {
       <div class="caps">
         <div class="cap muted">
           {step === 0
-            ? <>the guess for <span class="q">?</span>: swap one earlier character for a random one. does the guess change?</>
-            : <>bar = how much the guess changes. the start of the line barely counts: every step rewrote h, and what those characters put there got mixed away</>}
+            ? <>swap one earlier character → does the guess for <span class="q">?</span> change?</>
+            : <>bar = how much the guess for <span class="q">?</span> changes</>}
         </div>
         <div class={`avg fade ${step >= 2 ? 'on' : ''}`}>
           <span class="muted">average over {avg.n} snippets:</span>

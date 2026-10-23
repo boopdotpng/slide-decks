@@ -5,8 +5,8 @@ const isDigit = (c: string) => /\d/.test(c);
 ---
 <header>
   <div class="section">recap: tokens</div>
-  <h2>tokenization: one character, one token</h2>
-  <p class="sub">our vocab is 26 letters + 10 digits = <b>36 tokens</b></p>
+  <h2>one character, one token</h2>
+  <p class="sub">26 letters + 10 digits = <b>36 tokens</b></p>
 </header>
 <div class="vocab">
   {VOCAB.map((c, i) => (
@@ -14,7 +14,7 @@ const isDigit = (c: string) => /\d/.test(c);
   ))}
 </div>
 <div class="step enc">
-  <div class="lbl">our input <code>a2f5c9d3f</code> becomes 9 token ids</div>
+  <div class="lbl"><code>a2f5c9d3f</code> → 9 token ids</div>
   <div class="row">
     {TEXT.map((c) => (
       <div class="v"><span class:list={['c', { dg: isDigit(c) }]}>{c}</span><span class="id">{VOCAB.indexOf(c)}</span></div>

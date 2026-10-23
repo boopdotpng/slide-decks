@@ -1,0 +1,10 @@
+---
+import Net from '../components/Net.tsx';
+---
+<header>
+  <div class="section">task 3 · two-key sum</div>
+  <h2>task 2's network, plus an mlp</h2>
+  <p class="sub">the same two heads, then an mlp after layer 2. it reads each position's stream on its own and adds back into it: x = x + mlp(x)</p>
+</header>
+<div class="net-wrap"><Net client:load text="a2f5c9d3fc" layers={[{ heads: 1 }, { heads: 1, mlp: true }]} weights="task3w" pos /></div>
+<style>.net-wrap { width: 100%; }</style>

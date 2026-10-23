@@ -46,7 +46,7 @@ export default function TinyEmbed() {
         </div>
         <div class={`zoom ${zoom ? '' : 'gone'}`}>
           <div><span class="k">f</span> = [{EMB[IDS[ZOOM]].map((v) => v.toFixed(2)).join(', ')}]</div>
-          <div class="muted">32 numbers. position 2 and position 8 are both <b>f</b>, so they got the exact same row</div>
+          <div class="muted">32 numbers · same token → same row</div>
         </div>
       </div>
       <style>{`

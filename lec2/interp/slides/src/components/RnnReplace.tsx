@@ -53,11 +53,6 @@ export default function RnnReplace() {
         ))}
       </div>
 
-      <div class="caption cap">
-        {step < N
-          ? <>reads <b><Ch c={d.chars[t]} /></b>. {t === 0 ? 'the stream starts at zero and gets filled in' : 'most of the stream gets rewritten'}</>
-          : <>one stream for the whole text, rewritten in place every character. the old versions aren't kept anywhere: nothing is added on, it's <b>replaced</b></>}
-      </div>
       <style>{`
         ${CH_CSS}
         .rrep { display: flex; flex-direction: column; gap: 1.1em; font-size: .8em; }

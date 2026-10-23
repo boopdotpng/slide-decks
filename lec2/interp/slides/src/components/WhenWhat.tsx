@@ -6,27 +6,18 @@ import { useSlideStep } from '../deck/hooks';
  * When does each component write to the residual stream, and what does it write.
  * One row per write, in the order they happen. "reads" is everything already in the stream
  * at that moment: every row above it. Schematic, two layers.
- *   0 tok + pos     1 layer 0 attention     2 layer 0 mlp     3 layer 1 attention (reads layer 0's writes)
- *   4 layer 1 mlp   5 unembed reads, writes nothing           6 heads in one layer write at the same moment
+ *   0 tok + pos     1 layer 1 attention     2 layer 1 mlp     3 layer 2 attention (reads layer 1's writes)
+ *   4 layer 2 mlp   5 unembed reads, writes nothing           6 heads in one layer write at the same moment
  */
 type Row = { who: string; chip: string; cls: string; what: string; at: number };
 const ROWS: Row[] = [
   { who: 'token embedding', chip: 'tok', cls: 'emb', what: 'which token is here', at: 0 },
   { who: 'position embedding', chip: 'pos', cls: 'emb', what: 'which position this is', at: 0 },
-  { who: 'layer 0 · attention', chip: 'attn₀', cls: 'attn', what: 'copies of what earlier positions hold', at: 1 },
-  { who: 'layer 0 · mlp', chip: 'mlp₀', cls: 'mlp', what: "something computed from this position's stream", at: 2 },
-  { who: 'layer 1 · attention', chip: 'attn₁', cls: 'attn', what: 'copies of what earlier positions hold', at: 3 },
-  { who: 'layer 1 · mlp', chip: 'mlp₁', cls: 'mlp', what: "something computed from this position's stream", at: 4 },
+  { who: 'layer 1 · attention', chip: 'attn₁', cls: 'attn', what: 'copies of what earlier positions hold', at: 1 },
+  { who: 'layer 1 · mlp', chip: 'mlp₁', cls: 'mlp', what: "something computed from this position's stream", at: 2 },
+  { who: 'layer 2 · attention', chip: 'attn₂', cls: 'attn', what: 'copies of what earlier positions hold', at: 3 },
+  { who: 'layer 2 · mlp', chip: 'mlp₂', cls: 'mlp', what: "something computed from this position's stream", at: 4 },
   { who: 'unembed', chip: '', cls: 'out', what: 'nothing: reads the last position, scores every token', at: 5 },
-];
-const CAPS = [
-  <>before any layer runs, the stream is two lookups added together</>,
-  <>layer 0's attention can only read <b>tok + pos</b>. all it can do is move those between positions</>,
-  <>the mlp runs after attention in the same layer, so it can read what attention just wrote</>,
-  <>layer 1 reads everything layer 0 wrote. <b>a second layer is how one computation builds on another's result</b></>,
-  <>every write lands in the stream before the next component reads it</>,
-  <>the unembedding writes nothing. it reads the sum of every write above</>,
-  <>all heads in one layer read the same stream and write at the same moment: <b>none of them can use another's result</b>. that takes the next layer</>,
 ];
 
 export default function WhenWhat() {
@@ -62,7 +53,6 @@ export default function WhenWhat() {
           );
         })}
       </div>
-      <div class="caption cap">{CAPS[Math.min(step, CAPS.length - 1)]}</div>
       <style>{`
         .ww { display: flex; flex-direction: column; gap: .6em; font-size: .68em; width: 100%; }
         .ww .grid { display: grid; grid-template-columns: 2.5em auto auto 1fr; }

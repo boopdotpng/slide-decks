@@ -24,7 +24,7 @@ export default function RnnSerial() {
             {i < chars.length - 1 && <span class="to seq" style={{ animationDelay: `${i * MS}ms` }}>→</span>}
           </>)}
         </div>
-        <div class="what muted">{chars.length} steps in a row. each one waits for the h before it</div>
+        <div class="what muted">{chars.length} steps, one after another</div>
       </div>
       <div class={`row fade ${step >= 1 ? 'on' : ''}`}>
         <div class="name">attention</div>
@@ -35,7 +35,7 @@ export default function RnnSerial() {
             {i < chars.length - 1 && <span class="to blank">→</span>}
           </>)}
         </div>
-        <div class="what muted">1 step. every position at once: what a gpu is built for</div>
+        <div class="what muted">1 step, every position at once</div>
       </div>
       <style>{`
         ${CH_CSS}

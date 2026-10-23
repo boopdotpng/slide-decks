@@ -11,5 +11,7 @@ __pycache__/
 .backup/
 .claude/
 lec1/gpt-2-arch/impl/weights/
+lec1/gpt-2-arch/weights/
+lec1/gpt-2-arch/tinygrad/
 lec1/rnn/data/
 lec1/rnn/rnn.safetensors

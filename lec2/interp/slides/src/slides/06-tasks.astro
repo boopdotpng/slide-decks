@@ -1,21 +1,22 @@
 <header>
   <div class="section">overview</div>
-  <h2>what we will cover</h2>
+  <h2>five tasks, one piece at a time</h2>
 </header>
 <table class="tasks">
   <tr><th>task</th><th>problem</th><th>input → output</th><th>network</th></tr>
   <tr class="step"><td>0</td><td>hidden digit</td><td><code>qwdk7mzpa</code> → <code>7</code></td><td>embed → unembed, no layers</td></tr>
   <tr class="step"><td>1</td><td>hidden digit</td><td><code>qwdk7mzpa</code> → <code>7</code></td><td>+ one attention head</td></tr>
-  <tr class="step muted"><td>2+</td><td colspan="3">harder problems, bigger networks</td></tr>
+  <tr class="step"><td>2</td><td>dictionary lookup</td><td><code>a2f5c9d3f</code> → <code>5</code></td><td>2 layers + position embeddings</td></tr>
+  <tr class="step"><td>3</td><td>two-key sum</td><td><code>a2f5c9d3fc</code> → <code>4</code></td><td>+ an mlp</td></tr>
+  <tr class="step"><td>4</td><td>two-key difference</td><td><code>a2f5c9d3fc</code> → <code>6</code></td><td>+ a second head per layer</td></tr>
 </table>
-<p class="step small muted">every answer is one digit, read off the last position. guessing gets 10%</p>
 <div class="step plan">
   <div class="plan-h">the plan</div>
   <div class="flow">
-    <span>start with the smallest network</span><b>→</b>
-    <span>it can't solve a task</span><b>→</b>
+    <span>smallest network</span><b>→</b>
+    <span>fails a task</span><b>→</b>
     <span>add one piece, retrain</span><b>→</b>
-    <span>look at the weights: what did it learn?</span>
+    <span>read the weights</span>
   </div>
   <div class="again">↻ then the next task</div>
 </div>

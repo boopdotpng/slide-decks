@@ -1,0 +1,65 @@
+---
+const GPT = ['the', 'cat', 'sat', 'on', 'the'], GPT_NEXT = ['cat', 'sat', 'on', 'the', 'mat'];
+const OURS = [...'qwdk7mzpa'], OURS_NEXT = [...'wdk7mzpa'];
+---
+<header>
+  <div class="section">training</div>
+  <h2>only the last position is graded</h2>
+</header>
+<div class="gr">
+  <div class="row">
+    <div class="name">a regular transformer <span>(gpt)</span></div>
+    <div class="cells">
+      {GPT.map((t, i) => (
+        <div class="col">
+          <div class="tok">{t}</div><div class="arr">↓</div><div class="tgt ok">{GPT_NEXT[i]}</div>
+        </div>
+      ))}
+    </div>
+    <div class="what"><b>all graded</b></div>
+  </div>
+
+  <div class="row step">
+    <div class="name">our tasks, graded like gpt</div>
+    <div class="cells">
+      {OURS.map((t, i) => (
+        <div class="col">
+          <div class={`tok mono ${/\d/.test(t) ? 'dg' : ''}`}>{t}</div><div class="arr">↓</div>
+          <div class={`tgt mono ${i === OURS.length - 1 ? 'ans' : 'rnd'}`}>{i < OURS_NEXT.length ? OURS_NEXT[i] : '7'}</div>
+        </div>
+      ))}
+    </div>
+    <div class="what">next char is random: nothing to learn</div>
+  </div>
+
+  <div class="row step">
+    <div class="name">what we do</div>
+    <div class="cells">
+      <div class="brace rnd-b"><b>not graded</b></div>
+      <div class="brace ans-b"><b>graded</b></div>
+    </div>
+  </div>
+
+</div>
+<style>
+  .gr { display: flex; flex-direction: column; gap: 1.1em; font-size: .8em; }
+  .row { display: grid; grid-template-columns: 9.5em 1fr; column-gap: 1em; row-gap: .3em; align-items: center; }
+  .name { font-weight: 700; font-size: .85em; }
+  .name span { color: var(--muted); font-weight: 400; }
+  .cells { display: flex; gap: .35em; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: .1em; width: 2.6em; }
+  .row:first-child .col { width: 3.4em; }
+  .tok, .tgt { width: 100%; text-align: center; padding: .15em 0; border-radius: 6px; border: 2px solid var(--border); background: var(--panel); }
+  .mono { font-family: var(--mono); }
+  .tok.dg { color: var(--accent); }
+  .arr { color: var(--faint); font-size: .7em; line-height: 1; }
+  .tgt.ok { border-color: var(--good); color: var(--good); }
+  .tgt.rnd { color: var(--muted); border-style: dashed; }
+  .tgt.ans { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+  .what { grid-column: 2; font-size: .62em; color: var(--muted); }
+  .what b, .brace b { color: var(--fg); }
+  .brace { font-size: .62em; padding-top: .3em; text-align: center; color: var(--muted); }
+  .rnd-b { width: calc(8 * 2.6em / .62 + 7 * .35em / .62); border-top: 2px dashed var(--faint); }
+  .ans-b { width: calc(2.6em / .62); border-top: 3px solid var(--accent); color: var(--accent); }
+  .note { font-size: .62em; color: var(--muted); margin: 0; }
+</style>

@@ -1,10 +1,9 @@
 ---
-import { Loss } from '../components/TaskCharts.tsx';
+import { LossPred } from '../components/TaskCharts.tsx';
 ---
 <header>
   <div class="section">task 0 · hidden digit, no layers</div>
-  <h2>training loss</h2>
+  <h2>the loss, and what it learned</h2>
 </header>
-
-<div data-steps="2" class="w"><Loss client:load data="task0" /></div>
+<div data-steps="3" class="w"><LossPred client:load data="task0" /></div>
 <style>.w { width: 100%; }</style>
