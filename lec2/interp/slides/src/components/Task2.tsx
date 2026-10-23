@@ -260,10 +260,11 @@ const pct2 = (v: number) => (v < 0.01 ? `${(v * 100).toFixed(2)}%` : v > 0.99 ? 
  * in the style of task 1's (Head1.tsx HeadScores). tags: an extra line under a column (what layer 1 wrote into it).
  * keep: rows that stay lit when dim is on
  */
-export function AttnMatrix({ chars, att, keep, dim, hlCells = [], tags, eq = 'softmax(q · k / √32 + mask)', greyCols = [], roles = POS }: {
+export function AttnMatrix({ chars, att, keep, dim, hlCells = [], tags, eq = 'softmax(q · k / √32 + mask)', greyCols = [], roles = POS, note }: {
   chars: string[]; att: (number | null)[][]; keep: number[]; dim: boolean; hlCells?: [number, number][]; tags?: (string | null)[]; eq?: string;
   greyCols?: number[];   // columns that are never a target: covered with a veil, labels faded
   roles?: string[];      // the line under each token (task 3 has two queries)
+  note?: [row: number, text: string];   // a callout to the right of one row
 }) {
   const n = chars.length;
   const M = { x: 150, y: tags ? 118 : 96, cw: 52, ch: 52 };
@@ -292,6 +293,7 @@ export function AttnMatrix({ chars, att, keep, dim, hlCells = [], tags, eq = 'so
       {greyCols.length > 0 && (dim
         ? keep.map((r) => <rect class="hlbox top" x={M.x - 1.5} y={M.y + r * M.ch - 1.5} width={n * M.cw + 1} height={M.ch + 1} rx="3" />)
         : hlCells.map(([r, c]) => <rect class="hlbox top" x={M.x + c * M.cw - 1.5} y={M.y + r * M.ch - 1.5} width={M.cw + 1} height={M.ch + 1} rx="3" />))}
+      {note && <text class="note" x={M.x + n * M.cw + 16} y={M.y + note[0] * M.ch + M.ch / 2 + 8}>← {note[1]}</text>}
     </svg>
   );
 }
@@ -299,6 +301,7 @@ export const AM_CSS = `
   .am { width: 640px; flex: none; overflow: visible; }
   .am .eq { font-family: var(--mono); font-size: 19px; fill: var(--fg); }
   .am .ax { font-size: 15px; fill: var(--accent); }
+  .am .note { font-size: 24px; font-weight: 700; fill: var(--hot); }
   .am .tk { font-family: var(--mono); font-size: 24px; font-weight: 600; fill: var(--fg); text-anchor: middle; }
   .am .rlab .tk { text-anchor: end; }
   .am .tk.dg { fill: var(--hot); }
@@ -315,16 +318,15 @@ export const AM_CSS = `
 
 /**
  * Layer 1, head 1 on a2f5c9d3f (task2w.json's example run), every row and column labelled token over role.
- *   0 the whole attention matrix, softmax(q · k / √32 + mask), every probability written in
- *   1 only the digit rows matter: layer 2 never looks at a key position, and the query's own write is a small nudge
- *   2 the digit rows' scores split into the part from the key's position and the part from its token (test averages), numbers in
+ *   0 the whole attention matrix, softmax(q · k / √32 + mask), the digit rows lit: each looks one back at its letter
+ *   1 the digit rows' scores split into the part from the key's position and the part from its token (test averages), numbers in
  *     every cell: the stream layer 1 reads is just token + position, so the split is exact. position finds one back
  */
 export function Layer1() {
   const { root, step, d } = useIsland<T2d>('task2');
   const w = useData<T2w>('task2w');
   if (!d || !w) return <div ref={root} />;
-  const ex = w.example, chars = [...ex.text], l2 = w.l2_from_query;
+  const ex = w.example, chars = [...ex.text];
   const att = ex.attn1;
   const fromPos = grid(d.qk_layer1_split, (r) => [r.query_position, r.key_position, r.score_from_key_position]);
   const fromTok = grid(d.qk_layer1_split, (r) => [r.query_position, r.key_position, r.score_from_key_token]);
@@ -332,7 +334,7 @@ export function Layer1() {
   const oneBack = VALS.map((v) => [v, v - 1] as [number, number]);
   const dg = (i: number) => (isD(chars[i]) ? 'dg' : '');
 
-  const matrix = <AttnMatrix chars={chars} att={att} keep={VALS} dim={step === 1} hlCells={oneBack} />;
+  const matrix = <AttnMatrix chars={chars} att={att} keep={VALS} dim hlCells={oneBack} />;
 
   // step 2: the digit rows only, split by where the key's stream got each part. stacked, so the same rows line up
   const T = { x: 110, cw: 60, ch: 46 };
@@ -362,28 +364,21 @@ export function Layer1() {
         {chars.map((c, i) => <span class="ic"><b class={dg(i)}>{c}</b><i>{POS[i]}</i></span>)}
         <span class="ar">→ {ex.tokens[ex.probs.indexOf(Math.max(...ex.probs))]}</span>
       </div>
-      {step < 2 ? (
+      {step < 1 ? (
         <div class="row">
           {matrix}
           <div class="side">
-            {step === 0 ? <>
-              <div>each <b>row</b> is one position's query: where it looks. it sums to 100%</div>
-              <div>each <b>column</b> is a key: a position being looked at. empty: later positions, masked</div>
-              <div>outlined: every digit looks <b>one back</b>, at its key. {VALS.map((v, j) => <>{j ? ', ' : ''}<b class="dg">{chars[v]}</b> → <b>{chars[v - 1]}</b> {pct(att[v][v - 1] as number)}</>)}</div>
-            </> : <>
-              <div><b>digit rows</b>: each copies its key into its own stream. "5, after f": what layer 2 will search for</div>
-              <div><b>key rows</b> (a, f, c, d): they write into the keys' own streams, but layer 2 puts only <b>{pct2(l2.keys)}</b> of its attention there. nobody reads these writes</div>
-              <div><b>the query row</b> (f): a blend of earlier tokens. layer 2's query comes mostly from the f's own token; this only nudges it</div>
-            </>}
+            <div>every digit looks <b>one back</b>, at its letter: {VALS.map((v, j) => <>{j ? ', ' : ''}<b class="dg">{chars[v]}</b> → <b>{chars[v - 1]}</b> {pct(att[v][v - 1] as number)}</>)}</div>
+            <div>and copies it into its own stream: the 5 now says "<b>5, after f</b>"</div>
           </div>
         </div>
       ) : (
         <div class="row">
           {split}
           <div class="side">
-            <div>layer 1 reads <code>tok_emb + pos_emb</code>, so every score splits in two</div>
-            <div><b>position</b>: in every digit's row the biggest number is the key just before it</div>
-            <div><b>token</b>: about the same for every letter. the only big numbers say "not a digit"</div>
+            <div>layer 1 reads <code>tok + pos</code>, so each score splits in two</div>
+            <div><b>position</b> picks the key just before</div>
+            <div><b>token</b> barely matters</div>
           </div>
         </div>
       )}
@@ -432,7 +427,7 @@ type T2w = {
  *   1 not just this input: over every sequence the right digit gets 97%, and every letter's own query wins (26 / 26). K-composition, named on the subtitle
  */
 export function Write() {
-  const { root, step, d } = useIsland<T2w>('task2w');
+  const { root, d } = useIsland<T2w>('task2w');
   if (!d) return <div ref={root} />;
   const ex = d.example, chars = [...ex.text], att = ex.attn2, L = LAST;
   const tags = chars.map((_, i) => (VALS.includes(i) ? `+${chars[i - 1]}` : null));
@@ -443,10 +438,9 @@ export function Write() {
     <div class="t2w" ref={root}>
       <AttnMatrix chars={chars} att={att} keep={[L]} dim hlCells={[[L, best]]} tags={tags} greyCols={letterCols} />
       <div class="side">
-        <div>layer 2 reads the streams <b>as layer 1 left them</b>: each digit now also holds its key's letter (<span class="tg">+f</span> under the 5)</div>
-        <div>only the <b>query row</b> is graded. the other rows were never trained: all they have in common is that none looks at a letter</div>
-        <div>the f's query matches the stream with <b>f</b> written in it: the <b class="dg">{chars[best]}</b>, <b>{pct(q[best])}</b></div>
-        <div class={`fade ${step >= 1 ? 'on' : ''}`}>not just this input: over all 11,000 test sequences, the query puts <b>{pct(d.l2_from_query.target)}</b> on the right digit, and each of the 26 letters finds its own (<b>{wins} / 26</b>)</div>
+        <div>each digit's key now carries layer 1's tag: <span class="tg">+f</span> under the 5</div>
+        <div>the f's query finds the <span class="tg">+f</span>: the <b class="dg">{chars[best]}</b>, <b>{pct(q[best])}</b></div>
+        <div>over the test set: <b>{pct(d.l2_from_query.target)}</b> on the right digit, all <b>{wins} / 26</b> letters</div>
       </div>
       <style>{AM_CSS + `
         .t2w { display: flex; gap: 2em; align-items: center; }
@@ -561,8 +555,6 @@ export function Value2() {
   const { root, step, d } = useIsland<T2w>('task2w');
   const t2 = useData<{ ov_layer2: Record<string, number>[] }>('task2');
   if (!d || !t2) return <div ref={root} />;
-  // every digit's layer 2 value through the unembedding, on real streams over the test set: the worst digit's P(itself)
-  const ovMin = Math.min(...t2.ov_layer2.map((r, i) => r[`p_digit_${i}`]));
   const ex = d.example, toks = ex.tokens;
   const out = ex.probs.indexOf(Math.max(...ex.probs));
   return (
@@ -572,9 +564,9 @@ export function Value2() {
         head={['position', 'f\'s attention', 'its value, read by the unembedding: one score per token']}
         sum={<>= output <tspan class="dg">{toks[out]}</tspan>, <tspan class="b">{pct2(ex.probs[out])}</tspan></>}
         caps={[
-          <>every position's value, read the way the unembedding reads the stream. each <b>digit's</b> value says that digit. the letters' (greyed) say junk, but layer 2 only ever picks a digit</>,
-          <>scaled by the f's attention from the last slide: everything but the <b class="dg">5</b>'s value goes flat</>,
-          <>the head's write says 5; the rest of the f's stream barely votes. over the test set every digit's value says itself, at least <b>{pct(ovMin)}</b> of the time</>,
+          <>each <b>digit's</b> value says that digit</>,
+          <>times the f's attention: only the <b class="dg">5</b> is left</>,
+          <>the write says <b class="dg">5</b></>,
         ]} />
     </div>
   );

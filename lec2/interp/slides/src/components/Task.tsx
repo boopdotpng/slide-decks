@@ -18,9 +18,7 @@ const Q = (c: string) => <b class="q">{c}</b>, V = (c: string) => <b class="v">{
 const QS = { 8: 'q', 9: 'q' } as const, BOTH = { ...QS, 2: 'q', 4: 'q', 3: 'v', 5: 'v' } as const;
 const FIND2: Arc[] = [[8, 2, 'q'], [9, 4, 'q']], COPY2: Arc[] = [...FIND2, [3, 9, 'v'], [5, 9, 'v']];
 const TWO_KEY = (last: ComponentChildren): Phase[] => [
-  { marks: QS, arcs: [], say: <>queries: {Q('f')}, {Q('c')}</> },
-  { marks: BOTH, arcs: FIND2, say: <>{Q('f')} → {V('5')}, {Q('c')} → {V('9')}</> },
-  { marks: BOTH, arcs: COPY2, say: <>bring both to the last position</> },
+  { marks: BOTH, arcs: COPY2, say: <>look up {Q('f')} → {V('5')} and {Q('c')} → {V('9')}, bring both to the end</> },
   { marks: BOTH, arcs: COPY2, say: last },
 ];
 
@@ -34,7 +32,7 @@ const TASKS: Record<string, Def> = {
     { marks: { 8: 'q', 2: 'q' }, arcs: [[8, 2, 'q']], say: <>find the key {Q('f')}</> },
     { marks: { 8: 'q', 2: 'q', 3: 'v' }, arcs: [[8, 2, 'q'], [3, 8, 'v']], say: <>copy the digit after it: {V('5')}</> },
   ] },
-  sum: { input: 'a2f5c9d3fc', answer: '4', phases: TWO_KEY(<>add: {V('5')} + {V('9')} = 14, and 14 mod 10 = {V('4')}</>) },
+  sum: { input: 'a2f5c9d3fc', answer: '4', phases: TWO_KEY(<>add: {V('5')} + {V('9')} = 14 → {V('4')}</>) },
   diff: { input: 'a2f5c9d3fc', answer: '6', phases: TWO_KEY(<>subtract: {V('5')} − {V('9')} = −4, and −4 mod 10 = {V('6')}</>) },
 };
 

@@ -1,7 +1,6 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
 import { Bars, Mat, diverging, range, sequential, useIsland } from './viz';
-import Task from './Task';
 import { AM_CSS, AttnMatrix, CH, STREAM_CSS, Streams, ValueRead, type Arc, type Chip } from './Task2';
 
 /**
@@ -36,21 +35,77 @@ type T3 = {
 
 // ── the task ─────────────────────────────────────────────────────────────────
 const INTRO_CAPS: ComponentChildren[] = [
-  <>trained with attention only, it stalls: attention can find both digits and bring them over, but nothing in it <b>adds</b>. a second head per layer doesn't help</>,
-  <>so, by the plan: add one piece. an <b>mlp</b> after layer 2</>,
+  <>attention only: it can fetch both digits, but nothing <b>adds</b></>,
+  <>add one piece: an <b>mlp</b> after layer 2</>,
 ];
 /**
- * The task worked by hand, as task 0's (Task.tsx's "sum": steps 0–4), then test accuracy:
- *   5 attention only: 27% (1 head per layer), 30% (2 heads)   6 plus an mlp: 98%
+ * The task worked by hand (PairSum: steps 0–2), then test accuracy:
+ *   3 attention only: 27% (1 head per layer), 30% (2 heads)   4 plus an mlp: 98%
  */
+
+/** a2f5c9d3 fc as four key · value pills and the two queries; colour does the lookup (f's pair and query blue, c's purple)
+ *   0 the input   1 each query lights its pair   2 add: 5 + 9 = 14 → 4 */
+function PairSum({ step }: { step: number }) {
+  const PAIRS = [['a', '2', ''], ['f', '5', 'a'], ['c', '9', 'b'], ['d', '3', '']];
+  const lit = step >= 1;
+  const say = [<>four <b>key · value</b> pairs, then two <b>queries</b></>,
+    <><b class="a">f</b> → <b class="a">5</b>, <b class="b">c</b> → <b class="b">9</b></>,
+    <><b class="a">5</b> + <b class="b">9</b> = 14 → <b class="g">4</b> <span class="m">(mod 10)</span></>];
+  return (
+    <div class="ps">
+      <div class="seq">
+        <svg class={`cp ${lit ? 'on' : ''}`} width="776" height="150">
+          {/* each looked-up value comes down and over to the last query: px from the fixed layout below */}
+          <path class="a" pathLength={1} d="M 258 88 C 258 140, 744 140, 744 92" />
+          <path class="b" pathLength={1} d="M 412 88 C 412 122, 744 122, 744 92" />
+          <path class="tip a" d="M 737 103 L 744 91 L 751 103" /><path class="tip b" d="M 737 103 L 744 91 L 751 103" />
+        </svg>
+        {PAIRS.map(([k, v, c]) => (
+          <span class={`pair ${lit ? (c || 'off') : ''}`}><span class="c">{k}</span><span class="c dg">{v}</span></span>
+        ))}
+        <span class="qs">
+          <span class={`c q ${lit ? 'a' : ''}`}>f</span><span class={`c q ${lit ? 'b' : ''}`}>c</span>
+        </span>
+        <span class="to">→</span><span class={`c out ${step >= 2 ? 'on' : ''}`}>{step >= 2 ? '4' : '?'}</span>
+      </div>
+      <div class="say">{say[Math.min(step, 2)]}</div>
+      <style>{`
+        .ps { display: flex; flex-direction: column; gap: .6em; }
+        .ps .seq { position: relative; display: flex; align-items: center; gap: 12px; margin-bottom: 44px; }
+        .ps .cp { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+        .ps .cp path { fill: none; stroke-width: 3; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .6s ease; }
+        .ps .cp .tip { stroke-dasharray: none; opacity: 0; transition: opacity .2s .5s; }
+        .ps .cp.on path { stroke-dashoffset: 0; } .ps .cp.on .tip { opacity: 1; }
+        .ps .cp .a { stroke: var(--accent); } .ps .cp .b { stroke: var(--purple); }
+        .ps .pair, .ps .qs { display: flex; gap: 4px; padding: 5px; border-radius: 12px; border: 2px solid var(--border); transition: border-color .3s, background .3s, opacity .3s; }
+        .ps .qs { margin-left: 24px; border-style: dashed; }
+        .ps .c { width: 62px; height: 72px; display: grid; place-items: center; border-radius: 8px; font-family: var(--mono); font-size: 1.5em;
+                 background: var(--raised); color: var(--fg); transition: background .3s, color .3s; }
+        .ps .c.dg { color: var(--hot); }
+        .ps .pair.off { opacity: .3; }
+        .ps .pair.a { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); }
+        .ps .pair.b { border-color: var(--purple); background: color-mix(in srgb, var(--purple) 15%, transparent); }
+        .ps .c.q.a { color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, var(--raised)); }
+        .ps .c.q.b { color: var(--purple); background: color-mix(in srgb, var(--purple) 22%, var(--raised)); }
+        .ps .to { color: var(--muted); font-size: 1.4em; margin: 0 .2em; }
+        .ps .c.out { background: none; border: 2px dashed var(--border); color: var(--muted); }
+        .ps .c.out.on { border: 2px solid var(--good); color: var(--good); background: color-mix(in srgb, var(--good) 15%, transparent); }
+        .ps .say { font-size: .85em; color: var(--muted); min-height: 1.4em; }
+        .ps .say b { color: var(--fg); font-family: var(--mono); } .ps .say b.a { color: var(--accent); } .ps .say b.b { color: var(--purple); }
+        .ps .say b.g { color: var(--good); } .ps .say .m { font-size: .8em; }
+      `}</style>
+    </div>
+  );
+}
+
 export function Intro() {
   const { root, step, d } = useIsland<T3>('task3w');
   const names = ['attention only, 1 head per layer', 'attention only, 2 heads per layer', 'plus an mlp after layer 2'];
-  const s = step - 5;
+  const s = step - 3;
   return (
     <div class="t3i" ref={root}>
-      <Task task="sum" />
-      <div class={`acc fade ${s >= 0 ? 'on' : ''}`}>
+      <PairSum step={step} />
+      <div class={`acc fade ${s >= 0 ? 'on' : ''} ${s >= 1 ? 'win' : ''}`}>
         <div class="cap">{INTRO_CAPS[Math.max(0, Math.min(s, 1))]}</div>
         <div class="accrow">
           {d && <Bars width={560} max={100} hl={s >= 1 ? 2 : undefined}
@@ -64,8 +119,10 @@ export function Intro() {
       <style>{`
         .t3i { display: flex; flex-direction: column; gap: .4em; width: 100%; }
         .t3i .task .work { gap: .1em; font-size: .72em; } .t3i .task .work li { margin: 0; }
-        .t3i .cap { font-size: .7em; color: var(--muted); margin-bottom: .3em; } .t3i .cap b { color: var(--fg); }
-        .t3i .accrow { display: flex; align-items: center; gap: 1.2em; font-size: .95em; }
+        .t3i .acc { margin-top: .4em; padding: .6em 1em .7em; border: 2px solid var(--border); border-radius: 12px; background: var(--panel); transition: opacity .35s, border-color .35s; }
+        .t3i .acc.win { border-color: var(--good); }
+        .t3i .cap { font-size: .85em; color: var(--fg); margin-bottom: .4em; } .t3i .cap b { color: var(--good); }
+        .t3i .accrow { display: flex; align-items: center; gap: 1.2em; font-size: 1.15em; }
         .t3i .fade { transition: opacity .35s; } .t3i .fade:not(.on) { opacity: 0; }
         .t3i .ax { font-size: .55em; color: var(--muted); }
       `}</style>
@@ -101,11 +158,10 @@ const HEAD_CSS = AM_CSS + STREAM_CSS + `
 `;
 /**
  * Layer 1, head 1 on a2f5c9d3fc: task 2's slide, with one new row.
- *   0 the matrix: every digit looks one back, and so does the last row (c at q2 → f at q1)
- *   1 only the digit rows and the last row matter
+ *   the matrix, the digit rows and the last row lit: every digit looks one back, and so does the last row (c at q2 → f at q1)
  */
 export function L1() {
-  const { root, step, d } = useIsland<T3>('task3w');
+  const { root, d } = useIsland<T3>('task3w');
   if (!d) return <div ref={root} />;
   const att = d.example.attn1, chars = [...TEXT], ob = d.l1.one_back;
   const back = [...VALS, LAST].map((v) => [v, v - 1] as [number, number]);
@@ -113,18 +169,9 @@ export function L1() {
     <div class="t3col" ref={root}>
     <Prompt />
     <div class="t2s t3a">
-      <AttnMatrix chars={chars} att={att} keep={[...VALS, LAST]} dim={step >= 1} hlCells={back} roles={ROLES} />
+      <AttnMatrix chars={chars} att={att} keep={[...VALS, LAST]} dim hlCells={back} roles={ROLES} note={[LAST, 'new!']} />
       <div class="side">
-        {step === 0 && <>
-          <div>the same reading as task 2: each <b>row</b> is a query, each <b>column</b> a key, rows sum to 100%</div>
-          <div>outlined: every digit looks <b>one back</b>, at its key, as before ({pct1(Math.min(...ob))}–{pct1(Math.max(...ob))}, test average)</div>
-          <div>new, the <b>last row</b>: the c at q2 looks one back too, at the f at q1: <b>{pct(att[LAST][LAST - 1] as number)}</b> ({pct1(d.l1.q2_on_q1)} over the test set)</div>
-        </>}
-        {step >= 1 && <>
-          <div><b>digit rows</b>: each copies its key into its own stream, "5, after f", as in task 2</div>
-          <div><b>the last row</b>: copies the f into the c's stream. it's the only stream layer 2 asks from, and now it says <b>c</b> and <b>f</b>: both keys</div>
-          <div>the other rows write where nobody reads, as in task 2</div>
-        </>}
+        <div>every digit looks <b>one back</b>, as in task 2 ({pct1(Math.min(...ob))}–{pct1(Math.max(...ob))})</div>
       </div>
     </div>
       <style>{HEAD_CSS}</style>
@@ -150,17 +197,14 @@ export function L2() {
       <AttnMatrix chars={chars} att={att} keep={[LAST]} dim hlCells={[[LAST, 3], [LAST, 5]]} tags={tags} greyCols={letterCols} roles={ROLES} />
       <div class="side">
         {step === 0 && <>
-          <div>layer 2 reads the streams as layer 1 left them: each digit tagged with its key, and the last stream with <span class="tg">+f</span></div>
-          <div>outlined: the c at the end puts <b>{pct(A[3])}</b> on the <b class="dg">5</b> and <b>{pct(A[5])}</b> on the <b class="dg">9</b>
-            . task 2's head picked one digit; this one splits evenly</div>
-          <div>the f's stream holds one letter: one question, one digit (the row above, {pct(att[LAST - 1][3] as number)} on the 5, in a stream nothing reads). the c's holds two letters: two questions, two digits</div>
+          <div>the c splits: <b>{pct(A[3])}</b> on the <b class="dg">5</b>, <b>{pct(A[5])}</b> on the <b class="dg">9</b></div>
+          <div>its stream holds two letters, so it asks two questions</div>
         </>}
         {step === 1 && <div class="qk">
           <div class="h">part of the last stream</div><div class="h">matches</div><div class="h">pulls toward</div><div class="h n">score</div>
           <div><span class="ch tok">c</span> its token</div><div><span class="ch l1">c</span></div><div>the <b class="dg">9</b></div><div class="n">+{q.q2.token.toFixed(1)}</div>
           <div><span class="ch l1">f</span> layer 1's copy</div><div><span class="ch l1">f</span></div><div>the <b class="dg">5</b></div><div class="n">+{q.q1.write.toFixed(1)}</div>
-          <div class="note">why: the first row is task 2's lookup. the second is new: the query also reads what layer 1 wrote into the last stream. two questions,
-            nearly the same size (each also pulls {q.q1.token.toFixed(1)} from the other's digit), so softmax splits about evenly. test averages</div>
+          <div class="note">two matches, nearly the same size: softmax splits about evenly (test averages)</div>
         </div>}
       </div>
     </div>
@@ -230,8 +274,8 @@ export function MlpWhere() {
     ...range(N).map((i) => ({ from: i, to: i, y0: rows.l2 - CH / 2 - 6, y1: rows.mlp, kind: 'mlp' as const, on: true })),
   ];
   const caps: ComponentChildren[] = [
-    <>the mlp runs on each position alone, no arcs between them. only the last one is graded. its stream holds the <b class="dg">5</b> and the <b class="dg">9</b>, but read it with the unembedding and it's right <b>{pct(d.acc.before)}</b> of the time: chance. the <b class="dg">4</b> isn't in there</>,
-    <>the mlp's write alone, read the same way: <b>{pct(d.acc.write)}</b>. it wrote something no token had: <b>attention moves, the mlp computes</b></>,
+    <>the mlp only sees its own stream. before it, the <b class="dg">4</b> isn't in there: <b>{pct(d.acc.before)}</b></>,
+    <>the mlp's write alone: <b>{pct(d.acc.write)}</b>. <b>attention moves, the mlp computes</b></>,
   ];
   return (
     <div class="t2s t3w" ref={root}>
@@ -277,11 +321,11 @@ export function MlpOps() {
   const on = (s: number) => `fd ${step >= s ? 'on' : ''}`;
   const lab = (i: number) => (/\d/.test(chars[i]) ? 'dg' : '');
   const caps: ComponentChildren[] = [
-    <><b>up</b>: each stream (a row, 32 numbers) times W_up gives 64 numbers, one per <b>neuron</b>. a row times a column lands where they cross. column n of W_up is what neuron n looks for</>,
-    <><b>relu</b>: anything below zero becomes exactly 0. a neuron <b>fires</b> when its number is positive and is silent otherwise. on the last row, {fired} of 64 fire</>,
-    <><b>down</b>: back to 32 numbers. each neuron that fired adds its row of W_down, scaled by how hard it fired. the silent ones add nothing</>,
-    <><b>add</b>: the write goes into the stream, like every attention write. 32 in, 64 inside, 32 out, so it fits back into the residual stream</>,
-    <>the same weights run on all ten rows, but nothing reads rows 0–8: no layer comes after, and only the last position is graded. so from here on, <b>only the last row</b></>,
+    <><b>up</b>: 32 numbers → 64, one per <b>neuron</b></>,
+    <><b>relu</b>: below zero → 0. a neuron <b>fires</b> if positive: {fired} of 64 on the last row</>,
+    <><b>down</b>: each firing neuron adds its row of W_down</>,
+    <><b>add</b> it back into the stream: 32 in, 32 out</>,
+    <>only the last row is read: from here on, <b>only the last row</b></>,
   ];
   return (
     <div class="t3o" ref={root}>
@@ -425,8 +469,7 @@ export function Patterns() {
   const g = d.grid;
   const six = range(64).sort((a, b) => g.help[b] - g.help[a]).slice(0, 6);
   const hmax = (k: number) => Math.max(...g.h[k].flat(), 1e-9);
-  const ex = six.includes(43) ? 43 : six[1];
-  const kk = [0, 8, 32, 64][Math.min(step, 3)], tk = g.topk.find((t) => t.k === (kk || 8))!;
+  const kk = step >= 1 ? 64 : 0, tk = g.topk.find((t) => t.k === (kk || 8))!;
   const mix = (c: string, t: number) => `color-mix(in srgb, ${c} ${Math.round(t * 100)}%, var(--raised))`;
   const right = (v: number) => (v >= 0.5 ? mix('var(--good)', 0.2 + 0.5 * v) : mix('var(--bad)', 0.6 - 0.5 * v));
   return (
@@ -440,11 +483,10 @@ export function Patterns() {
         ))}
       </div>
       <div class="txt">
-        <div class="hd">the 6 most helpful of 64 neurons. row a, column b: how hard it fires. <span class="o">□</span> our input (5, 9)</div>
-        <div class="cap">each fires on <b>sets of digits</b>, not on an answer: over all 64, the digits explain a neuron's firing (a: 37%, b: 39%)
-          far better than the answer does (7%). n{ex} fires when both are odd. no single neuron knows the answer</div>
+        <div class="hd">6 of the 64 neurons: how hard each fires on every pair (a, b). <span class="o">□</span> = (5, 9)</div>
+        <div class="cap">each fires on <b>sets of digits</b>, not on an answer. no single neuron knows the answer</div>
         <div class={`fade ${step >= 1 ? 'on' : ''} crowd`}>
-          <div class="hd">add up the votes of {kk === 64 ? 'all 64 neurons' : `the ${kk || 8} most helpful`}: right on <b>{pct(tk.acc)}</b> of pairs (<span class="g">green</span>: right)</div>
+          <div class="hd">together, all 64 get <b>{pct(tk.acc)}</b> of pairs right (<span class="g">green</span>)</div>
           <div class="row">
             <PairGrid data={tk.cells} color={right} cw={20} />
             <Bars width={150} max={100} values={g.topk.map((t) => (t.k <= kk ? t.acc * 100 : 0))} labels={g.topk.map((t) => `top ${t.k}`)}
@@ -498,9 +540,7 @@ export function NoRelu() {
         <Mat data={[pre]} x={X} y={CH + 34} cw={CW} ch={CH} gap={2} color={(v) => diverging(v, s)} />
         <text class="n" x={X + 64 * CW + 20} y={CH + 34 + CH / 2 + 7}>64 of 64 speak</text>
       </svg>
-      <div class="cap">without it, every neuron passes its number on, negative or not, and the two matmuls collapse into one:
-        <span class="eq"> (x @ W_up) @ W_down = x @ (W_up @ W_down)</span>, a single 32 × 32 matrix. that's the same kind of read as the unembedding
-        before the mlp, which got {pct(d.acc.before)}</div>
+      <div class="cap">without it, the two matmuls collapse into one:<span class="eq"> (x @ W_up) @ W_down = x @ (W_up @ W_down)</span></div>
       <div class={`fade ${step >= 1 ? 'on' : ''}`}>
         <Bars width={720} max={100} values={rows.map(([, v]) => v)} labels={rows.map(([l]) => l)}
           color={(_, i) => (i === 0 ? 'var(--good)' : i === 3 ? 'var(--faint)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />

@@ -58,46 +58,37 @@ const CSS = `
 
 /**
  * A grid of the two inputs: the input, then per-row cells that fade in by step.
- *   0 the task on a2f5c9d3fc: sum 4 (task 3), difference 6
- *   1 swap the two values: the sum stays 4, the difference becomes 4
- *   2 task 3's head writes half of each into the last stream: the same for both, so the mlp must answer both the same
- *   3 the one-head model retrained on the difference: 42%
+ *   0 both inputs (the values swapped): the sum is 4 for both, the difference 6 vs 4
+ *   1 task 3's head writes half of each into the last stream: the same for both, so the mlp must answer both the same
+ *   2 the one-head model retrained on the difference: 42%
  */
 export function Order() {
   const { root, step, d } = useIsland<T4>('task4');
   if (!d) return <div ref={root} />;
-  const one = d.accuracy.find(([m]) => m === ONE)![1], s = d.split.sum[0], kept = d.split.one_head[0];
+  const one = d.accuracy.find(([m]) => m === ONE)![1], s = d.split.sum[0];
   const caps: ComponentChildren[] = [
-    <>same input as task 3. there the answer was <A>5</A> + <B>9</B> → 4. now it's <b>first minus second</b>: (<A>5</A> − <B>9</B>) mod 10 = 6</>,
-    <>swap the two values. the sum doesn't care, still 4. the difference does: now it's 4. the model has to know <b>which value came first</b></>,
-    <>task 3's one head looks at both values ({pct(s.first)} / {pct(s.second)}) and adds <b>half of each</b> into the last stream. swap them and
-      it adds the same thing, so the mlp gets the <b>same stream</b> for both inputs and must give the same answer. fine for a sum, impossible
-      for a difference. reading the first value off that stream: <b>{d.probe_first.one_head.toFixed(0)}%</b>, it sees a 5 and a 9, then a coin flip</>,
-    <>retrained on the difference, with one head per layer: <b>{one.toFixed(0)}%</b>. its head gives up on the blend and fetches only c's value
-      ({pct(kept.second)} of its attention)</>,
+    <><b>first minus second</b>. swap the two values: the sum doesn't change, the difference does</>,
+    <>one head adds <b>half of each</b> ({pct(s.first)} / {pct(s.second)}): the <b>same stream</b> for both inputs, so the same answer</>,
   ];
   return (
     <div class="t4" ref={root}>
       <div class="grid">
-        <div class="h" /><div class={`h fade ${step >= 2 ? 'on' : ''}`}>task 3's head adds to the last stream</div>
+        <div class="h" /><div class={`h fade ${step >= 1 ? 'on' : ''}`}>task 3's head adds to the last stream</div>
         <div class="h">sum</div><div class="h">difference</div>
-        {INPUTS.map(({ text, a, b }, r) => {
-          const on = r === 0 || step >= 1;
-          return <>
-            <div class={`fade ${on ? 'on' : ''}`}><Seq text={text} /></div>
-            <div class={`fade ${on && step >= 2 ? 'on' : ''}`}><Blend a={a} b={b} /></div>
-            <div class={`n fade ${on ? 'on' : ''}`}>{mod(+a + +b)}</div>
-            <div class={`n fade ${on ? 'on' : ''} ${step >= 2 ? 'bad' : ''}`}>{mod(+a - +b)}</div>
-          </>;
-        })}
-        <div /><div class={`same fade ${step >= 2 ? 'on' : ''}`}>the same blend</div>
-        <div class={`same fade ${step >= 1 ? 'on' : ''}`}>same</div><div class={`same bad fade ${step >= 1 ? 'on' : ''}`}>different</div>
+        {INPUTS.map(({ text, a, b }) => <>
+          <Seq text={text} />
+          <div class={`fade ${step >= 1 ? 'on' : ''}`}><Blend a={a} b={b} /></div>
+          <div class="n">{mod(+a + +b)}</div>
+          <div class={`n ${step >= 1 ? 'bad' : ''}`}>{mod(+a - +b)}</div>
+        </>)}
+        <div /><div class={`same fade ${step >= 1 ? 'on' : ''}`}>the same blend</div>
+        <div class="same">same</div><div class="same bad">different</div>
       </div>
-      <div class={`fade ${step >= 3 ? 'on' : ''}`}>
-        <Bars width={560} max={100} values={[d.sum, one]} labels={['task 3 model, on the sum', 'the same, on the difference']}
+      <div class={`fade ${step >= 2 ? 'on' : ''}`}>
+        <Bars width={560} max={100} values={[d.sum, one]} labels={['task 3 model, on the sum', 'retrained on the difference']}
           color={(_, i) => (i === 0 ? 'var(--good)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
       </div>
-      <div class="cap">{caps[Math.min(step, 3)]}</div>
+      <div class="cap">{caps[Math.min(step, 1)]}</div>
       <style>{CSS + `
         .t4 .grid { display: grid; grid-template-columns: auto auto auto auto; gap: .45em 2.2em; align-items: center; justify-content: start; font-size: 1.05em; }
         .t4 .grid .h { font-size: .5em; color: var(--muted); }
@@ -160,13 +151,11 @@ export function TwoHeads() {
   const { root, step, d } = useIsland<T4>('task4');
   if (!d) return <div ref={root} />;
   const acc = (m: string) => d.accuracy.find(([k]) => k === m)![1];
-  const one = acc(ONE), two = acc(TWO), [h1, h2] = d.split.two_heads, at = d.example.two_heads.attn;
+  const one = acc(ONE), two = acc(TWO), at = d.example.two_heads.attn;
   const caps: ComponentChildren[] = [
-    <>give layer 2 a <b>second head</b>. each head has its own query, so each makes its own lookup: one finds f's value, the other c's
-      ({pct(h2.first)} and {pct(h1.second)} over the test set)</>,
-    <>each head writes through its own W_V, into its own directions of the stream: <b>two separate entries</b> instead of one blend. swap the
-      values and the stream changes. reading the first value off it: <b>{d.probe_first.two_heads.toFixed(0)}%</b> (one head: {d.probe_first.one_head.toFixed(0)}%)</>,
-    <>same task, same layers, same mlp, only a second head: <b>{one.toFixed(0)}% → {two.toFixed(0)}%</b>. that's multi-head attention, the last piece of the transformer</>,
+    <>a <b>second head</b>, its own lookup: one finds f's value, the other c's</>,
+    <>each head writes its <b>own entry</b>: swap the values and the stream changes</>,
+    <>only change, a second head: <b>{one.toFixed(0)}% → {two.toFixed(0)}%</b>. that's multi-head attention</>,
   ];
   return (
     <div class="t4" ref={root}>
