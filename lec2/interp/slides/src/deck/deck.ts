@@ -183,11 +183,10 @@ export function initDeck() {
   function pickerKey(e: KeyboardEvent) {
     const move = (d: number) => { sel = Math.max(0, Math.min(slides.length - 1, sel + d)); digits = ''; };
     const cols = grid?.cols() ?? 1;
-    if (/^\d$/.test(e.key)) {
-      digits += e.key;
-      const n = Number(digits) - 1;
-      if (n >= 0 && n < slides.length) sel = n;
-    } else if (e.key === 'Backspace') digits = digits.slice(0, -1);
+    // typed numbers clamp into range: 0 is the first slide, too big is the last
+    const typedSel = () => { if (digits) sel = Math.max(0, Math.min(slides.length - 1, Number(digits) - 1)); };
+    if (/^\d$/.test(e.key)) { digits += e.key; typedSel(); }
+    else if (e.key === 'Backspace') { digits = digits.slice(0, -1); typedSel(); }
     else if (e.key === 'ArrowRight' || e.key === 'l') move(1);
     else if (e.key === 'ArrowLeft' || e.key === 'h') move(-1);
     else if (e.key === 'ArrowDown' || e.key === 'j') move(cols);
