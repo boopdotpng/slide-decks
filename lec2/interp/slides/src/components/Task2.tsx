@@ -138,7 +138,7 @@ export function Twice() {
 type T2 = { accuracy: { model: string; test_accuracy: number }[]; ablation: { model: string; test_accuracy: number }[] };
 const ONE_CAPS: ComponentChildren[] = [
   <>one head at the f needs <b>the digit after f</b>. but before any head runs, the 5's stream only says <b>5</b>: no key says "after f"</>,
-  <>so one head finds <b>a</b> digit, not <b>the</b> digit: about a 1 in 4 guess among the four values</>,
+  <>so one head finds <b>a</b> digit, not <b>the</b> digit. better than a blind pick among the four (25%), far from 100%</>,
   <>a second head in the same layer reads the <b>same</b> streams: same problem</>,
   <>a second <b>layer</b> reads what the first one wrote</>,
 ];
@@ -177,8 +177,8 @@ export function OneLayer() {
 const POS_CAPS: ComponentChildren[] = [
   <>task 1 asks <b>what</b> a token is: the 7 is the answer wherever it sits. a head finds it by content, no position needed</>,
   <>task 2's answer <b>is</b> the order: same tokens, different answer. but a head only sees what's in each stream, so to it the earlier streams are a <b>bag</b>: shuffle them and the scores just shuffle along</>,
-  <>a second learned table, one row per position (9 × 32), added to every stream: <code>x = tok + pos</code>. now "the one just before me" is something a query can ask for</>,
-  <>without positions it's stuck well short of 100%</>,
+  <>a second learned table, one row per position (9 × 32): <code>x = tok + pos</code>. now a query can ask for "the one just before me"</>,
+  <>trained without positions it never gets there</>,
 ];
 /**
  *   0 task 1: same answer wherever the digit is   1 task 2: same tokens in a different order, different answer; a head sees a bag
@@ -355,7 +355,6 @@ export function Layer1() {
       {table(fromTok, yTok, <>scores from the key's <tspan class="b">token</tspan> (test avg)</>)}
     </svg>
   );
-  const noPos = d.ablation.find((a) => a.model === 'position embedding removed')?.test_accuracy ?? 0;
 
   return (
     <div class="t2l1" ref={root}>
@@ -373,8 +372,8 @@ export function Layer1() {
               <div>outlined: every digit looks <b>one back</b>, at its key. {VALS.map((v, j) => <>{j ? ', ' : ''}<b class="dg">{chars[v]}</b> → <b>{chars[v - 1]}</b> {pct(att[v][v - 1] as number)}</>)}</div>
             </> : <>
               <div><b>digit rows</b>: each copies its key into its own stream. "5, after f": what layer 2 will search for</div>
-              <div><b>key rows</b> (a, f, c, d): they write into the keys' streams, but layer 2 only looks from the query, and puts <b>{pct2(l2.keys)}</b> of that on key positions ({pct2(l2.values)} on digits). nobody reads these writes</div>
-              <div><b>the query row</b> (f): its write lands in the f's own stream. layer 2's query comes mostly from the f's token; this blend of earlier tokens only nudges it</div>
+              <div><b>key rows</b> (a, f, c, d): they write into the keys' own streams, but layer 2 puts only <b>{pct2(l2.keys)}</b> of its attention there. nobody reads these writes</div>
+              <div><b>the query row</b> (f): a blend of earlier tokens. layer 2's query comes mostly from the f's own token; this only nudges it</div>
             </>}
           </div>
         </div>
@@ -384,8 +383,7 @@ export function Layer1() {
           <div class="side">
             <div>layer 1 reads <code>tok_emb + pos_emb</code>, so every score splits in two</div>
             <div><b>position</b>: in every digit's row the biggest number is the key just before it</div>
-            <div><b>token</b>: about the same for every letter. its only big numbers say "don't look at a digit"</div>
-            <div>zero the position embedding in the trained model: <b>{noPos.toFixed(0)}%</b></div>
+            <div><b>token</b>: about the same for every letter. the only big numbers say "not a digit"</div>
           </div>
         </div>
       )}
@@ -445,10 +443,10 @@ export function Write() {
     <div class="t2w" ref={root}>
       <AttnMatrix chars={chars} att={att} keep={[L]} dim hlCells={[[L, best]]} tags={tags} greyCols={letterCols} />
       <div class="side">
-        <div>layer 2, head 1 reads the streams <b>as layer 1 left them</b>: each digit now also holds its key's letter (<span class="tg">+f</span> under the 5)</div>
-        <div>only the <b>query row</b> matters: only the last position is graded. the other rows were never trained; all they share is never looking at a letter</div>
+        <div>layer 2 reads the streams <b>as layer 1 left them</b>: each digit now also holds its key's letter (<span class="tg">+f</span> under the 5)</div>
+        <div>only the <b>query row</b> is graded. the other rows were never trained: all they have in common is that none looks at a letter</div>
         <div>the f's query matches the stream with <b>f</b> written in it: the <b class="dg">{chars[best]}</b>, <b>{pct(q[best])}</b></div>
-        <div class={`fade ${step >= 1 ? 'on' : ''}`}>not just this input: over all 11000, the query puts <b>{pct(d.l2_from_query.target)}</b> on the right digit, and each of the 26 letters finds its own (<b>{wins} / 26</b>)</div>
+        <div class={`fade ${step >= 1 ? 'on' : ''}`}>not just this input: over all 11,000 test sequences, the query puts <b>{pct(d.l2_from_query.target)}</b> on the right digit, and each of the 26 letters finds its own (<b>{wins} / 26</b>)</div>
       </div>
       <style>{AM_CSS + `
         .t2w { display: flex; gap: 2em; align-items: center; }
@@ -576,7 +574,7 @@ export function Value2() {
         caps={[
           <>every position's value, read the way the unembedding reads the stream. each <b>digit's</b> value says that digit. the letters' (greyed) say junk, but layer 2 only ever picks a digit</>,
           <>scaled by the f's attention from the last slide: everything but the <b class="dg">5</b>'s value goes flat</>,
-          <>that's the head's write into the f's stream; the rest of it barely votes. over the test set every digit's value says itself, at least <b>{pct(ovMin)}</b></>,
+          <>the head's write says 5; the rest of the f's stream barely votes. over the test set every digit's value says itself, at least <b>{pct(ovMin)}</b> of the time</>,
         ]} />
     </div>
   );

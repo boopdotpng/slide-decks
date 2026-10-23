@@ -142,8 +142,8 @@ export function Unembed({ data, query, show: SHOW }: { data: string; query: stri
   const CAPS = [
     <>unembedding <b>(36, 32)</b> · stream (<b>{QUERY}</b>'s embedding)</>,
     <>row <b>{SHOW}</b> · stream = <b>{scores[show].toFixed(2)}</b></>,
-    <>36 dot products → <b>36 scores</b></>,
-    <>output: <b class="best">{toks[best]}</b>. the answer was <b class="dg">{SHOW}</b>: it never saw it</>,
+    <>36 dot products → <b>36 scores</b>. letters low, digits high. the digits' own embedding rows never moved: never at the last position, so never a gradient</>,
+    <>output: <b class="best">{toks[best]}</b>. the answer was <b class="dg">{SHOW}</b>: the last position never saw it</>,
   ];
   const cell = (v: number) => <i style={{ background: diverging(v, 0.5) }} />;
   return (

@@ -3,52 +3,145 @@ import type { ComponentChildren } from 'preact';
 import { Bars, Mat, sequential, useIsland } from './viz';
 
 /**
- * Task 4, two-key difference (a2f5c9d3 fc → (5 − 9) mod 10 = 6), in two short slides told as an argument, not as interp
- * data: the one-head model fails, a head makes one lookup, so add a second head beside it. Accuracies from
- * public/data/task4.json (export_task4.py, the csvs in ~/code/ml/interp/data). First value (f → 5) in the accent color,
- * second (c → 9) in purple.
+ * Task 4, two-key difference (a2f5c9d3 fc → (5 − 9) mod 10 = 6), told as an argument: swap the two values and the
+ * difference changes, but one head's write (half of each value) doesn't, so the mlp can't tell the inputs apart. A second
+ * head gives each value its own write. Numbers from public/data/task4.json (export_task4.py, the csvs in
+ * ~/code/ml/interp/data). The first value (f's) in the accent color, the second (c's) in purple, in both inputs.
  */
 type Run = { attn: number[][]; answer: string };
-type T4 = { accuracy: [string, number][]; sum: number; ablation: [string, number][]; probe_first: Record<'one_head' | 'two_heads', number>; example: { text: string; one_head: Run; two_heads: Run; l1: number[][][] } };
-const TOKS = [...'a2f5c9d3fc'];
-const QX = 40;                                   // the gap before the query
-const LX = 210;                                  // room for the row labels
+type Split = { head: string; first: number; second: number };
+type T4 = {
+  accuracy: [string, number][]; sum: number; ablation: [string, number][]; probe_first: Record<'one_head' | 'two_heads', number>;
+  split: Record<'sum' | 'one_head' | 'lucky' | 'two_heads', Split[]>;
+  example: { text: string; one_head: Run; two_heads: Run; l1: number[][][] };
+};
+const pct = (v: number) => `${Math.round(v * 100)}%`;
+const ONE = '2 layers, 1 head each, plus MLP', TWO = '2 layers, 2 heads each, plus MLP';
+
+/** the two inputs: the same pairs, with the two looked-up values swapped */
+const INPUTS = [{ text: 'a2f5c9d3fc', a: '5', b: '9' }, { text: 'a2f9c5d3fc', a: '9', b: '5' }];
+const mod = (n: number) => ((n % 10) + 10) % 10;
+/** an input as token boxes: f's value and the query f in the accent color, c's value and the query c in purple */
+function Seq({ text }: { text: string }) {
+  const cls = (i: number) => (i === 3 || i === 8 ? 'a' : i === 5 || i === 9 ? 'b' : '');
+  return (
+    <div class="seq">
+      {[...text].map((c, i) => <span class={`tk ${/\d/.test(c) ? 'dg' : ''} ${i >= 8 ? 'q' : ''} ${i === 8 ? 'gap' : ''} ${cls(i)}`}>{c}</span>)}
+    </div>
+  );
+}
+const A = ({ children }: { children: ComponentChildren }) => <span class="a">{children}</span>;
+const B = ({ children }: { children: ComponentChildren }) => <span class="b">{children}</span>;
+/** one head's write: half of each value, in one blend */
+const Blend = ({ a, b }: { a: string; b: string }) => <span class="w">½ <A>{a}</A> + ½ <B>{b}</B></span>;
+/** two heads' writes: each value in its own slot */
+const Slots = ({ a, b }: { a: string; b: string }) => <>
+  <span class="w"><i>f's head</i> <A>{a}</A></span><span class="w"><i>c's head</i> <B>{b}</B></span>
+</>;
+
+const CSS = `
+  .t4 { display: flex; flex-direction: column; gap: 1em; width: 100%; color: var(--muted); }
+  .t4 .a { color: var(--accent); } .t4 .b { color: var(--purple); }
+  .t4 .seq { display: flex; gap: 5px; }
+  .t4 .tk { display: inline-flex; align-items: center; justify-content: center; width: 1.45em; height: 1.65em; font-family: var(--mono);
+            color: var(--fg); background: var(--raised); border: 2px solid var(--border); border-radius: 7px; }
+  .t4 .tk.dg { color: var(--hot); } .t4 .tk.gap { margin-left: .7em; }
+  .t4 .tk.a { border-color: var(--accent); } .t4 .tk.b { border-color: var(--purple); }
+  .t4 .tk.q.a { color: var(--accent); } .t4 .tk.q.b { color: var(--purple); }
+  .t4 .w { display: inline-flex; align-items: baseline; gap: .35em; padding: .15em .55em; font-family: var(--mono); color: var(--fg);
+           background: var(--panel); border: 2px solid var(--border); border-radius: 8px; white-space: nowrap; }
+  .t4 .w i { font-family: var(--sans); font-style: normal; font-size: .6em; color: var(--muted); }
+  .t4 .fade { opacity: 0; transition: opacity .35s; } .t4 .fade.on { opacity: 1; }
+  .t4 .cap { font-size: .7em; max-width: 52em; min-height: 3.4em; } .t4 .cap b { color: var(--fg); }
+  .t4 .bars { font-size: .85em; }
+`;
+
+/**
+ * A grid of the two inputs: the input, then per-row cells that fade in by step.
+ *   0 the task on a2f5c9d3fc: sum 4 (task 3), difference 6
+ *   1 swap the two values: the sum stays 4, the difference becomes 4
+ *   2 task 3's head writes half of each into the last stream: the same for both, so the mlp must answer both the same
+ *   3 the one-head model retrained on the difference: 42%
+ */
+export function Order() {
+  const { root, step, d } = useIsland<T4>('task4');
+  if (!d) return <div ref={root} />;
+  const one = d.accuracy.find(([m]) => m === ONE)![1], s = d.split.sum[0], kept = d.split.one_head[0];
+  const caps: ComponentChildren[] = [
+    <>same input as task 3. there the answer was <A>5</A> + <B>9</B> → 4. now it's <b>first minus second</b>: (<A>5</A> − <B>9</B>) mod 10 = 6</>,
+    <>swap the two values. the sum doesn't care, still 4. the difference does: now it's 4. the model has to know <b>which value came first</b></>,
+    <>task 3's one head looks at both values ({pct(s.first)} / {pct(s.second)}) and adds <b>half of each</b> into the last stream. swap them and
+      it adds the same thing, so the mlp gets the <b>same stream</b> for both inputs and must give the same answer. fine for a sum, impossible
+      for a difference. reading the first value off that stream: <b>{d.probe_first.one_head.toFixed(0)}%</b>, it sees a 5 and a 9, then a coin flip</>,
+    <>retrained on the difference, with one head per layer: <b>{one.toFixed(0)}%</b>. its head gives up on the blend and fetches only c's value
+      ({pct(kept.second)} of its attention)</>,
+  ];
+  return (
+    <div class="t4" ref={root}>
+      <div class="grid">
+        <div class="h" /><div class={`h fade ${step >= 2 ? 'on' : ''}`}>task 3's head adds to the last stream</div>
+        <div class="h">sum</div><div class="h">difference</div>
+        {INPUTS.map(({ text, a, b }, r) => {
+          const on = r === 0 || step >= 1;
+          return <>
+            <div class={`fade ${on ? 'on' : ''}`}><Seq text={text} /></div>
+            <div class={`fade ${on && step >= 2 ? 'on' : ''}`}><Blend a={a} b={b} /></div>
+            <div class={`n fade ${on ? 'on' : ''}`}>{mod(+a + +b)}</div>
+            <div class={`n fade ${on ? 'on' : ''} ${step >= 2 ? 'bad' : ''}`}>{mod(+a - +b)}</div>
+          </>;
+        })}
+        <div /><div class={`same fade ${step >= 2 ? 'on' : ''}`}>the same blend</div>
+        <div class={`same fade ${step >= 1 ? 'on' : ''}`}>same</div><div class={`same bad fade ${step >= 1 ? 'on' : ''}`}>different</div>
+      </div>
+      <div class={`fade ${step >= 3 ? 'on' : ''}`}>
+        <Bars width={560} max={100} values={[d.sum, one]} labels={['task 3 model, on the sum', 'the same, on the difference']}
+          color={(_, i) => (i === 0 ? 'var(--good)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
+      </div>
+      <div class="cap">{caps[Math.min(step, 3)]}</div>
+      <style>{CSS + `
+        .t4 .grid { display: grid; grid-template-columns: auto auto auto auto; gap: .45em 2.2em; align-items: center; justify-content: start; font-size: 1.05em; }
+        .t4 .grid .h { font-size: .5em; color: var(--muted); }
+        .t4 .grid .n { font-family: var(--mono); color: var(--fg); text-align: center; } .t4 .grid .n.bad { color: var(--bad); }
+        .t4 .grid .same { font-size: .5em; text-align: center; color: var(--muted); } .t4 .grid .same.bad { color: var(--bad); }
+      `}</style>
+    </div>
+  );
+}
+
+/** a lookup from the last position up and over to token i (the attention diagram on the two-head slide) */
+const QX = 40, LX = 210;
 const cx = (i: number) => LX + i * 70 + (i >= 8 ? QX : 0) + 28;
 const CY = 170, CW = 56, CH = 64;
-/** a lookup from the last position up and over to token i */
 function Arc({ to, cls, label, lift }: { to: number; cls: string; label: ComponentChildren; lift: number }) {
   const x0 = cx(9), x1 = cx(to), top = CY - CH / 2 - 4, h = top - lift;
   return (
     <g class={`arc ${cls}`}>
       <path d={`M ${x0} ${top} C ${x0} ${h}, ${x1} ${h}, ${x1} ${top}`} />
       <path class="tip" d={`M ${x1 - 7} ${top - 11} L ${x1} ${top} L ${x1 + 7} ${top - 11}`} />
-      <text x={(x0 + x1) / 2} y={h + lift * 0.25 - 8}>{label}</text>
+      <text x={(x0 + x1) / 2} y={top - 0.75 * lift - 9}>{label}</text>
     </g>
   );
 }
-/** one head's attention from the last position, a cell under each token */
-type Row = { label: string; attn: number[]; cls: 'a' | 'b' | 'mix' };
-function Input({ children, hl = [], rows = [], on = true }: { children?: ComponentChildren; hl?: [number, string][]; rows?: Row[]; on?: boolean }) {
-  const cls = (i: number) => hl.find(([j]) => j === i)?.[1] ?? '';
-  const RY = CY + CH / 2 + 24, RH = 42;
+type Row = { label: string; attn: number[]; cls: 'a' | 'b' };
+function Attn({ rows }: { rows: Row[] }) {
+  const RY = CY + CH / 2 + 24, RH = 42, toks = [...INPUTS[0].text];
   return (
-    <svg viewBox={`0 0 1100 ${215 + (rows.length ? 30 + rows.length * RH : 0)}`} class="in">
-      <g class={on ? '' : 'off'}>
-        {rows.length > 0 && <text class="rh" x={cx(0) - CW / 2} y={RY - 4}>layer 2's attention from the last position, on each token</text>}
-        {rows.map((r, k) => {
-          const y = RY + 10 + k * RH;
-          return <g class={`row ${r.cls}`}>
-            <text class="rl" x={LX - 16} y={y + 24}>{r.label}</text>
-            {r.attn.map((v, i) => <g>
-              <rect x={cx(i) - CW / 2} y={y} width={CW} height={RH - 8} rx="5" style={{ opacity: 0.12 + 0.88 * v }} />
-              {v >= 0.01 && <text x={cx(i)} y={y + 23}>{Math.round(v * 100)}%</text>}
-            </g>)}
-          </g>;
-        })}
-      </g>
-      {children}
-      {TOKS.map((c, i) => (
-        <g class={`tk ${/\d/.test(c) ? 'dg' : ''} ${i >= 8 ? 'q' : ''} ${cls(i)}`}>
+    <svg viewBox={`0 0 1100 ${245 + rows.length * RH}`} class="in">
+      <text class="rh" x={cx(0) - CW / 2} y={RY - 4}>layer 2's attention from the last position, on each token</text>
+      {rows.map((r, k) => {
+        const y = RY + 10 + k * RH;
+        return <g class={`row ${r.cls}`}>
+          <text class="rl" x={LX - 16} y={y + 24}>{r.label}</text>
+          {r.attn.map((v, i) => <g>
+            <rect x={cx(i) - CW / 2} y={y} width={CW} height={RH - 8} rx="5" style={{ opacity: 0.12 + 0.88 * v }} />
+            {v >= 0.01 && <text x={cx(i)} y={y + 23}>{pct(v)}</text>}
+          </g>)}
+        </g>;
+      })}
+      <Arc to={3} cls="a" label="one head: f's value" lift={145} />
+      <Arc to={5} cls="b" label="the other: c's value" lift={70} />
+      {toks.map((c, i) => (
+        <g class={`tk ${/\d/.test(c) ? 'dg' : ''} ${i >= 8 ? 'q' : ''} ${i === 3 || i === 8 ? 'a' : i === 5 || i === 9 ? 'b' : ''}`}>
           <rect x={cx(i) - CW / 2} y={CY - CH / 2} width={CW} height={CH} rx="8" />
           <text x={cx(i)} y={CY + 12}>{c}</text>
         </g>
@@ -57,103 +150,58 @@ function Input({ children, hl = [], rows = [], on = true }: { children?: Compone
     </svg>
   );
 }
-const CSS = `
-  .t4 { display: flex; flex-direction: column; gap: 1em; width: 100%; color: var(--muted); }
-  .t4 .in { width: 1100px; overflow: visible; }
-  .t4 .row rect { fill: var(--faint); } .t4 .row.a rect { fill: var(--accent); } .t4 .row.b rect { fill: var(--purple); }
-  .t4 .row text { font-family: var(--mono); font-size: 16px; fill: var(--bg); text-anchor: middle; }
-  .t4 .row .rl, .t4 .rh { font-family: inherit; font-size: 19px; fill: var(--muted); text-anchor: end; }
-  .t4 .rh { font-size: 16px; text-anchor: start; }
-  .t4 .tk rect { fill: var(--raised); stroke: var(--border); stroke-width: 2; }
-  .t4 .tk text { font-family: var(--mono); font-size: 38px; fill: var(--fg); text-anchor: middle; }
-  .t4 .tk.dg text { fill: var(--hot); }
-  .t4 .tk.a rect { stroke: var(--accent); stroke-width: 3; } .t4 .tk.q.a text { fill: var(--accent); }
-  .t4 .tk.b rect { stroke: var(--purple); stroke-width: 3; } .t4 .tk.q.b text { fill: var(--purple); }
-  .t4 .ar { font-family: var(--mono); font-size: 34px; fill: var(--fg); }
-  .t4 .arc path { fill: none; stroke-width: 3; } .t4 .arc text { font-size: 20px; text-anchor: middle; }
-  .t4 .arc.a path { stroke: var(--accent); } .t4 .arc.a text { fill: var(--accent); }
-  .t4 .arc.b path { stroke: var(--purple); } .t4 .arc.b text { fill: var(--purple); }
-  .t4 .arc.miss path { stroke: var(--faint); stroke-dasharray: 6 6; } .t4 .arc.miss text { fill: var(--muted); }
-  .t4 .arc { transition: opacity .35s; } .t4 .off { opacity: 0; }
-  .t4 .fade { opacity: 0; transition: opacity .35s; } .t4 .fade.on { opacity: 1; }
-  .t4 .eq { font-family: var(--mono); color: var(--fg); font-size: .8em; } .t4 .eq .a { color: var(--accent); } .t4 .eq .b { color: var(--purple); }
-  .t4 .cap { font-size: .7em; max-width: 50em; min-height: 3.2em; } .t4 .cap b { color: var(--fg); }
-  .t4 .bars { font-size: .85em; }
-`;
 
 /**
- *   0 the task: first f's value, then c's, subtracted   1 the old model, retrained on it: 98% on the sum, 42% here
- *   2 why: its layer 2 head makes one lookup. a 50/50 blend was fine for a sum; a difference needs to know which came first
- */
-export function Order() {
-  const { root, step, d } = useIsland<T4>('task4');
-  if (!d) return <div ref={root} />;
-  const one = d.accuracy.find(([m]) => m === '2 layers, 1 head each, plus MLP')![1];
-  const caps: ComponentChildren[] = [
-    <>same input as task 3, but <b>first minus second</b>. swapped, (9 − 5) mod 10 = 4: a sum didn't care about order, a difference does</>,
-    <>the task 3 model (2 layers, 1 head each, plus the mlp), retrained on the difference: <b>{one.toFixed(0)}%</b></>,
-    <>its last head makes <b>one lookup</b>: one question, one weighted average. task 3 only worked because order didn't matter: half of the 5 and half of
-      the 9 in the stream was all a sum needs. a difference needs to know which came first, and a blend can't say. so this head fetches the 9 and guesses the rest</>,
-  ];
-  return (
-    <div class="t4" ref={root}>
-      <Input hl={[[3, 'a'], [8, 'a'], [5, 'b'], [9, 'b']]} on={step >= 2}
-        rows={[{ label: `its one head → ${d.example.one_head.answer} ✗`, attn: d.example.one_head.attn[0], cls: 'b' }]}>
-        <g class={step >= 2 ? '' : 'off'}>
-          <Arc to={5} cls="b" label="its one head: c's value" lift={70} />
-          <Arc to={3} cls="miss" label="f's value? no head left" lift={130} />
-        </g>
-      </Input>
-      <div class="eq">first <span class="a">f → 5</span>, then <span class="b">c → 9</span>: (<span class="a">5</span> − <span class="b">9</span>) mod 10 = 6</div>
-      <div class={`fade ${step >= 1 ? 'on' : ''}`}>
-        <Bars width={560} max={100} values={[d.sum, one]} labels={['task 3 model, on the sum', 'the same, on the difference']}
-          color={(_, i) => (i === 0 ? 'var(--good)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
-      </div>
-      <div class="cap">{caps[Math.min(step, 2)]}</div>
-      <style>{CSS}</style>
-    </div>
-  );
-}
-
-/**
- *   0 the reasoning: a head is one lookup; we need two that stay apart   1 two heads side by side, one question each
- *   2 what lands in the stream: each head writes with its own W_V, so swapping the digits changes the stream
- *   3 the proof: 42% → 100%, nothing else changed
+ *   0 two heads in layer 2, each its own lookup: one finds f's value, the other c's
+ *   1 what lands in the last stream, for both inputs: one blend vs two separate writes
+ *   2 the proof: 42% → 100%, nothing else changed
  */
 export function TwoHeads() {
   const { root, step, d } = useIsland<T4>('task4');
   if (!d) return <div ref={root} />;
   const acc = (m: string) => d.accuracy.find(([k]) => k === m)![1];
-  const one = acc('2 layers, 1 head each, plus MLP'), two = acc('2 layers, 2 heads each, plus MLP');
+  const one = acc(ONE), two = acc(TWO), [h1, h2] = d.split.two_heads, at = d.example.two_heads.attn;
   const caps: ComponentChildren[] = [
-    <>a head is one softmax: <b>one lookup</b>. we need two that stay apart, "what's f's value?" and "what's c's value?". a second layer could do them one after
-      the other; or a second head does them <b>side by side</b>, in the same layer</>,
-    <>two heads in layer 2, each with its own query. one fetches the <span class="a">5</span>, the other the <span class="b">9</span>; both arrive separately,
-      in order, and the mlp subtracts them: <b>{d.example.two_heads.answer}</b> ✓</>,
-    <>each head has its own W_V, and the heads' writes add up in the stream. so the 5 and the 9 land in <b>different directions</b>: swap them and the stream changes.
-      read "which digit came first?" from the stream after layer 2: one head (task 3) <b>{d.probe_first.one_head.toFixed(0)}%</b>, two heads <b>{d.probe_first.two_heads.toFixed(0)}%</b></>,
-    <>same task, same layers and mlp, only a second head: <b>{one.toFixed(0)}% → {two.toFixed(0)}%</b>. that's multi-head attention, the last piece of the transformer</>,
+    <>give layer 2 a <b>second head</b>. each head has its own query, so each makes its own lookup: one finds f's value, the other c's
+      ({pct(h2.first)} and {pct(h1.second)} over the test set)</>,
+    <>each head writes through its own W_V, into its own directions of the stream: <b>two separate entries</b> instead of one blend. swap the
+      values and the stream changes. reading the first value off it: <b>{d.probe_first.two_heads.toFixed(0)}%</b> (one head: {d.probe_first.one_head.toFixed(0)}%)</>,
+    <>same task, same layers, same mlp, only a second head: <b>{one.toFixed(0)}% → {two.toFixed(0)}%</b>. that's multi-head attention, the last piece of the transformer</>,
   ];
   return (
     <div class="t4" ref={root}>
-      <Input hl={[[3, 'a'], [8, 'a'], [5, 'b'], [9, 'b']]} on={step >= 1}
-        rows={[{ label: "head 1: c's value", attn: d.example.two_heads.attn[0], cls: 'b' }, { label: "head 2: f's value", attn: d.example.two_heads.attn[1], cls: 'a' }]}>
-        <g class={step >= 1 ? '' : 'off'}>
-          <Arc to={5} cls="b" label="one head: c's value" lift={70} />
-          <Arc to={3} cls="a" label="the other head: f's value" lift={130} />
-        </g>
-      </Input>
-      <div class={`fade ${step >= 2 ? 'on' : ''} adds`}>
-        <div class="eq">one head: &nbsp;x += ½ W_V·<span class="a">v(5)</span> + ½ W_V·<span class="b">v(9)</span> <span class="m">swap 5 and 9: the same</span></div>
-        <div class="eq">two heads: x += W_V2·<span class="a">v(5)</span> + W_V1·<span class="b">v(9)</span> &nbsp;&nbsp;<span class="m">swap: a different stream</span></div>
+      <Attn rows={[{ label: "f's head", attn: at[1], cls: 'a' }, { label: "c's head", attn: at[0], cls: 'b' }]} />
+      <div class={`fade ${step >= 1 ? 'on' : ''} writes`}>
+        <div class="h" /><div class="h">one head adds</div><div class="h">two heads add</div>
+        {INPUTS.map(({ text, a, b }) => <>
+          <code class="src">{text}</code><div><Blend a={a} b={b} /></div><div class="slots"><Slots a={a} b={b} /></div>
+        </>)}
+        <div /><div class="same">the same</div><div class="same good">different</div>
       </div>
-      <div class={`fade ${step >= 3 ? 'on' : ''}`}>
+      <div class={`fade ${step >= 2 ? 'on' : ''}`}>
         <Bars width={560} max={100} values={[one, two]} labels={['1 head per layer', '2 heads per layer']}
           color={(_, i) => (i === 0 ? 'var(--bad)' : 'var(--good)')} fmtV={(v) => `${v.toFixed(0)}%`} />
       </div>
-      <div class="cap">{caps[Math.min(step, 3)]}</div>
-      <style>{CSS + `.t4 .adds { display: flex; flex-direction: column; gap: .3em; } .t4 .eq .m { font-family: var(--sans); color: var(--muted); font-size: .8em; margin-left: 1.2em; }
-        .t4 .cap .a { color: var(--accent); } .t4 .cap .b { color: var(--purple); }`}</style>
+      <div class="cap">{caps[Math.min(step, 2)]}</div>
+      <style>{CSS + `
+        .t4 .in { width: 1000px; overflow: visible; margin-bottom: -.6em; }
+        .t4 .in .row rect { fill: var(--faint); } .t4 .in .row.a rect { fill: var(--accent); } .t4 .in .row.b rect { fill: var(--purple); }
+        .t4 .in .row text { font-family: var(--mono); font-size: 16px; fill: var(--bg); text-anchor: middle; }
+        .t4 .in .row .rl, .t4 .in .rh { font-family: var(--sans); font-size: 19px; fill: var(--muted); text-anchor: end; }
+        .t4 .in .rh { font-size: 16px; text-anchor: start; }
+        .t4 .in .tk rect { fill: var(--raised); stroke: var(--border); stroke-width: 2; }
+        .t4 .in .tk text { font-family: var(--mono); font-size: 38px; fill: var(--fg); text-anchor: middle; }
+        .t4 .in .tk.dg text { fill: var(--hot); }
+        .t4 .in .tk.a rect { stroke: var(--accent); stroke-width: 3; } .t4 .in .tk.q.a text { fill: var(--accent); }
+        .t4 .in .tk.b rect { stroke: var(--purple); stroke-width: 3; } .t4 .in .tk.q.b text { fill: var(--purple); }
+        .t4 .in .ar { font-family: var(--mono); font-size: 34px; fill: var(--fg); }
+        .t4 .in .arc path { fill: none; stroke-width: 3; } .t4 .in .arc text { font-size: 20px; text-anchor: middle; }
+        .t4 .in .arc.a path { stroke: var(--accent); } .t4 .in .arc.a text { fill: var(--accent); }
+        .t4 .in .arc.b path { stroke: var(--purple); } .t4 .in .arc.b text { fill: var(--purple); }
+        .t4 .writes { display: grid; grid-template-columns: auto auto auto; gap: .35em 2.2em; align-items: center; justify-content: start; font-size: .8em; }
+        .t4 .writes .h { font-size: .6em; } .t4 .writes .src { font-size: .8em; color: var(--muted); } .t4 .writes .slots { display: flex; gap: .4em; }
+        .t4 .writes .same { font-size: .6em; } .t4 .writes .same.good { color: var(--good); }
+      `}</style>
     </div>
   );
 }

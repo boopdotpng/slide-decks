@@ -343,7 +343,7 @@ export function KeyValue() {
   const fired = h.filter((v) => v > 0).length, pl = Math.max(...pre.map(Math.abs)), hl = Math.max(...h);
   const rows: [string, ComponentChildren, ComponentChildren][] = [
     ['asks', <>a query, read from the last stream</>, <>the last stream itself</>],
-    ['keys', <>one per position, read from the <b>streams</b>: change with every input. 10 here</>, <>column n of W_up: <b>learned</b>, the same for every input. 64</>],
+    ['keys', <>one per position, read from the <b>streams</b>: change with every input. 10 here</>, <>column n of W_up: <b>learned</b>, the same for every input. 64 of them</>],
     ['match', <><b>softmax</b>: the keys compete, the row sums to 100%</>, <><b>relu</b>: each key on its own. no match, exactly 0</>],
     ['adds', <>each position's value × its weight</>, <>row n of W_down × how hard neuron n fired</>],
   ];
@@ -370,7 +370,7 @@ export function KeyValue() {
         <text class="rl" x={-14} y={123}>{step >= 3 ? 'relu' : 'mlp'}</text>
         <Strip y={100} v={step >= 3 ? h : pre} cw={CW} color={(v) => (step >= 3 ? (v > 0 ? sequential(v / hl) : 'var(--raised)') : diverging(v, pl))}
           labels={(i) => (i % 8 === 0 || i === 63 ? `${i}` : null)} hl={step >= 3 ? range(64).filter((i) => h[i] > 0) : []} />
-        <text class="note" x={W} y={180}>{step >= 3 ? `${fired} of 64 fire; no sum to share` : 'the stream · each of the 64 keys'}</text>
+        <text class="note" x={W} y={180}>{step >= 3 ? `${fired} of 64 fire, each on its own` : 'the stream · each of the 64 keys'}</text>
         <text class="note" x={10 * 42} y={23} style={{ textAnchor: 'start' }}> ← sums to 100%</text>
       </svg>
       <div class="cap">{caps[Math.min(step, 4)]}</div>
@@ -400,14 +400,14 @@ function PairGrid({ data, color, cw, hl = [], inv, text = cw >= 30, axes = cw >=
   data: number[][]; color: (v: number, a: number, b: number) => string; cw: number; hl?: [number, number][]; text?: boolean; axes?: boolean;
   inv?: (v: number) => boolean;   // cells bright enough for dark text
 }) {
-  const S = 10 * cw, m = axes ? 44 : 2;
+  const S = 10 * cw, m = axes ? (cw >= 30 ? 44 : 20) : 2;
   return (
     <svg class="pg" viewBox={`${-m} ${-m} ${S + m + 2} ${S + m + 2}`} style={{ width: `${S + m + 2}px` }}>
       {axes && <>
-        {range(10).map((i) => <text class="gl" x={-16} y={i * cw + cw / 2 + 6}>{i}</text>)}
-        {range(10).map((i) => <text class="gl" x={i * cw + cw / 2} y={-10}>{i}</text>)}
-        <text class="ga" x={-36} y={S / 2} transform={`rotate(-90 -36 ${S / 2})`}>a →</text>
-        <text class="ga" x={S / 2} y={-28}>b →</text>
+        {range(10).map((i) => <text class="gl" x={cw >= 30 ? -16 : -10} y={i * cw + cw / 2 + 5}>{i}</text>)}
+        {range(10).map((i) => <text class="gl" x={i * cw + cw / 2} y={cw >= 30 ? -10 : -6}>{i}</text>)}
+        {cw >= 30 && <text class="ga" x={-36} y={S / 2} transform={`rotate(-90 -36 ${S / 2})`}>a →</text>}
+        {cw >= 30 && <text class="ga" x={S / 2} y={-28}>b →</text>}
       </>}
       <Mat data={data} x={0} y={0} cw={cw} ch={cw} gap={2} color={color} hlCells={hl} inv={inv} text={text ? (_, a, b) => `${ANS[a][b]}` : undefined} />
     </svg>
@@ -434,17 +434,17 @@ export function Patterns() {
       <div class="many">
         {six.map((k) => (
           <div class="mini">
-            <PairGrid data={g.h[k]} color={(v) => sequential(v / hmax(k))} cw={21} hl={[[5, 9]]} />
+            <PairGrid data={g.h[k]} color={(v) => sequential(v / hmax(k))} cw={21} hl={[[5, 9]]} axes />
             <div class="ml">n{k}</div>
           </div>
         ))}
       </div>
       <div class="txt">
         <div class="hd">the 6 most helpful of 64 neurons. row a, column b: how hard it fires. <span class="o">□</span> our input (5, 9)</div>
-        <div class="cap">each fires on <b>sets of digits</b>, not on an answer: over all 64, which digits came in explains a neuron's firing far better
-          (a: 37%, b: 39%) than the answer does (7%). the clearest, n{ex}, fires when both digits are odd. no single neuron knows the answer</div>
+        <div class="cap">each fires on <b>sets of digits</b>, not on an answer: over all 64, the digits explain a neuron's firing (a: 37%, b: 39%)
+          far better than the answer does (7%). n{ex} fires when both are odd. no single neuron knows the answer</div>
         <div class={`fade ${step >= 1 ? 'on' : ''} crowd`}>
-          <div class="hd">add up the votes of the {kk || 8} most helpful: right on <b>{pct(tk.acc)}</b> of pairs (<span class="g">green</span>: right)</div>
+          <div class="hd">add up the votes of {kk === 64 ? 'all 64 neurons' : `the ${kk || 8} most helpful`}: right on <b>{pct(tk.acc)}</b> of pairs (<span class="g">green</span>: right)</div>
           <div class="row">
             <PairGrid data={tk.cells} color={right} cw={20} />
             <Bars width={150} max={100} values={g.topk.map((t) => (t.k <= kk ? t.acc * 100 : 0))} labels={g.topk.map((t) => `top ${t.k}`)}
@@ -453,11 +453,12 @@ export function Patterns() {
         </div>
       </div>
       <style>{`
-        .t3t { display: flex; gap: 3em; width: 100%; color: var(--muted); align-items: flex-start; }
+        .t3t { display: flex; gap: 2.2em; width: 100%; color: var(--muted); align-items: flex-start; }
         .t3t .txt { display: flex; flex-direction: column; gap: .9em; flex: 1; }
         .t3t .hd { font-size: .62em; } .t3t .hd .o { color: var(--hot); } .t3t .hd b { color: var(--fg); } .t3t .hd .g { color: var(--good); }
-        .t3t .many { display: grid; grid-template-columns: repeat(3, auto); gap: 1.2em 2.4em; flex: none; }
+        .t3t .many { display: grid; grid-template-columns: repeat(3, auto); gap: 1.2em 1.8em; flex: none; }
         .t3t .mini { display: flex; flex-direction: column; gap: .15em; }
+        .t3t .gl, .t3t .ga { font-family: var(--mono); font-size: 12px; fill: var(--muted); text-anchor: middle; } .t3t .ga { fill: var(--muted); }
         .t3t svg { overflow: visible; display: block; }
         .t3t .pg .mx .hlbox { stroke: var(--hot); stroke-width: 2.5; }
         .t3t .ml { font-family: var(--mono); font-size: .55em; } .t3t .ml b { color: var(--hot); } .t3t .ml i { font-style: normal; color: var(--fg); }

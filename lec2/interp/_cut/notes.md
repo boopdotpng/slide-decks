@@ -46,3 +46,10 @@
 - split by the last letter, the only thing the network sees. no letter favours any digit
 - the spread (0.07–0.14) is noise: the last letter has nothing to do with the hidden digit
 
+
+# 52-t4-spare
+- the two-head model gave layer 1 two heads as well. its full attention on a2f5c9d3fc, both heads (rows: who's looking, columns: at whom)
+- head 1 has a job: each digit looks one back at its letter (100%), the tagging from task 2, so layer 2 can find "the digit after f". the last c looks at the f (80%), as in task 3
+- head 2 is smeared: no row commits to anything in particular
+- → knockouts (~/code/ml/interp data/task4/ablation.csv): without layer 1's head 2, 95%. without head 1, 21%. layer 2 needs both its heads (without either: 15% / 24%)
+- the intuition: heads are a budget, not a guarantee. training uses what it needs and leaves the rest nearly idle; that's normal in big models too (many heads can be pruned)

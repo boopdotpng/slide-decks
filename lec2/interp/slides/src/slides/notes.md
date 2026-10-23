@@ -52,7 +52,7 @@
 - → task 2: four key/value pairs, then a key: output its value (f → 5). needs a second layer: layer 1 marks each value with its key, layer 2 finds it
 - → task 3: two keys, output the sum of their values mod 10 (5 + 9 → 4). attention can fetch both digits but only copies; the mlp does the adding
 - → task 4: same, but first minus second (5 − 9 → 6). order matters now, so one head's 50/50 blend isn't enough: two heads, one per value
-- → every answer is one of 10 digits, so chance is 10%
+- (every answer is one of 10 digits, so chance is 10%)
 - → THE PLAN. this is the shape of the whole talk: start small; each time the network fails a task, add one piece, retrain, then open it up and read what the new piece does
 
 # 09-params
@@ -113,7 +113,7 @@
 - → only the last row is graded. the rest are computed in the same matmul and thrown away here
 
 # 21d-t1-ask
-- slide 22 can't tell "find a 7" from "find a digit": the input has one digit and eight letters
+- the last slide can't tell "find a 7" from "find a digit": the input has one digit and eight letters
 - a key depends only on the token (embedding through the key weights, no position embedding), so every token has one key wherever it sits: we can make the keys of tokens that aren't in this input
 - the 9 lit bars are exactly a's row from the last slide, before the mask and softmax (the 7 at the same score)
 - → the other 27 keys: all 10 digits above all 26 letters. the query is "is this a digit?". the order among digits doesn't matter, every input has one
@@ -245,23 +245,21 @@
 - the last row's 64 neurons on a2f5c9d3fc, with the relu (17 speak, the rest exactly 0) and without (all 64 speak, negatives included)
 - without it, the two matmuls collapse: (x @ W_up) @ W_down = x @ (W_up @ W_down), one 32 × 32 matrix. a single linear read, the same kind as the unembedding before the mlp (11%). a sum of per-digit scores, with no term for the pair (the patches need the zeros)
 - → measured: the trained model with its relu swapped for identity: 10%. retrained from scratch without a relu (train_task3_norelu.py, same seed, steps, data): 20%. attention only: 27%. with the relu: 98%
+- if asked for knockouts (cut slide, _cut/47-t3-ablate), same weights with one piece zeroed: without layer 1 30%, without layer 2 9%, without the mlp 11%, without positions 24%
 
 # 50-t4-order
-- task 4: same input as task 3 (pairs, then the query f c), but first value minus second, mod 10: f → 5, c → 9, (5 − 9) mod 10 = 6. swapped it'd be 4: order matters now. ~/code/ml/interp task4.py; export_task4.py reads its csvs
-- → the task 3 model (2 layers, 1 head each, plus the mlp), retrained on the difference: 42%. on the sum it got 98%
-- → why: its last head makes one lookup, one softmax, one weighted average. task 3 only worked because order didn't matter: the stream held half of the 5 and half of the 9 (47% / 47%), and for a sum that's all the information needed. on the difference half of each can't say which came first, so it takes only c's value and guesses the rest. on this input: 100% on the 9, nothing on the 5, and it answers 4 (wrong). over the test set: 98% on the second value
-- if asked: it's seed-dependent. 4 of 9 seeds find a lopsided 30% / 66% blend, which does say which came first, so the mlp untangles it: 89–97%, never 100%
+- task 4: same input as task 3 (pairs, then the query f c), but first value minus second, mod 10: f → 5, c → 9, (5 − 9) mod 10 = 6. ~/code/ml/interp task4.py; export_task4.py reads its csvs
+- → swap which letter gets which value (a2f9c5d3fc). the sum is 4 either way; the difference is now (9 − 5) = 4. the model has to know which value came first
+- → why one head can't: task 3's head splits its attention 47% / 47% (test average) and adds half of each value into the last stream. half a 5 plus half a 9 is the same vector as half a 9 plus half a 5: the stream holds the pair, not the order. so the mlp sees (nearly) the same stream for both inputs and has to give them the same answer. fine for a sum, wrong on one of the two for a difference
+- the probe: a linear readout of "the first value" from that stream gets 53%. it can tell the pair is {5, 9}, then it's a coin flip which came first (chance would be 10%)
+- → the task 3 model retrained on the difference: 42%. on the sum it got 98%. its head gives up on the blend and fetches only c's value (98% of its attention over the test set); on this input it answers 4
+- if asked: it's seed-dependent. 4 of 9 seeds find a lopsided 30% / 66% blend, which does say which came first (the bigger share is the second value), so the mlp untangles it: 89–97%, never 100%
 
 # 51-t4-heads
-- the reasoning: one head is one lookup. we need two lookups that stay apart: "what's f's value?" and "what's c's value?". two ways: a second layer does them one after the other, or a second head does them side by side in the same layer
-- → two heads in layer 2, each with its own query (its own W_q, W_k, W_v): on this input, head 2 puts 100% on the 5 and head 1 99% on the 9, and it answers 6 (test averages: 99% and 94%). both digits arrive separately, in order (probes after layer 2: 100% each), and the mlp subtracts them
-- → what lands in the stream: there's no output projection here, each head writes W_V·(its weighted values) straight into the stream and the heads' writes are summed (model.py). one head: ½ W_V v(5) + ½ W_V v(9), symmetric, swap the digits and the stream is identical. two heads: W_V2 v(5) + W_V1 v(9), different matrices, so the two digits land in different directions and swapping changes the stream. measured: a linear probe for the first value after layer 2 gets 53% on task 3's one-head model (it can see a 5 and a 9, not which was first), 100% on task 4's two-head model
+- the fix: one head is one lookup and one write. we need two lookups whose writes stay apart. give layer 2 a second head, each with its own W_q, W_k, W_v
+- on this input: one head puts 100% on the 5 (f's value), the other 99% on the 9 (c's value); test averages 99% and 94%. it answers 6
+- → what lands in the stream. no output projection here: each head writes W_V·(its weighted values) straight into the stream, and the writes add (model.py). one head: ½ W_V x₅ + ½ W_V x₉, symmetric, swap and nothing changes. two heads: W_V(f's head) x₅ + W_V(c's head) x₉, two different matrices, so the 5 and the 9 land in different directions: two entries, like two labeled slots. swap and the stream changes
+- measured: the linear probe for the first value after layer 2: 53% with task 3's one head, 100% with two heads
 - → the proof: same task, same layers and mlp, only a second head: 42% → 100% (6 of 6 seeds). that's multi-head attention, the last piece
 - if asked: without the mlp, 2 heads get 20% (heads fetch, the mlp computes). a third one-head layer also gets 100%: heads do lookups side by side, layers one after another
-
-# 52-t4-spare
-- the two-head model gave layer 1 two heads as well. its full attention on a2f5c9d3fc, both heads (rows: who's looking, columns: at whom)
-- head 1 has a job: each digit looks one back at its letter (100%), the tagging from task 2, so layer 2 can find "the digit after f". the last c looks at the f (80%), as in task 3
-- head 2 is smeared: no row commits to anything in particular
-- → knockouts (~/code/ml/interp data/task4/ablation.csv): without layer 1's head 2, 95%. without head 1, 21%. layer 2 needs both its heads (without either: 15% / 24%)
-- the intuition: heads are a budget, not a guarantee. training uses what it needs and leaves the rest nearly idle; that's normal in big models too (many heads can be pruned)
+- if asked about layer 1 (cut slide, _cut/52-t4-spare): the two-head model gave layer 1 two heads too. one does task 2's tagging, the other is smeared and nearly spare: 95% without it, 21% without the tagging head. heads are a budget, not a guarantee

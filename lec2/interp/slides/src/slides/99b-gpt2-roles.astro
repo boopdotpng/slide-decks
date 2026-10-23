@@ -1,0 +1,28 @@
+---
+const ROWS = [
+  ['a head', 'one lookup: QK picks where, OV copies what', 'find the digit (task 1), look one back (task 2)',
+   '144 of them. some get clean jobs: previous-token heads, induction heads, name movers. many stay fuzzy'],
+  ['heads in parallel', 'lookups whose writes stay apart', 'f\'s value and c\'s value (task 4)',
+   '12 per layer, each 64 of the 768 numbers, each with its own job at the same moment'],
+  ['layers', 'a lookup that reads an earlier write', 'tag the digit, then find the tag (task 2)',
+   '12 deep. early: nearby tokens. middle: composed heads (5.5 / 6.9 are induction heads). late: move the answer to where it\'s read'],
+  ['mlp', 'computes, one position at a time', 'add two digits (task 3)',
+   'after every layer, 2/3 of the weights. where most stored facts live'],
+];
+---
+<header>
+  <div class="section">back to gpt-2 small</div>
+  <h2>the same pieces, 12 × 12 of them</h2>
+</header>
+<div class="rt">
+  <div class="h" /><div class="h">what it does</div><div class="h">in our tasks</div><div class="h">in gpt-2 small</div>
+  {ROWS.map(([k, what, ours, gpt]) => <>
+    <div class="k">{k}</div><div class="w">{what}</div><div class="o">{ours}</div><div class="g">{gpt}</div>
+  </>)}
+</div>
+<style>
+  .rt { display: grid; grid-template-columns: auto 1fr 1fr 1.5fr; gap: .9em 1.6em; font-size: .7em; align-items: baseline; }
+  .rt .h { font-size: .75em; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: .3em; }
+  .rt .k { font-family: var(--mono); color: var(--accent); white-space: nowrap; }
+  .rt .w { color: var(--fg); } .rt .o { color: var(--muted); } .rt .g { color: var(--fg); }
+</style>

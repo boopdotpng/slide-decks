@@ -71,7 +71,7 @@ export function HeadReads({ data }: { data: string }) {
   const mats: [string, M, ComponentChildren, ComponentChildren | ComponentChildren[]][] = [
     ['query', r.q, <>what this position is <tspan class="b">looking for</tspan></>, <>read through the <tspan class="b">keys</tspan></>],
     ['key', r.k, <>what this position <tspan class="b">offers</tspan> to be found by</>, <>read through the <tspan class="b">queries</tspan></>],
-    ['value', r.v, <>what it <tspan class="b">passes on</tspan> if it's looked at</>, [<>read through <tspan class="b">whoever reads it</tspan>: here the <tspan class="b">unembedding</tspan>.</>, <>with more layers, the <tspan class="b">next layer's</tspan> queries and keys</>]],
+    ['value', r.v, <>what it <tspan class="b">passes on</tspan> if it's looked at</>, <>read through <tspan class="b">whoever reads it</tspan>: here the <tspan class="b">unembedding</tspan></>],
   ];
   return (
     <div class="h1" ref={root}>
@@ -94,6 +94,7 @@ export function HeadReads({ data }: { data: string }) {
           {qc.map((c, i) => (
             <text class="mono" style={{ fontSize: '14px' }} x={MX + 32 * CW + 30} y={ys[0] + i * CH + 13}>{c.toFixed(2)}</text>
           ))}
+          <text class="note" x={MX + 32 * CW + 110} y={ys[0] + (9 * CH) / 2 + 6}>← every token is asking the same question</text>
         </g>
       </svg>
       <style>{CSS}</style>
@@ -178,6 +179,13 @@ export function HeadScores({ data }: { data: string }) {
           <tspan class="mono" style={{ fontSize: '17px' }}>{(r.scores[L] as number[]).map((v) => v.toFixed(1)).join('  ')}</tspan>,
           <tspan class="mono" style={{ fontSize: '17px' }}>→ {(r.attn[L] as number[]).map(pct).join('  ')}</tspan>,
         ]} />
+        <Lines x={840} y={290} on={step === 7} lines={[
+          <>every row from the <tspan class="b">7</tspan> down: ~100% on the <tspan class="b">7</tspan></>,
+          <>every position that can see the digit finds it</>,
+          '',
+          <>the rows above can't see it (masked),</>,
+          <>so they spread over the letters</>,
+        ]} />
         <Lines x={Ap.x + 9 * Ap.cw + 18} y={Ap.y + 8 * Ap.ch + 34} on={step === 8} lines={[<>← the only graded row</>]} />
       </svg>
       <style>{CSS}</style>
@@ -208,8 +216,8 @@ export function HeadAsk({ data }: { data: string }) {
   return (
     <div class="h1" ref={root}>
       <svg viewBox="0 0 1500 480">
-        <Lines x={X0} y={30} lines={[<><tspan class="b">a</tspan>'s query · the key of every token, ÷ √32, sorted</>,
-          <>if any of these 36 tokens were in the input, how much would <tspan class="b">a</tspan>'s query want to look at it?</>]} />
+        <Lines x={X0} y={30} lines={[<>if any of the 36 tokens were in the input, how much would <tspan class="b">a</tspan>'s query want to look at it?</>,
+          <><tspan class="b">a</tspan>'s query · each token's key, ÷ √32, sorted</>]} />
         <g class={`fd ${step >= 1 ? 'on' : ''}`}>
           <text class="big" x={X0 + 12 * BAND} y={Y0 - 150}>"is this a digit?"</text>
           <Lines x={X0 + 12 * BAND} y={Y0 - 105} lines={[<>every digit &gt; every letter · <tspan class="b">{agree} / {nLetters}</tspan> letters' queries agree</>]} />

@@ -4,7 +4,7 @@ import { useSlideStep } from '../deck/hooks';
 import { range } from './viz';
 
 /**
- * One stream per position, running bottom to top. Schematic, one layer. Every write is a chip on the stream,
+ * One stream per position, running top to bottom (embedding first, the 36 scores last). Schematic, one layer. Every write is a chip on the stream,
  * so a column ends up showing its stream as the sum of what was added to it.
  *   0 each position starts as its token's embedding: that vector is its residual stream
  *   1 attention for one position (the last): reads every stream up to itself, adds a vector into its own
@@ -15,9 +15,9 @@ import { range } from './viz';
  */
 const TEXT = 'a2f5c9d3f';
 const N = TEXT.length, LAST = N - 1;
-const W = 1400, H = 655;
+const W = 1400, H = 600;
 const x = (i: number) => 290 + i * 125;
-const Y = { tok: 643, emb: 575, read: 547, attn: 412, mlp: 282, top: 198, out: 110 };
+const Y = { tok: 64, emb: 100, read: 128, attn: 263, mlp: 393, top: 477, out: 565 };
 const CW = 56, CH = 30;
 
 const CAPS = [
@@ -44,17 +44,17 @@ function Chip({ cx, cy, kind, on, delay = 0 }: { cx: number; cy: number; kind: s
   );
 }
 
-/** attention read: from stream j (just above its embedding) into position i's attention chip */
+/** attention read: from stream j (just below its embedding) down into position i's attention chip */
 function arc(j: number, i: number) {
-  const ey = Y.attn + CH / 2;
+  const ey = Y.attn - CH / 2;
   if (j === i) return `M ${x(i)} ${Y.read} V ${ey}`;
-  return `M ${x(j)} ${Y.read} C ${x(j)} ${Y.read - 80}, ${x(i)} ${ey + 70}, ${x(i)} ${ey}`;
+  return `M ${x(j)} ${Y.read} C ${x(j)} ${Y.read + 80}, ${x(i)} ${ey - 70}, ${x(i)} ${ey}`;
 }
 
-/** mlp read: out of the stream below the chip and back into the chip's side */
+/** mlp read: out of the stream above the chip and back into the chip's side */
 const loop = (i: number) => {
-  const sy = Y.attn - CH / 2 - 22;
-  return `M ${x(i)} ${sy} C ${x(i) + 55} ${sy - 10}, ${x(i) + 55} ${Y.mlp + 4}, ${x(i) + CW / 2} ${Y.mlp}`;
+  const sy = Y.attn + CH / 2 + 22;
+  return `M ${x(i)} ${sy} C ${x(i) + 55} ${sy + 10}, ${x(i) + 55} ${Y.mlp - 4}, ${x(i) + CW / 2} ${Y.mlp}`;
 };
 
 /** layers={false}: just the streams and the unembedding (a model with no layers), 2 steps instead of 6 */
@@ -95,7 +95,7 @@ export default function ResidStream({ layers = true }: { layers?: boolean }) {
           </g>
         ))}
 
-        {/* the writes, bottom to top: embedding, attention, mlp */}
+        {/* the writes, top to bottom: embedding, attention, mlp */}
         {range(N).map((i) => (
           <g class={`col ${step === 4 && i !== LAST ? 'dim' : ''}`}>
             <Chip cx={x(i)} cy={Y.emb} kind="emb" on />
@@ -109,7 +109,7 @@ export default function ResidStream({ layers = true }: { layers?: boolean }) {
 
         {/* unembedding reads the last stream */}
         <g class={`fade ${step >= 4 ? 'on' : ''}`}>
-          <line class="stream last" x1={x(LAST)} x2={x(LAST)} y1={Y.top} y2={Y.out + 22} />
+          <line class="stream last" x1={x(LAST)} x2={x(LAST)} y1={Y.top} y2={Y.out - 22} />
           <rect class="unemb" x={x(LAST) - 95} y={Y.out - 22} width="190" height="44" rx="10" />
           <text class="ulbl" x={x(LAST)} y={Y.out + 7}>36 scores</text>
         </g>

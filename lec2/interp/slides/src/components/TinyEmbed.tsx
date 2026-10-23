@@ -7,7 +7,7 @@ import { EMB, VOCAB } from './tinyEmbed';
 /**
  * The token embedding of our lookup model: a 36 x 32 table, one row per token. Real weights (tinyEmbed.ts).
  *   0 the table
- *   1 the input a2f5c9d3f: its rows are marked
+ *   1 the input a2f5c9d3f: its tokens' rows stay lit, the rest of the table dims
  *   2 one row per position comes out: (9, 32)
  *   3 zoom on f: 32 numbers. both f's got the same row
  */
@@ -27,9 +27,10 @@ export default function TinyEmbed() {
     <div class="te" ref={root}>
       <div class="table">
         <div class="lbl">token embedding <Shape dims={[36, 32]} names={['vocab', 'dim']} /></div>
-        <Heatmap data={EMB} color={color} cell={11} gap={1}
+        <Heatmap data={EMB} color={(v, r) => (step >= 1 && !used.has(r) ? `color-mix(in srgb, ${color(v)} 15%, transparent)` : color(v))} cell={11} gap={1}
           rowLabels={[...VOCAB].map((c, r) => <span class={`rl-t ${step >= 1 && used.has(r) ? 'in' : ''} ${zoom && c === TEXT[ZOOM] ? 'z' : ''}`}>{c}</span>)}
           tipFn={(r, c, v) => `emb[${VOCAB[r]}][${c}] = <b>${v?.toFixed(3)}</b>`} />
+        <div class={`lbl hint fade ${step >= 1 ? 'on' : ''}`}><code>{TEXT}</code> uses these {used.size} rows</div>
       </div>
 
       <div class={`out fade ${step >= 2 ? 'on' : ''}`}>
@@ -55,6 +56,8 @@ export default function TinyEmbed() {
         .te .lbl { font-size: .7em; color: var(--muted); margin-bottom: .5em; display: flex; gap: .8em; align-items: baseline; }
         .te .table .rl { font-size: .5em; padding-right: .4em; }
         .te .rl-t { font-family: var(--mono); transition: color .3s; }
+        .te .table .hc { transition: background .4s; }
+        .te .hint { margin-top: .6em; }
         .te .rl-t.in { color: var(--accent); font-weight: 700; }
         .te .rl-t.z { color: var(--hot); }
         .te .out { display: flex; flex-direction: column; gap: .4em; }

@@ -20,13 +20,13 @@ const FIND2: Arc[] = [[8, 2, 'q'], [9, 4, 'q']], COPY2: Arc[] = [...FIND2, [3, 9
 const TWO_KEY = (last: ComponentChildren): Phase[] => [
   { marks: QS, arcs: [], say: <>queries: {Q('f')}, {Q('c')}</> },
   { marks: BOTH, arcs: FIND2, say: <>{Q('f')} → {V('5')}, {Q('c')} → {V('9')}</> },
-  { marks: BOTH, arcs: COPY2, say: <>both to the end</> },
+  { marks: BOTH, arcs: COPY2, say: <>bring both to the last position</> },
   { marks: BOTH, arcs: COPY2, say: last },
 ];
 
 const TASKS: Record<string, Def> = {
   digit: { input: 'qwdk7mzpa', answer: '7', phases: [
-    { marks: { 4: 'v' }, arcs: [], say: <>one digit among letters: {V('7')}</> },
+    { marks: { 4: 'v' }, arcs: [], say: <>spot the digit: {V('7')}</> },
     { marks: { 4: 'v' }, arcs: [[4, 8, 'v']], say: <>only the last position answers, so the {V('7')} has to get there</> },
   ] },
   lookup: { input: 'a2f5c9d3f', answer: '5', phases: [
