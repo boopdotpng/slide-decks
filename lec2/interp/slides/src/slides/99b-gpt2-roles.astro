@@ -3,7 +3,7 @@ const ROWS = [
   ['a head', 'one lookup: QK picks where, OV copies what', 'find the digit (task 1), look one back (task 2)',
    '144 of them. some get clean jobs: previous-token heads, induction heads, name movers. many stay fuzzy'],
   ['heads in parallel', 'lookups whose writes stay apart', 'f\'s value and c\'s value (task 4)',
-   '12 per layer, each 64 of the 768 numbers, each with its own job at the same moment'],
+   '12 per layer. each reads all 768 numbers but works in 64 (head_dim); W_O (o_proj) maps the 12 × 64 back up to 768. ours had head_dim = emb_dim = 32, so no W_O'],
   ['layers', 'a lookup that reads an earlier write', 'tag the digit, then find the tag (task 2)',
    '12 deep. early: nearby tokens. middle: composed heads (5.5 / 6.9 are induction heads). late: move the answer to where it\'s read'],
   ['mlp', 'computes, one position at a time', 'add two digits (task 3)',

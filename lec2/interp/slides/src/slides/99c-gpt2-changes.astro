@@ -6,9 +6,11 @@
   <div class="k">every position is graded</div>
   <div class="v">every row of every attention matrix is used, not just the last. the rows we threw away do real work</div>
   <div class="k">nobody hands out jobs</div>
-  <div class="v">we added one piece per task. gpt-2 gets 144 heads at once: some share a job, some split one, many can be pruned</div>
+  <div class="v">we added one piece per task, each with one job. gpt-2 gets 144 heads at once: few have a job that clean, most share or split one</div>
   <div class="k">more features than numbers</div>
   <div class="v">task 3's neurons each fired on sets of digits. in gpt-2 one neuron fires on many unrelated things: the stream packs in more than 768 features</div>
+  <div class="k">knockouts are blunt</div>
+  <div class="v">zero a gpt-2 head and you don't know everything it was doing: most heads do several things, and others step in for it (backup heads)</div>
   <div class="k">the circuits are still there</div>
   <div class="v">a previous-token head feeding a matching head is task 2: gpt-2's induction circuit (olsson et al. 2022). found with the same tools: knock out, probe, read QK and OV</div>
 </div>
