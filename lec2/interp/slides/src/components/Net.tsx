@@ -1,6 +1,7 @@
 /** @jsxImportSource preact */
 import { range, diverging, useData } from './viz';
 import { EMB, VOCAB } from './tinyEmbed';
+import './roles';
 
 /**
  * The network trained in a section, top to bottom: the input string, tokenized (one character = one token),
@@ -92,22 +93,22 @@ export default function Net({ text, layers, weights, pos = false }: { text: stri
         <text class="out" x={x(LAST)} y={out + 10}>highest-scoring token</text>
       </svg>
       <style>{`
-        .net svg { width: 100%; display: block; overflow: visible; max-height: 62cqh; }
+        .net svg { width: 100%; display: block; overflow: visible; max-height: 72cqh; }
         .net .lbl { font-family: var(--mono); font-size: 24px; fill: var(--muted); }
-        .net .sub { font-size: 18px; fill: var(--muted); opacity: .7; }
+        .net .sub { font-size: 20px; fill: var(--muted); opacity: .7; }
         .net .str { font-family: var(--mono); font-size: 40px; fill: var(--fg); text-anchor: middle; }
         .net .tbox { fill: var(--panel); stroke: var(--border); stroke-width: 1.5; }
         .net .tok { font-family: var(--mono); font-size: 34px; fill: var(--fg); text-anchor: middle; }
-        .net .tok.dg { fill: var(--hot); }
+        .net .tok.dg { fill: var(--digit); }
         .net .plus { font-family: var(--mono); font-size: 22px; fill: var(--muted); text-anchor: middle; }
         .net .id { font-family: var(--mono); font-size: 17px; fill: var(--muted); text-anchor: middle; }
         .net .arr { stroke: var(--faint); stroke-width: 2; fill: none; }
         .net .stream { stroke: var(--line); stroke-width: 8; stroke-linecap: round; }
         .net .stream.last { stroke: var(--steel-line); }
-        .net .band { fill: color-mix(in srgb, var(--accent) 08%, transparent); stroke: var(--accent); stroke-width: 2; }
-        .net .mlpbox { fill: color-mix(in srgb, var(--purple) 10%, transparent); stroke: var(--purple); stroke-width: 2; }
-        .net .unemb { fill: color-mix(in srgb, var(--good) 10%, transparent); stroke: var(--good); stroke-width: 2; }
-        .net .ulbl { font-family: var(--mono); font-size: 22px; fill: var(--good); text-anchor: middle; }
+        .net .band { fill: color-mix(in srgb, var(--attn) 08%, transparent); stroke: var(--attn); stroke-width: 2; }
+        .net .mlpbox { fill: color-mix(in srgb, var(--mlp) 10%, transparent); stroke: var(--mlp); stroke-width: 2; }
+        .net .unemb { fill: color-mix(in srgb, var(--answer) 10%, transparent); stroke: var(--answer); stroke-width: 2; }
+        .net .ulbl { font-family: var(--mono); font-size: 22px; fill: var(--answer); text-anchor: middle; }
         .net .out { font-family: var(--mono); font-size: 24px; fill: var(--fg); text-anchor: middle; }
       `}</style>
     </div>

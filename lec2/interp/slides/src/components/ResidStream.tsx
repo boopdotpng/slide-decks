@@ -1,7 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import { useSlideStep } from '../deck/hooks';
-import { range } from './viz';
+import { Tex, range } from './viz';
+import './roles';
 
 /**
  * One stream per position, running top to bottom (embedding first, the 36 scores last). Schematic, one layer. Every write is a chip on the stream,
@@ -26,7 +27,7 @@ const CAPS = [
   <>every position does the same, at once: one matmul, each reads only earlier streams</>,
   <>mlp: each position reads its own stream, <b>adds</b> back into it</>,
   <>unembed reads only the last stream → 36 scores</>,
-  <>nothing overwrites: <code>x = x + f(x)</code></>,
+  <>nothing overwrites: <Tex tex="x \leftarrow x + f(x)" /></>,
 ];
 
 const CAPS_NONE = [
@@ -117,44 +118,43 @@ export default function ResidStream({ layers = true }: { layers?: boolean }) {
       <div class="cap">
         <div class="caption">{layers ? CAPS[Math.min(step, CAPS.length - 1)] : step >= 4 ? CAPS_NONE[1] : CAPS_NONE[0]}</div>
         <div class="eq">
-          x = <span class="t emb">emb</span>
+          <Tex tex="x = \htmlClass{emb}{\text{emb}}" />
           {layers && <>
-            <span class={`fade ${step >= 1 ? 'on' : ''}`}> + <span class="t attn">attn</span></span>
-            <span class={`fade ${step >= 3 ? 'on' : ''}`}> + <span class="t mlp">mlp</span></span>
+            <span class={`fade ${step >= 1 ? 'on' : ''}`}> <Tex tex="+\, \htmlClass{attn}{\text{attn}}" /></span>
+            <span class={`fade ${step >= 3 ? 'on' : ''}`}> <Tex tex="+\, \htmlClass{mlp}{\text{mlp}}" /></span>
           </>}
         </div>
       </div>
       <style>{`
-        .resid svg { width: 100%; display: block; overflow: visible; }
+        .resid svg { width: 100%; display: block; overflow: visible; max-height: 66cqh; }
         .resid .lbl { font-family: var(--mono); font-size: 26px; fill: var(--muted); }
         .resid .col { transition: opacity .3s; }
         .resid .col.dim { opacity: .35; }
         .resid .stream { stroke: var(--raised-2); stroke-width: 6; stroke-linecap: round; }
-        .resid .stream.last { stroke: var(--good); stroke-width: 4; }
+        .resid .stream.last { stroke: var(--answer); stroke-width: 4; }
         .resid .tok { font-family: var(--mono); font-size: 40px; fill: var(--fg); text-anchor: middle; transition: fill .3s; }
-        .resid .tok.dg { fill: var(--hot); }
-        .resid .tok.cur { fill: var(--accent); }
+        .resid .tok.dg { fill: var(--digit); }
+        .resid .tok.cur { fill: var(--attn); }
         .resid .chip rect { stroke-width: 2; }
         .resid .chip path { stroke-width: 3; stroke-linecap: round; }
         .resid .chip.emb rect { fill: var(--raised); stroke: var(--muted); }
-        .resid .chip.attn rect { fill: color-mix(in srgb, var(--accent) 22%, var(--bg)); stroke: var(--accent); }
-        .resid .chip.attn path { stroke: var(--accent); }
-        .resid .chip.mlp rect { fill: color-mix(in srgb, var(--purple) 22%, var(--bg)); stroke: var(--purple); }
-        .resid .chip.mlp path { stroke: var(--purple); }
-        .resid .arcs path { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0; transition: opacity .4s; transition-delay: inherit; }
+        .resid .chip.attn rect { fill: color-mix(in srgb, var(--attn) 22%, var(--bg)); stroke: var(--attn); }
+        .resid .chip.attn path { stroke: var(--attn); }
+        .resid .chip.mlp rect { fill: color-mix(in srgb, var(--mlp) 22%, var(--bg)); stroke: var(--mlp); }
+        .resid .chip.mlp path { stroke: var(--mlp); }
+        .resid .arcs path { fill: none; stroke: var(--attn); stroke-width: 2; opacity: 0; transition: opacity .4s; transition-delay: inherit; }
         .resid .arcs.on path { opacity: .35; }
         .resid .arcs.on.one path { opacity: .85; stroke-width: 2.5; }
         .resid .arcs.on.past path { opacity: .12; }
-        .resid .loop { fill: none; stroke: var(--purple); stroke-width: 2.5; }
-        .resid .unemb { fill: color-mix(in srgb, var(--good) 10%, transparent); stroke: var(--good); stroke-width: 2; }
-        .resid .ulbl { font-family: var(--mono); font-size: 24px; fill: var(--good); text-anchor: middle; }
+        .resid .loop { fill: none; stroke: var(--mlp); stroke-width: 2.5; }
+        .resid .unemb { fill: color-mix(in srgb, var(--answer) 10%, transparent); stroke: var(--answer); stroke-width: 2; }
+        .resid .ulbl { font-family: var(--mono); font-size: 26px; fill: var(--answer); text-anchor: middle; }
         .resid .fade { transition: opacity .35s; }
         .resid .cap { display: flex; justify-content: space-between; align-items: baseline; gap: 1em; font-size: .8em; min-height: 2.6em; }
         .resid .eq { font-family: var(--mono); color: var(--muted); white-space: nowrap; }
-        .resid .eq .t.emb { color: var(--fg); }
-        .resid .eq .t.attn { color: var(--accent); }
-        .resid .eq .t.mlp { color: var(--purple); }
-        .resid code { white-space: nowrap; font-family: var(--mono); color: var(--fg); }
+
+        .resid .eq .emb { color: var(--fg); } .resid .eq .attn { color: var(--attn); } .resid .eq .mlp { color: var(--mlp); }
+        .resid .math { white-space: nowrap; color: var(--fg); }
       `}</style>
     </div>
   );

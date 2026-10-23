@@ -17,3 +17,4 @@ export * from './Zoom';
 export * from './StepCode';
 export * from './layout';
 export * from './Matrix';
+export * from './Tex';

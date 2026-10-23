@@ -2,11 +2,12 @@
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { useSlideStep } from '../deck/hooks';
+import './roles';
 
 /**
  * One task, worked by hand on one input. Each step marks tokens, draws arcs and adds a line of working:
- * blue arcs over the tokens are the last position looking something up, green arcs under them are a
- * value being copied to the end. The last step shows the answer. Steps = number of phases.
+ * arcs over the tokens (attention's color) are the last position looking something up, arcs under them (the digit's
+ * color) are a value being copied to the end. The last step shows the answer. Steps = number of phases.
  *
  *   <div data-steps="3"><Task client:load task="lookup" /></div>
  */
@@ -37,7 +38,7 @@ const TASKS: Record<string, Def> = {
 };
 
 // px per token, box width, box height, room above (lookups) and below (copies) the boxes for arcs
-const PITCH = 72, BOX = 62, BH = 72, ABOVE = 70, BELOW = 56;
+const PITCH = 92, BOX = 80, BH = 88, ABOVE = 80, BELOW = 70;
 const cx = (i: number) => i * PITCH + BOX / 2;
 const arcPath = ([a, b, c]: Arc) => {
   const h = 10 + Math.abs(a - b) * 8;
@@ -90,23 +91,23 @@ export default function Task({ task }: { task: keyof typeof TASKS }) {
         .task .seq svg { position: absolute; inset: 0; overflow: visible; }
         .task .toks { position: absolute; top: ${ABOVE}px; display: flex; gap: ${PITCH - BOX}px; }
         .task .c { position: relative; width: ${BOX}px; height: ${BH}px; display: grid; place-items: center; border-radius: 9px;
-          font-family: var(--mono); font-size: 1.5em; background: var(--panel); border: 1px solid var(--border);
+          font-family: var(--mono); font-size: 1.4em; background: var(--panel); border: 1px solid var(--border);
           transition: background .3s, border-color .3s, color .3s; }
-        .task .c.dg { color: var(--hot); }
-        .task .c.q { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
-        .task .c.v { border-color: var(--good); background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
+        .task .c.dg { color: var(--digit); }
+        .task .c.q { border-color: var(--attn); background: color-mix(in srgb, var(--attn) 18%, transparent); color: var(--attn); }
+        .task .c.v { border-color: var(--digit); background: color-mix(in srgb, var(--digit) 16%, transparent); color: var(--digit); }
         .task .to { color: var(--muted); font-size: 1.4em; margin: 0 .2em; }
         .task .c.out { color: var(--muted); border-style: dashed; }
-        .task .c.out.on { color: var(--good); border: 1px solid var(--good); background: color-mix(in srgb, var(--good) 16%, transparent); }
+        .task .c.out.on { color: var(--answer); border: 2px solid var(--answer); background: color-mix(in srgb, var(--answer) 16%, transparent); }
         .task .work { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: .35em; font-size: .8em; }
         .task .work li { transition: opacity .35s; }
         .task .work li.on:not(.now) { opacity: .55; }
-        .task b.q { color: var(--accent); font-family: var(--mono); }
-        .task b.v { color: var(--good); font-family: var(--mono); }
+        .task b.q { color: var(--attn); font-family: var(--mono); }
+        .task b.v { color: var(--digit); font-family: var(--mono); }
         .task .arc { fill: none; stroke-width: 3; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; transition: stroke-dashoffset .6s ease, opacity .2s; }
         .task .arc.on { stroke-dashoffset: 0; opacity: 1; }
-        .task .arc.q { stroke: var(--accent); } .task .arc.v { stroke: var(--good); }
-        .task .head.q { fill: var(--accent); } .task .head.v { fill: var(--good); }
+        .task .arc.q { stroke: var(--attn); } .task .arc.v { stroke: var(--digit); }
+        .task .head.q { fill: var(--attn); } .task .head.v { fill: var(--digit); }
       `}</style>
     </div>
   );

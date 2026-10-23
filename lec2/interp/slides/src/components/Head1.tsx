@@ -1,7 +1,8 @@
 /** @jsxImportSource preact */
 import { useEffect, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { DotRow, Mat, diverging, sequential, useIsland } from './viz';
+import { DotRow, Mat, SvgHtml, SvgTex, Tex, diverging, sequential, useIsland } from './viz';
+import './roles';
 
 /**
  * Task 1's head on one input, read the interp way, from public/data/head1.json (export_head1.py). Q, K and V are 32
@@ -37,22 +38,24 @@ function Lines({ x, y, lines, gap = 34, cls = 'note', on = true }: { x: number; 
 const CSS = `
   .h1 { display: flex; flex-direction: column; gap: .3em; width: 100%; }
   .h1 svg { width: 100%; display: block; overflow: visible; }
-  .h1 .mx .rl.dg { fill: var(--accent); }
   .h1 .big { font-family: var(--mono); font-size: 28px; fill: var(--fg); }
-  .h1 .note { font-size: 21px; fill: var(--muted); }
+  .h1 .note { font-size: 23px; fill: var(--muted); }
+  .h1 .svghtml { color: var(--muted); } .h1 .svghtml b { color: var(--fg); font-weight: 600; }
+  .h1 .svghtml .math { color: var(--fg); } .h1 .math .dg, .h1 .svghtml .dg { color: var(--digit); }
   .h1 .note tspan.b { fill: var(--fg); font-weight: 600; }
-  .h1 .note tspan.dg { fill: var(--accent); font-weight: 600; }
+  .h1 .note tspan.dg { fill: var(--digit); font-weight: 600; }
   .h1 .mono { font-family: var(--mono); fill: var(--fg); }
   .h1 .fd { opacity: 0; transition: opacity .35s; } .h1 .fd.on { opacity: 1; }
   .h1 .arr { stroke: var(--line-2); stroke-width: 2; fill: none; }
   .h1 .cap { font-size: .72em; min-height: 3em; max-width: 52em; }
   .h1 .cap b { font-family: var(--mono); color: var(--fg); }
-  .h1 .cap b.dg { color: var(--accent); }
-  .h1 .mx.mask .ct { font-size: 16px; }
-  .h1 .mx.att .ct { font-size: 17px; }
+  .h1 .cap b.dg { color: var(--digit); }
+  .h1 .mx.mask .ct { font-size: 19px; }
+  .h1 .mx.att .ct { font-size: 20px; }
+  .h1 .mx.sm .ct { font-size: 11.5px; }
   .h1 .mx.mask .ct.ninf { fill: var(--bad); font-weight: 700; font-size: 24px; }
   .h1 .mx.mask .ct.zero { fill: var(--faint); }
-  .h1 .later { font-size: .55em; color: var(--muted); border-left: 3px solid var(--accent); padding-left: .7em; max-width: 60em; }
+  .h1 .later { font-size: .6em; color: var(--muted); border-left: 3px solid var(--focus); padding-left: .7em; max-width: 60em; }
   .h1 .later b { color: var(--fg); }
 `;
 
@@ -67,7 +70,7 @@ export function HeadReads({ data }: { data: string }) {
   const r = d.trained, chars = [...d.text], L = chars.length - 1;
   const lab = (i: number) => (isD(chars[i]) ? 'dg' : '');
   const qc = r.q.map((q) => cos(q, r.q[L]));
-  const MX = 620, ys = [20, 215, 410], CH = 16, CW = 9;
+  const MX = 610, ys = [20, 228, 436], CH = 18, CW = 10;
   const mats: [string, M, ComponentChildren, ComponentChildren | ComponentChildren[]][] = [
     ['query', r.q, <>what this position is <tspan class="b">looking for</tspan></>, <>read through the <tspan class="b">keys</tspan></>],
     ['key', r.k, <>what this position <tspan class="b">offers</tspan> to be found by</>, <>read through the <tspan class="b">queries</tspan></>],
@@ -75,14 +78,14 @@ export function HeadReads({ data }: { data: string }) {
   ];
   return (
     <div class="h1" ref={root}>
-      <svg viewBox="0 0 1500 600">
-        <Mat data={r.x} x={90} y={170} cw={10} ch={28} color={div(scaleOf(r.x))} rowLabels={chars} labelCls={lab} name="the stream" />
+      <svg viewBox="0 0 1500 640">
+        <Mat data={r.x} x={80} y={170} cw={10} ch={32} color={div(scaleOf(r.x))} rowLabels={chars} labelCls={lab} name="the stream" />
         {mats.map(([name, m, role, read], i) => {
           const cy = ys[i] + (9 * CH) / 2;
           return (
             <g>
               <g class={`fd ${step >= 1 ? 'on' : ''}`}>
-                <path class="arr" d={`M 420 ${170 + 126} C 500 ${170 + 126}, 520 ${cy}, ${MX - 34} ${cy}`} />
+                <path class="arr" d={`M 412 ${170 + 144} C 492 ${170 + 144}, 512 ${cy}, ${MX - 34} ${cy}`} />
                 <Mat data={m} x={MX} y={ys[i]} cw={CW} ch={CH} color={div(scaleOf(m))} rowLabels={chars} labelCls={lab} name={name} />
               </g>
               <Lines x={MX + 32 * CW + 30} y={cy + 7} on={step === 1 || (step >= 2 && !(i === 0 && step >= 3))} lines={step >= 2 ? (Array.isArray(read) ? read : [read]) : [role]} />
@@ -92,9 +95,9 @@ export function HeadReads({ data }: { data: string }) {
         <g class={`fd ${step >= 3 ? 'on' : ''}`}>
           <text class="note" x={MX + 32 * CW + 30} y={ys[0] - 2}>similarity to <tspan class="b">a</tspan>'s query</text>
           {qc.map((c, i) => (
-            <text class="mono" style={{ fontSize: '14px' }} x={MX + 32 * CW + 30} y={ys[0] + i * CH + 13}>{c.toFixed(2)}</text>
+            <text class="mono" style={{ fontSize: '16px' }} x={MX + 32 * CW + 30} y={ys[0] + i * CH + 14}>{c.toFixed(2)}</text>
           ))}
-          <text class="note" x={MX + 32 * CW + 110} y={ys[0] + (9 * CH) / 2 + 6}>← every token is asking the same question</text>
+          <text class="note" x={MX + 32 * CW + 110} y={ys[0] + (9 * CH) / 2 + 6}>← every token asks the same thing</text>
         </g>
       </svg>
       <style>{CSS}</style>
@@ -107,6 +110,12 @@ export function HeadReads({ data }: { data: string }) {
  *   0 queries as rows, keys as columns   1 one score: a row · a column   2 all 81, filled cell by cell   3 ÷ √32
  *   4 the causal mask, and why   5 masked   6 softmax per row: the attention   7 the digit's column   8 the last row
  */
+/** the formula over the scores, as it grows step by step */
+const scoreTex = (step: number) => {
+  let t = step >= 3 ? '\\frac{q \\cdot k}{\\sqrt{32}}' : 'q \\cdot k';
+  if (step >= 5) t += ' + \\text{mask}';
+  return step >= 6 ? `\\mathrm{softmax}\\left(${t}\\right)` : t;
+};
 // a pause while the last step's dimming fades, the first row slowly enough to read each dot product, then the rest quickly
 const START_MS = 700, SLOW_MS = 420, FAST_MS = 45, fillDelay = (i: number) => (i === 0 ? START_MS : i <= 9 ? SLOW_MS : FAST_MS);
 export function HeadScores({ data }: { data: string }) {
@@ -134,15 +143,13 @@ export function HeadScores({ data }: { data: string }) {
   const sVis = (rr: number, c: number) => step >= 3 || (rr === L && c === best && step >= 1) || (step === 2 && rr * T + c < n);
   const mask = Array.from({ length: T }, (_, i) => Array.from({ length: T }, (_, c) => (c > i ? 1 : 0)));   // 1: hidden (−∞)
   const one = step === 1;
-  const Kp = { x: 420, y: 40, cw: 6, ch: 36 }, Qp = { x: 140, y: 280, cw: 7, ch: 36 }, Sp = { x: 420, y: 280, cw: 36, ch: 36 };
+  const Kp = { x: 420, y: 40, cw: 6, ch: 40 }, Qp = { x: 140, y: 276, cw: 7, ch: 40 }, Sp = { x: 420, y: 276, cw: 40, ch: 40 };
   // from the softmax on, the attention is the point: Q and K fade out and the grid grows (its cells' transforms animate)
-  const big = step >= 6, Ap = big ? { x: 150, y: 110, cw: 54, ch: 54 } : Sp;
+  const big = step >= 6, Ap = big ? { x: 150, y: 116, cw: 58, ch: 58 } : Sp;
   return (
     <div class="h1" ref={root} data-hold={String(START_MS + 9 * SLOW_MS + 72 * FAST_MS + 500)}>
-      <svg viewBox="0 0 1500 640">
-        <text class="big" style={{ fontSize: '23px' }} x={30} y={70}>
-          {step >= 6 ? 'softmax(' : ''}q · k{step >= 3 ? ' / √32' : ''}{step >= 5 ? ' + mask' : ''}{step >= 6 ? ')' : ''}
-        </text>
+      <svg viewBox="0 0 1500 680">
+        <SvgTex x={30} y={58} size={26} class="eqn" tex={scoreTex(step)} />
         <Lines x={30} y={130} on={!big} lines={[<>row: who's asking (<tspan class="b">query</tspan>)</>, <>column: who it looks at (<tspan class="b">key</tspan>)</>]} />
         <g class={`fd ${big ? '' : 'on'}`}>
         <Mat data={r.q} {...Qp} color={div(sq)} rowLabels={chars} labelCls={lab} name="queries" hlRows={one ? [L] : sweep ? [cr] : []} dim={one} />
@@ -159,27 +166,28 @@ export function HeadScores({ data }: { data: string }) {
               la={`${chars[qi]}'s query`} lb={`${chars[ki]}'s key`} sum={<>Σ = {r.raw[qi][ki].toFixed(1)}  → row {chars[qi]}, column {chars[ki]}</>} />
           );
         })()}
-        <Lines x={840} y={90} on={step === 3} lines={[
-          <><tspan class="b">a</tspan> · <tspan class="dg">7</tspan>:  {r.raw[L][best].toFixed(1)} ÷ √32 = <tspan class="b">{scaled[L][best].toFixed(1)}</tspan></>,
-          '',
-          'keeps the scores from blowing up',
-        ]} />
+        <g class={`fd ${step === 3 ? 'on' : ''}`}>
+          <SvgTex x={840} y={86} size={26} tex={`q_{a} \\cdot k_{\\htmlClass{dg}{7}} \\,/\\, \\sqrt{32} = \\frac{${r.raw[L][best].toFixed(1)}}{\\sqrt{32}} = ${scaled[L][best].toFixed(1)}`} />
+          <text class="note" x={840} y={176}>keeps the scores from blowing up</text>
+        </g>
         <g class={`fd ${step === 4 || step === 5 ? 'on' : ''}`}>
           <Mat data={mask} x={1050} y={80} cw={42} ch={42} class="mask" gap={2}
             color={(v) => (v ? 'color-mix(in srgb, var(--bad) 28%, var(--surface))' : 'var(--surface)')}
             text={(v) => (v ? '−∞' : '0')} textCls={(v) => (v ? 'ninf' : 'zero')}
             rowLabels={chars} colLabels={chars} labelCls={lab} name="mask" />
-          <Lines x={820} y={110} lines={['+ 0: allowed', '+ −∞: hidden']} />
+          <SvgHtml x={820} y={102} size={23}><Tex tex="+\,0" /> allowed</SvgHtml>
+          <SvgHtml x={820} y={142} size={23}><Tex tex="+\,(-\infty)" /> hidden</SvgHtml>
           <Lines x={820} y={545} lines={[<>gpt: <tspan class="b">cat</tspan> must not see <tspan class="b">sat</tspan></>]} />
         </g>
-        <Lines x={840} y={110} on={step === 6} lines={[
-          <>each row: <tspan class="mono">e^s / Σ e^s</tspan></>,
-          '',
-          <><tspan class="b">a</tspan>'s row:</>,
-          <tspan class="mono" style={{ fontSize: '17px' }}>{(r.scores[L] as number[]).map((v) => v.toFixed(1)).join('  ')}</tspan>,
-          <tspan class="mono" style={{ fontSize: '17px' }}>→ {(r.attn[L] as number[]).map(pct).join('  ')}</tspan>,
-        ]} />
-        <Lines x={840} y={290} on={step === 7} lines={[
+        <g class={`fd ${step === 6 ? 'on' : ''}`}>
+          <SvgHtml x={760} y={110} size={23} h={90}>each row: <Tex tex="\mathrm{softmax}(s)_j = \dfrac{e^{s_j}}{\sum_{k} e^{s_k}}" /> (<Tex tex="k" /> over the row)</SvgHtml>
+          <Lines x={760} y={210} lines={[
+            <><tspan class="b">a</tspan>'s row:</>,
+            <tspan class="mono" style={{ fontSize: '19px' }}>{(r.scores[L] as number[]).map((v) => v.toFixed(1)).join('  ')}</tspan>,
+            <tspan class="mono" style={{ fontSize: '19px' }}>→ {(r.attn[L] as number[]).map(pct).join('  ')}</tspan>,
+          ]} />
+        </g>
+        <Lines x={760} y={290} on={step === 7} lines={[
           <>every row from the <tspan class="b">7</tspan> down: ~100% on the <tspan class="b">7</tspan></>,
           <>every position that can see the digit finds it</>,
           '',
@@ -216,8 +224,8 @@ export function HeadAsk({ data }: { data: string }) {
   return (
     <div class="h1" ref={root}>
       <svg viewBox="0 0 1500 480">
-        <Lines x={X0} y={30} lines={[<>if any of the 36 tokens were in the input, how much would <tspan class="b">a</tspan>'s query want to look at it?</>,
-          <><tspan class="b">a</tspan>'s query · each token's key, ÷ √32, sorted</>]} />
+        <Lines x={X0} y={30} lines={[<>if any of the 36 tokens were in the input, how much would <tspan class="b">a</tspan>'s query want to look at it?</>]} />
+        <SvgHtml x={X0} y={66} size={23}><Tex tex="q_{a} \cdot k_{t} \,/\, \sqrt{32}" /> for every token <Tex tex="t" />, sorted</SvgHtml>
         <g class={`fd ${step >= 1 ? 'on' : ''}`}>
           <text class="big" x={X0 + 12 * BAND} y={Y0 - 150}>"is this a digit?"</text>
           <Lines x={X0 + 12 * BAND} y={Y0 - 105} lines={[<>every digit &gt; every letter · <tspan class="b">{agree} / {nLetters}</tspan> letters' queries agree</>]} />
@@ -228,7 +236,7 @@ export function HeadAsk({ data }: { data: string }) {
           return (
             <g class="askb" style={{ opacity: on ? 1 : 0.1 }}>
               <rect x={X0 + j * BAND + 6} width={BAND - 12} y={Math.min(Y0, Y0 - v * PX)} height={Math.max(1, Math.abs(v) * PX)} rx="2"
-                style={{ fill: isD(t) ? 'var(--accent)' : 'var(--faint)' }} />
+                style={{ fill: isD(t) ? 'var(--digit)' : 'var(--faint)' }} />
               <text class={`al ${isD(t) ? 'dg' : ''} ${inInput(t) ? 'in' : ''}`} x={X0 + j * BAND + BAND / 2} y={Y0 + 8 * PX + 34}>{t}</text>
               {inInput(t) && <circle class="dot" cx={X0 + j * BAND + BAND / 2} cy={Y0 + 8 * PX + 48} r="4" />}
               {(t === d.answer || (step === 0 && inInput(t))) && (
@@ -237,15 +245,15 @@ export function HeadAsk({ data }: { data: string }) {
             </g>
           );
         })}
-        <text class="note" x={X0} y={Y0 + 8 * PX + 80}><tspan style={{ fill: 'var(--accent)' }}>●</tspan> in this input</text>
+        <text class="note" x={X0} y={Y0 + 8 * PX + 80}><tspan style={{ fill: 'var(--focus)' }}>●</tspan> in this input</text>
       </svg>
       <style>{CSS + `
         .h1 .zero { stroke: var(--raised-2); }
         .h1 .askb { transition: opacity .5s; }
-        .h1 .al { font-family: var(--mono); font-size: 20px; fill: var(--muted); text-anchor: middle; }
-        .h1 .al.dg { fill: var(--accent); } .h1 .al.in { fill: var(--fg); font-weight: 700; } .h1 .al.dg.in { fill: var(--accent); }
-        .h1 .dot { fill: var(--accent); }
-        .h1 .av { font-family: var(--mono); font-size: 14px; fill: var(--fg); text-anchor: middle; }
+        .h1 .al { font-family: var(--mono); font-size: 22px; fill: var(--muted); text-anchor: middle; }
+        .h1 .al.dg { fill: var(--digit); } .h1 .al.in { fill: var(--fg); font-weight: 700; } .h1 .al.dg.in { fill: var(--digit); }
+        .h1 .dot { fill: var(--focus); }
+        .h1 .av { font-family: var(--mono); font-size: 16px; fill: var(--fg); text-anchor: middle; }
       `}</style>
     </div>
   );
@@ -279,7 +287,7 @@ export function HeadValue({ data }: { data: string }) {
         <line class="zero" x1={BX} x2={BX + 36 * BAND} y1={y} y2={y} />
         {vals.map((v, i) => (
           <rect class="vb" x={BX + i * BAND + 4} width={BAND - 8} y={v >= 0 ? y - v * PX : y} height={Math.max(1, Math.abs(v) * PX)} rx="2"
-            style={{ fill: isD(toks[i]) ? 'var(--accent)' : 'var(--faint)', transform: `scaleY(${scale})`, transformOrigin: v >= 0 ? 'bottom' : 'top' }} />
+            style={{ fill: isD(toks[i]) ? 'var(--digit)' : 'var(--faint)', transform: `scaleY(${scale})`, transformOrigin: v >= 0 ? 'bottom' : 'top' }} />
         ))}
         {peak && <text class="pv" x={BX + b * BAND + BAND / 2} y={y - vals[b] * PX * scale - 6}>{vals[b].toFixed(1)}</text>}
       </g>
@@ -319,12 +327,12 @@ export function HeadValue({ data }: { data: string }) {
       {/* the rows need the room, so the note only comes with the last step */}
       {step >= 3 && <div class="later"><b>for later:</b> read V through <b>whoever reads it</b>. here that's the unembedding; with more layers, the next layer's queries and keys</div>}
       <style>{CSS + `
-        .h1 .hd { font-size: 17px; fill: var(--muted); }
-        .h1 .tl { font-family: var(--mono); font-size: 15px; fill: var(--muted); text-anchor: middle; } .h1 .tl.dg { fill: var(--accent); }
-        .h1 .rt { font-family: var(--mono); font-size: 24px; fill: var(--fg); } .h1 .rt.dg { fill: var(--accent); }
-        .h1 .sy { font-family: var(--mono); font-size: 24px; fill: var(--muted); font-weight: 700; } .h1 .sy.dg { fill: var(--accent); }
-        .h1 .ap { font-family: var(--mono); font-size: 14px; fill: var(--fg); text-anchor: middle; } .h1 .ap.inv { fill: var(--bg); }
-        .h1 .pv { font-family: var(--mono); font-size: 13px; fill: var(--fg); text-anchor: middle; transition: opacity .4s; }
+        .h1 .hd { font-size: 19px; fill: var(--muted); }
+        .h1 .tl { font-family: var(--mono); font-size: 17px; fill: var(--muted); text-anchor: middle; } .h1 .tl.dg { fill: var(--digit); }
+        .h1 .rt { font-family: var(--mono); font-size: 26px; fill: var(--fg); } .h1 .rt.dg { fill: var(--digit); }
+        .h1 .sy { font-family: var(--mono); font-size: 26px; fill: var(--muted); font-weight: 700; } .h1 .sy.dg { fill: var(--digit); }
+        .h1 .ap { font-family: var(--mono); font-size: 16px; fill: var(--fg); text-anchor: middle; } .h1 .ap.inv { fill: var(--bg); }
+        .h1 .pv { font-family: var(--mono); font-size: 15px; fill: var(--fg); text-anchor: middle; transition: opacity .4s; }
         .h1 .zero { stroke: var(--raised-2); } .h1 .sep { stroke: var(--border); }
         .h1 .vrow { transition: opacity .5s; }
         .h1 .vb { transform-box: fill-box; transition: transform .8s cubic-bezier(.5, 0, .2, 1); }

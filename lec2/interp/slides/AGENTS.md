@@ -12,7 +12,7 @@ Astro + Preact. `bun dev`, `bun run build`, `bun run check`, `bun run record` (m
 
 - Islands render purely from `step` (no accumulated state), so ←, the picker, reload at `#5.2` and print all work. Put per-step content in one table at the top of the file (see `TemplateIsland.tsx`, `demos/`).
 - Wrap an island in `<div data-steps="N">` with N = its last step index. Use `client:load`.
-- Formulas: `components/Math.astro` (KaTeX, build time). Reuse `components/viz` before writing new marks or animations; if a new animation looks reusable, add it there (props-driven, styles in `styles/viz.css`) rather than inline in a deck-specific island.
+- Formulas: `components/Math.astro` (KaTeX, build time) in slides, `Tex` / `SvgTex` / `SvgHtml` from `viz` in islands. Any formula (subscripts, greek, softmax, matmuls) goes through KaTeX, not plain text. Reuse `components/viz` before writing new marks or animations; if a new animation looks reusable, add it there (props-driven, styles in `styles/viz.css`) rather than inline in a deck-specific island.
 - Content slides start with `<header>` (`.section` kicker, `h2`, `p.sub`): it pins them to the top and centers the rest below; `class="fill"` on the content gives it all the room.
 - Slides are laid out on a 1600×900 canvas scaled to the window: size in px / em, `cqw` / `cqh` for % of the slide, never `vw` / `vh`. DOM measurements are screen px: use `box()` or divide by `deckScale()`.
 - Island-specific styles go in a `<style>` inside the island, scoped by its root class.

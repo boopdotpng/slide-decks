@@ -1,0 +1,17 @@
+/* what each color means in this deck, so every slide uses the same one for the same thing (values: styles/deck.css).
+   Imported by the islands (roles.ts); plain slides can use the vars too, since the css lands on the one page */
+:root {
+  --digit: var(--hot);      /* a digit token, wherever it's drawn: text, bars, chart series */
+  --answer: var(--good);    /* the answer / output, a right result. wrong: var(--bad) */
+  --attn: var(--accent);    /* attention, and layer 1's head and what it writes */
+  --l2: var(--purple);      /* layer 2's head and what it writes */
+  --mlp: var(--teal);       /* the mlp */
+  --key-a: var(--accent);   /* two-key tasks: the first lookup (f, its value, its head) */
+  --key-b: var(--pink);     /* the second lookup (c, its value, its head) */
+  --focus: var(--yellow);   /* "look here": outlined cells, callouts, the gradient */
+}
+
+/* outlines on matrix cells (viz Mat) mean "look here" */
+:root .mx .hlbox { stroke: var(--focus); stroke-width: 3; }
+/* digits in matrix row / column labels */
+:root .mx .rl.dg { fill: var(--digit); }

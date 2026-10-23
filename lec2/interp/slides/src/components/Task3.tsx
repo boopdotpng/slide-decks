@@ -1,12 +1,14 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
-import { Bars, Mat, diverging, range, sequential, useIsland } from './viz';
-import { AM_CSS, AttnMatrix, CH, STREAM_CSS, Streams, ValueRead, type Arc, type Chip } from './Task2';
+import { Bars, Mat, Tex, diverging, range, sequential, useIsland } from './viz';
+import { AM_CSS, AttnEq, AttnMatrix, CH, Input, STREAM_CSS, Streams, ValueRead, type Arc, type Chip } from './Task2';
+import './roles';
 
 /**
  * Task 3, two-key sum (a2f5c9d3fc → (5 + 9) mod 10 = 4): task 2's two heads fetch both values, an MLP after layer 2 adds
  * them. Everything trained comes from public/data/task3w.json (export_task3.py). The head slides reuse task 2's views
- * (AttnMatrix, ValueRead), so every task reads the same way. Colors as in task 2: layer 1 accent, layer 2 purple.
+ * (AttnMatrix, ValueRead), so every task reads the same way. Colors: roles.css (layer 1 --attn, layer 2 --l2, the mlp --mlp,
+ * f's lookup --key-a, c's --key-b).
  */
 const TEXT = 'a2f5c9d3fc';
 const N = TEXT.length, LAST = N - 1;
@@ -43,7 +45,7 @@ const INTRO_CAPS: ComponentChildren[] = [
  *   3 attention only: 27% (1 head per layer), 30% (2 heads)   4 plus an mlp: 98%
  */
 
-/** a2f5c9d3 fc as four key · value pills and the two queries; colour does the lookup (f's pair and query blue, c's purple)
+/** a2f5c9d3 fc as four key · value pills and the two queries; colour does the lookup (f's pair and query --key-a, c's --key-b)
  *   0 the input   1 each query lights its pair   2 add: 5 + 9 = 14 → 4 */
 function PairSum({ step }: { step: number }) {
   const PAIRS = [['a', '2', ''], ['f', '5', 'a'], ['c', '9', 'b'], ['d', '3', '']];
@@ -54,11 +56,11 @@ function PairSum({ step }: { step: number }) {
   return (
     <div class="ps">
       <div class="seq">
-        <svg class={`cp ${lit ? 'on' : ''}`} width="776" height="150">
+        <svg class={`cp ${lit ? 'on' : ''}`} width="906" height="170">
           {/* each looked-up value comes down and over to the last query: px from the fixed layout below */}
-          <path class="a" pathLength={1} d="M 258 88 C 258 140, 744 140, 744 92" />
-          <path class="b" pathLength={1} d="M 412 88 C 412 122, 744 122, 744 92" />
-          <path class="tip a" d="M 737 103 L 744 91 L 751 103" /><path class="tip b" d="M 737 103 L 744 91 L 751 103" />
+          <path class="a" pathLength={1} d="M 300 98 C 300 158, 868 158, 868 102" />
+          <path class="b" pathLength={1} d="M 480 98 C 480 138, 868 138, 868 102" />
+          <path class="tip a" d="M 861 113 L 868 101 L 875 113" /><path class="tip b" d="M 861 113 L 868 101 L 875 113" />
         </svg>
         {PAIRS.map(([k, v, c]) => (
           <span class={`pair ${lit ? (c || 'off') : ''}`}><span class="c">{k}</span><span class="c dg">{v}</span></span>
@@ -71,28 +73,28 @@ function PairSum({ step }: { step: number }) {
       <div class="say">{say[Math.min(step, 2)]}</div>
       <style>{`
         .ps { display: flex; flex-direction: column; gap: .6em; }
-        .ps .seq { position: relative; display: flex; align-items: center; gap: 12px; margin-bottom: 44px; }
+        .ps .seq { position: relative; display: flex; align-items: center; gap: 14px; margin-bottom: 50px; }
         .ps .cp { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
         .ps .cp path { fill: none; stroke-width: 3; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .6s ease; }
         .ps .cp .tip { stroke-dasharray: none; opacity: 0; transition: opacity .2s .5s; }
         .ps .cp.on path { stroke-dashoffset: 0; } .ps .cp.on .tip { opacity: 1; }
-        .ps .cp .a { stroke: var(--accent); } .ps .cp .b { stroke: var(--purple); }
-        .ps .pair, .ps .qs { display: flex; gap: 4px; padding: 5px; border-radius: 12px; border: 2px solid var(--border); transition: border-color .3s, background .3s, opacity .3s; }
-        .ps .qs { margin-left: 24px; border-style: dashed; }
-        .ps .c { width: 62px; height: 72px; display: grid; place-items: center; border-radius: 8px; font-family: var(--mono); font-size: 1.5em;
+        .ps .cp .a { stroke: var(--key-a); } .ps .cp .b { stroke: var(--key-b); }
+        .ps .pair, .ps .qs { display: flex; gap: 5px; padding: 6px; border-radius: 12px; border: 2px solid var(--border); transition: border-color .3s, background .3s, opacity .3s; }
+        .ps .qs { margin-left: 28px; border-style: dashed; }
+        .ps .c { width: 72px; height: 84px; display: grid; place-items: center; border-radius: 8px; font-family: var(--mono); font-size: 1.4em;
                  background: var(--raised); color: var(--fg); transition: background .3s, color .3s; }
-        .ps .c.dg { color: var(--hot); }
+        .ps .c.dg { color: var(--digit); }
         .ps .pair.off { opacity: .3; }
-        .ps .pair.a { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); }
-        .ps .pair.b { border-color: var(--purple); background: color-mix(in srgb, var(--purple) 15%, transparent); }
-        .ps .c.q.a { color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, var(--raised)); }
-        .ps .c.q.b { color: var(--purple); background: color-mix(in srgb, var(--purple) 22%, var(--raised)); }
+        .ps .pair.a { border-color: var(--key-a); background: color-mix(in srgb, var(--key-a) 15%, transparent); }
+        .ps .pair.b { border-color: var(--key-b); background: color-mix(in srgb, var(--key-b) 15%, transparent); }
+        .ps .c.q.a { color: var(--key-a); background: color-mix(in srgb, var(--key-a) 22%, var(--raised)); }
+        .ps .c.q.b { color: var(--key-b); background: color-mix(in srgb, var(--key-b) 22%, var(--raised)); }
         .ps .to { color: var(--muted); font-size: 1.4em; margin: 0 .2em; }
         .ps .c.out { background: none; border: 2px dashed var(--border); color: var(--muted); }
-        .ps .c.out.on { border: 2px solid var(--good); color: var(--good); background: color-mix(in srgb, var(--good) 15%, transparent); }
+        .ps .c.out.on { border: 2px solid var(--answer); color: var(--answer); background: color-mix(in srgb, var(--answer) 15%, transparent); }
         .ps .say { font-size: .85em; color: var(--muted); min-height: 1.4em; }
-        .ps .say b { color: var(--fg); font-family: var(--mono); } .ps .say b.a { color: var(--accent); } .ps .say b.b { color: var(--purple); }
-        .ps .say b.g { color: var(--good); } .ps .say .m { font-size: .8em; }
+        .ps .say b { color: var(--fg); font-family: var(--mono); } .ps .say b.a { color: var(--key-a); } .ps .say b.b { color: var(--key-b); }
+        .ps .say b.g { color: var(--answer); } .ps .say .m { font-size: .8em; }
       `}</style>
     </div>
   );
@@ -111,7 +113,7 @@ export function Intro() {
           {d && <Bars width={560} max={100} hl={s >= 1 ? 2 : undefined}
             labels={names.map((n, i) => <span class={`fade ${i < 2 || s >= 1 ? 'on' : ''}`}>{n}</span>)}
             values={d.shapes.map(([, a], i) => (i < 2 || s >= 1 ? a : 0))}
-            color={(_, i) => (i === 2 ? 'var(--good)' : 'var(--faint)')}
+            color={(_, i) => (i === 2 ? 'var(--answer)' : 'var(--faint)')}
             fmtV={(v) => (v ? `${v.toFixed(0)}%` : '')} />}
           <div class="ax">test accuracy, 2 layers</div>
         </div>
@@ -120,8 +122,8 @@ export function Intro() {
         .t3i { display: flex; flex-direction: column; gap: .4em; width: 100%; }
         .t3i .task .work { gap: .1em; font-size: .72em; } .t3i .task .work li { margin: 0; }
         .t3i .acc { margin-top: .4em; padding: .6em 1em .7em; border: 2px solid var(--border); border-radius: 12px; background: var(--panel); transition: opacity .35s, border-color .35s; }
-        .t3i .acc.win { border-color: var(--good); }
-        .t3i .cap { font-size: .85em; color: var(--fg); margin-bottom: .4em; } .t3i .cap b { color: var(--good); }
+        .t3i .acc.win { border-color: var(--answer); }
+        .t3i .cap { font-size: .85em; color: var(--fg); margin-bottom: .4em; } .t3i .cap b { color: var(--answer); }
         .t3i .accrow { display: flex; align-items: center; gap: 1.2em; font-size: 1.15em; }
         .t3i .fade { transition: opacity .35s; } .t3i .fade:not(.on) { opacity: 0; }
         .t3i .ax { font-size: .55em; color: var(--muted); }
@@ -132,27 +134,15 @@ export function Intro() {
 
 // ── the heads, in task 2's format ────────────────────────────────────────────
 const ROLES = ['k1', 'v1', 'k2', 'v2', 'k3', 'v3', 'k4', 'v4', 'q1', 'q2'];
-/** the input and its answer, over the matrices, like task 2's layer 1 slide */
-function Prompt() {
-  return (
-    <div class="t3in">
-      {[...TEXT].map((c, i) => <span class="ic"><b class={/\d/.test(c) ? 'dg' : ''}>{c}</b><i>{ROLES[i]}</i></span>)}
-      <span class="ar">→ 4</span>
-    </div>
-  );
-}
+/** the input and its answer, at the top of the side notes, like task 2's slides */
+const Prompt = () => <Input chars={[...TEXT]} roles={ROLES} answer="4" />;
 const HEAD_CSS = AM_CSS + STREAM_CSS + `
   .t3col { display: flex; flex-direction: column; gap: .3em; }
-  .t3in { display: flex; gap: .5em; align-items: flex-end; font-size: .7em; }
-  .t3in .ic { display: flex; flex-direction: column; align-items: center; min-width: 1.6em; }
-  .t3in .ic b { font-family: var(--mono); font-size: 1.2em; color: var(--fg); } .t3in .ic b.dg { color: var(--hot); }
-  .t3in .ic i { font-size: .5em; font-style: normal; color: var(--muted); }
-  .t3in .ar { font-family: var(--mono); color: var(--good); margin: 0 0 .55em .4em; font-weight: 700; }
   .t3a { display: flex; gap: 2em; align-items: center; }
   .t3a .side { display: flex; flex-direction: column; gap: .8em; font-size: .64em; max-width: 22em; color: var(--muted); }
-  .t3a .side b { color: var(--fg); } .t3a .side b.dg { color: var(--hot); }
-  .t3a .side .tg { font-family: var(--mono); color: var(--accent); font-weight: 600; }
-  .t3a .side .l1c { color: var(--accent); font-weight: 600; } .t3a .side .l2c { color: var(--purple); font-weight: 600; }
+  .t3a .side b { color: var(--fg); } .t3a .side b.dg { color: var(--digit); }
+  .t3a .side .tg { font-family: var(--mono); color: var(--attn); font-weight: 600; }
+  .t3a .side .l1c { color: var(--attn); font-weight: 600; } .t3a .side .l2c { color: var(--l2); font-weight: 600; }
   .t3a.wide { flex-direction: column; gap: .4em; align-items: stretch; }
   .t3a.wide .side { max-width: none; font-size: .72em; }
 `;
@@ -167,10 +157,11 @@ export function L1() {
   const back = [...VALS, LAST].map((v) => [v, v - 1] as [number, number]);
   return (
     <div class="t3col" ref={root}>
-    <Prompt />
     <div class="t2s t3a">
       <AttnMatrix chars={chars} att={att} keep={[...VALS, LAST]} dim hlCells={back} roles={ROLES} note={[LAST, 'new!']} />
       <div class="side">
+        <Prompt />
+        <AttnEq />
         <div>every digit looks <b>one back</b>, as in task 2 ({pct1(Math.min(...ob))}–{pct1(Math.max(...ob))})</div>
       </div>
     </div>
@@ -192,10 +183,11 @@ export function L2() {
   const letterCols = range(N).filter((i) => !VALS.includes(i));
   return (
     <div class="t3col" ref={root}>
-    <Prompt />
     <div class="t2s t3a">
       <AttnMatrix chars={chars} att={att} keep={[LAST]} dim hlCells={[[LAST, 3], [LAST, 5]]} tags={tags} greyCols={letterCols} roles={ROLES} />
       <div class="side">
+        <Prompt />
+        <AttnEq />
         {step === 0 && <>
           <div>the c splits: <b>{pct(A[3])}</b> on the <b class="dg">5</b>, <b>{pct(A[5])}</b> on the <b class="dg">9</b></div>
           <div>its stream holds two letters, so it asks two questions</div>
@@ -209,7 +201,7 @@ export function L2() {
       </div>
     </div>
       <style>{HEAD_CSS + `
-        .t3a b.dg { color: var(--hot); }
+        .t3a b.dg { color: var(--digit); }
         .t3a .side { max-width: 30em; }
         .t3a .qk .h, .t3a .qk > div:not(.note) { white-space: nowrap; }
         .t3a .qk { display: grid; grid-template-columns: auto auto auto auto; gap: .35em 1.2em; align-items: center; color: var(--muted); }
@@ -218,7 +210,7 @@ export function L2() {
         .t3a .qk .note { grid-column: 1 / -1; font-size: .9em; margin-top: .3em; }
         .t3a .ch { display: inline-block; font-family: var(--mono); font-weight: 600; padding: 0 .45em; border-radius: 5px; border: 2px solid; margin-right: .3em; }
         .t3a .ch.tok { background: var(--raised); border-color: var(--line-2); color: var(--fg); }
-        .t3a .ch.l1 { background: color-mix(in srgb, var(--accent) 20%, var(--bg)); border-color: var(--accent); color: var(--accent); }
+        .t3a .ch.l1 { background: color-mix(in srgb, var(--attn) 20%, var(--bg)); border-color: var(--attn); color: var(--attn); }
       `}</style>
     </div>
   );
@@ -291,10 +283,10 @@ export function MlpWhere() {
       </div>
       <style>{STREAM_CSS + `
         .t3w .below { display: flex; gap: 2.4em; align-items: flex-start; }
-        .t3w .cap { flex: 1; font-size: .72em; color: var(--muted); } .t3w .cap b { color: var(--fg); } .t3w .cap b.dg { color: var(--hot); }
+        .t3w .cap { flex: 1; font-size: .72em; color: var(--muted); } .t3w .cap b { color: var(--fg); } .t3w .cap b.dg { color: var(--digit); }
         .t3w .ex { flex: none; display: grid; grid-template-columns: auto auto; gap: .3em 1.4em; font-size: .6em; color: var(--muted); }
         .t3w .ex .h { font-size: .85em; border-bottom: 1px solid var(--border); padding-bottom: .2em; }
-        .t3w .ex .n { font-family: var(--mono); text-align: right; color: var(--fg); } .t3w .ex b { color: var(--good); }
+        .t3w .ex .n { font-family: var(--mono); text-align: right; color: var(--fg); } .t3w .ex b { color: var(--answer); }
         .t3w .fade { transition: opacity .35s; } .t3w .fade:not(.on) { opacity: 0; }
       `}</style>
     </div>
@@ -323,8 +315,8 @@ export function MlpOps() {
   const caps: ComponentChildren[] = [
     <><b>up</b>: 32 numbers → 64, one per <b>neuron</b></>,
     <><b>relu</b>: below zero → 0. a neuron <b>fires</b> if positive: {fired} of 64 on the last row</>,
-    <><b>down</b>: each firing neuron adds its row of W_down</>,
-    <><b>add</b> it back into the stream: 32 in, 32 out</>,
+    <><b>down</b>: each firing neuron adds its row of <Tex tex="W_{\text{down}}" /></>,
+    <><b>add</b> it back into the stream: <Tex tex="x \leftarrow x + \mathrm{relu}(x W_{\text{up}})\, W_{\text{down}}" />, 32 in, 32 out</>,
     <>only the last row is read: from here on, <b>only the last row</b></>,
   ];
   return (
@@ -351,13 +343,12 @@ export function MlpOps() {
       <style>{`
         .t3o { display: flex; flex-direction: column; gap: .4em; width: 100%; }
         .t3o svg { width: 100%; display: block; overflow: visible; }
-        .t3o .mx .rl.dg { fill: var(--hot); }
-        .t3o .op { font-family: var(--mono); font-size: 22px; fill: var(--fg); text-anchor: middle; }
-        .t3o .loop { fill: none; stroke: var(--good); stroke-width: 2.5; marker-end: none; }
-        .t3o .loopl { font-size: 20px; fill: var(--good); text-anchor: middle; }
+        .t3o .op { font-family: var(--mono); font-size: 24px; fill: var(--fg); text-anchor: middle; }
+        .t3o .loop { fill: none; stroke: var(--mlp); stroke-width: 2.5; marker-end: none; }
+        .t3o .loopl { font-size: 22px; fill: var(--mlp); text-anchor: middle; }
         .t3o .fd { opacity: 0; transition: opacity .35s; } .t3o .fd.on { opacity: 1; }
         .t3o .cap { font-size: .72em; color: var(--muted); min-height: 3em; max-width: 56em; }
-        .t3o .cap b { color: var(--fg); }
+        .t3o .cap b, .t3o .cap .math { color: var(--fg); }
       `}</style>
     </div>
   );
@@ -422,7 +413,7 @@ export function KeyValue() {
         .t3k { display: flex; flex-direction: column; gap: .8em; width: 100%; }
         .t3k .kv { display: grid; grid-template-columns: auto 1fr 1fr; gap: .45em 2em; font-size: .62em; color: var(--muted); }
         .t3k .kv .h { color: var(--fg); font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: .2em; }
-        .t3k .kv .k { font-family: var(--mono); color: var(--accent); }
+        .t3k .kv .k { font-family: var(--mono); color: var(--attn); }
         .t3k b { color: var(--fg); }
         .t3k .fade { transition: opacity .35s; } .t3k .fade:not(.on) { opacity: 0; }
         .t3k svg { overflow: visible; display: block; }
@@ -430,7 +421,7 @@ export function KeyValue() {
         .t3k .sl { font-family: var(--mono); font-size: 16px; fill: var(--muted); text-anchor: middle; }
         .t3k .pv { font-family: var(--mono); font-size: 14px; fill: var(--bg); text-anchor: middle; font-weight: 700; }
         .t3k .note { font-size: 18px; fill: var(--muted); text-anchor: end; }
-        .t3k rect.hl { stroke: var(--hot); stroke-width: 2; }
+        .t3k rect.hl { stroke: var(--focus); stroke-width: 2; }
         .t3k .cap { font-size: .66em; color: var(--muted); min-height: 2.6em; }
       `}</style>
     </div>
@@ -471,13 +462,13 @@ export function Patterns() {
   const hmax = (k: number) => Math.max(...g.h[k].flat(), 1e-9);
   const kk = step >= 1 ? 64 : 0, tk = g.topk.find((t) => t.k === (kk || 8))!;
   const mix = (c: string, t: number) => `color-mix(in srgb, ${c} ${Math.round(t * 100)}%, var(--raised))`;
-  const right = (v: number) => (v >= 0.5 ? mix('var(--good)', 0.2 + 0.5 * v) : mix('var(--bad)', 0.6 - 0.5 * v));
+  const right = (v: number) => (v >= 0.5 ? mix('var(--answer)', 0.2 + 0.5 * v) : mix('var(--bad)', 0.6 - 0.5 * v));
   return (
     <div class="t3t" ref={root}>
       <div class="many">
         {six.map((k) => (
           <div class="mini">
-            <PairGrid data={g.h[k]} color={(v) => sequential(v / hmax(k))} cw={21} hl={[[5, 9]]} axes />
+            <PairGrid data={g.h[k]} color={(v) => sequential(v / hmax(k))} cw={22} hl={[[5, 9]]} axes />
             <div class="ml">n{k}</div>
           </div>
         ))}
@@ -488,25 +479,25 @@ export function Patterns() {
         <div class={`fade ${step >= 1 ? 'on' : ''} crowd`}>
           <div class="hd">together, all 64 get <b>{pct(tk.acc)}</b> of pairs right (<span class="g">green</span>)</div>
           <div class="row">
-            <PairGrid data={tk.cells} color={right} cw={20} />
-            <Bars width={150} max={100} values={g.topk.map((t) => (t.k <= kk ? t.acc * 100 : 0))} labels={g.topk.map((t) => `top ${t.k}`)}
-              hl={g.topk.findIndex((t) => t.k === kk)} color={(_, i) => (g.topk[i].k === kk ? 'var(--good)' : 'var(--faint)')} fmtV={(v) => (v ? `${v.toFixed(0)}%` : '')} />
+            <PairGrid data={tk.cells} color={right} cw={18} />
+            <Bars width={120} max={100} values={g.topk.map((t) => (t.k <= kk ? t.acc * 100 : 0))} labels={g.topk.map((t) => `top ${t.k}`)}
+              hl={g.topk.findIndex((t) => t.k === kk)} color={(_, i) => (g.topk[i].k === kk ? 'var(--answer)' : 'var(--faint)')} fmtV={(v) => (v ? `${v.toFixed(0)}%` : '')} />
           </div>
         </div>
       </div>
       <style>{`
-        .t3t { display: flex; gap: 2.2em; width: 100%; color: var(--muted); align-items: flex-start; }
-        .t3t .txt { display: flex; flex-direction: column; gap: .9em; flex: 1; }
-        .t3t .hd { font-size: .62em; } .t3t .hd .o { color: var(--hot); } .t3t .hd b { color: var(--fg); } .t3t .hd .g { color: var(--good); }
-        .t3t .many { display: grid; grid-template-columns: repeat(3, auto); gap: 1.2em 1.8em; flex: none; }
+        .t3t { display: flex; gap: 1.6em; width: 100%; color: var(--muted); align-items: flex-start; }
+        .t3t .txt { display: flex; flex-direction: column; gap: .9em; flex: 1; min-width: 0; }
+        .t3t .hd { font-size: .62em; } .t3t .hd .o { color: var(--focus); } .t3t .hd b { color: var(--fg); } .t3t .hd .g { color: var(--answer); }
+        .t3t .many { display: grid; grid-template-columns: repeat(3, auto); gap: 1em 1.2em; flex: none; }
         .t3t .mini { display: flex; flex-direction: column; gap: .15em; }
-        .t3t .gl, .t3t .ga { font-family: var(--mono); font-size: 12px; fill: var(--muted); text-anchor: middle; } .t3t .ga { fill: var(--muted); }
+        .t3t .gl, .t3t .ga { font-family: var(--mono); font-size: 13px; fill: var(--muted); text-anchor: middle; } .t3t .ga { fill: var(--muted); }
         .t3t svg { overflow: visible; display: block; }
-        .t3t .pg .mx .hlbox { stroke: var(--hot); stroke-width: 2.5; }
-        .t3t .ml { font-family: var(--mono); font-size: .55em; } .t3t .ml b { color: var(--hot); } .t3t .ml i { font-style: normal; color: var(--fg); }
+        .t3t .pg .mx .hlbox { stroke: var(--focus); stroke-width: 2.5; }
+        .t3t .ml { font-family: var(--mono); font-size: .55em; } .t3t .ml b { color: var(--focus); } .t3t .ml i { font-style: normal; color: var(--fg); }
         .t3t .cap { font-size: .68em; }
         .t3t .crowd { display: flex; flex-direction: column; gap: .5em; padding-top: .6em; }
-        .t3t .crowd .row { display: flex; gap: 1.6em; align-items: center; } .t3t .crowd .bars { font-size: .8em; }
+        .t3t .crowd .row { display: flex; gap: 1em; align-items: center; } .t3t .crowd .bars { font-size: .8em; }
         .t3t .fade { opacity: 0; transition: opacity .35s; } .t3t .fade.on { opacity: 1; }
       `}</style>
     </div>
@@ -540,17 +531,17 @@ export function NoRelu() {
         <Mat data={[pre]} x={X} y={CH + 34} cw={CW} ch={CH} gap={2} color={(v) => diverging(v, s)} />
         <text class="n" x={X + 64 * CW + 20} y={CH + 34 + CH / 2 + 7}>64 of 64 speak</text>
       </svg>
-      <div class="cap">without it, the two matmuls collapse into one:<span class="eq"> (x @ W_up) @ W_down = x @ (W_up @ W_down)</span></div>
+      <div class="cap">without it, the two matmuls collapse into one: <Tex tex="(x W_{\text{up}})\, W_{\text{down}} = x\, (W_{\text{up}} W_{\text{down}})" /></div>
       <div class={`fade ${step >= 1 ? 'on' : ''}`}>
         <Bars width={720} max={100} values={rows.map(([, v]) => v)} labels={rows.map(([l]) => l)}
-          color={(_, i) => (i === 0 ? 'var(--good)' : i === 3 ? 'var(--faint)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
+          color={(_, i) => (i === 0 ? 'var(--answer)' : i === 3 ? 'var(--faint)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
       </div>
       <style>{`
         .t3r { display: flex; flex-direction: column; gap: 1.4em; width: 100%; color: var(--muted); }
         .t3r svg { width: 100%; display: block; overflow: visible; }
-        .t3r .rl { font-family: var(--mono); font-size: 22px; fill: var(--fg); text-anchor: end; }
-        .t3r .n { font-family: var(--mono); font-size: 22px; fill: var(--muted); }
-        .t3r .cap { font-size: .72em; max-width: 56em; } .t3r .eq { font-family: var(--mono); color: var(--fg); white-space: nowrap; }
+        .t3r .rl { font-family: var(--mono); font-size: 24px; fill: var(--fg); text-anchor: end; }
+        .t3r .n { font-family: var(--mono); font-size: 24px; fill: var(--muted); }
+        .t3r .cap { font-size: .72em; max-width: 56em; } .t3r .cap .math { color: var(--fg); white-space: nowrap; }
         .t3r .bars { font-size: .85em; gap: .5em .8em; } .t3r .bar-row .track { height: 1.5em; }
         .t3r .fade { opacity: 0; transition: opacity .4s; } .t3r .fade.on { opacity: 1; }
       `}</style>
@@ -570,7 +561,7 @@ export function Ablate() {
   return (
     <div class="t3b" ref={root}>
       <Bars width={620} max={100} values={d.ablation.map(([, a]) => a)} labels={d.ablation.map(([m]) => names[m] ?? m)}
-        color={(_, i) => (i === 0 ? 'var(--good)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
+        color={(_, i) => (i === 0 ? 'var(--answer)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
       <div class="cap">same trained weights, one piece zeroed. without the mlp the heads still fetch both digits; nothing turns them into the answer</div>
       <style>{`
         .t3b { display: flex; flex-direction: column; gap: 1.2em; font-size: 1.25em; }

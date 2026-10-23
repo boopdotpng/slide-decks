@@ -1,12 +1,13 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
-import { Bars, Mat, sequential, useIsland } from './viz';
+import { Bars, Mat, Tex, sequential, useIsland } from './viz';
+import './roles';
 
 /**
  * Task 4, two-key difference (a2f5c9d3 fc → (5 − 9) mod 10 = 6), told as an argument: swap the two values and the
  * difference changes, but one head's write (half of each value) doesn't, so the mlp can't tell the inputs apart. A second
  * head gives each value its own write. Numbers from public/data/task4.json (export_task4.py, the csvs in
- * ~/code/ml/interp/data). The first value (f's) in the accent color, the second (c's) in purple, in both inputs.
+ * ~/code/ml/interp/data). The first value (f's) in --key-a, the second (c's) in --key-b (roles.css), in both inputs.
  */
 type Run = { attn: number[][]; answer: string };
 type Split = { head: string; first: number; second: number };
@@ -21,7 +22,7 @@ const ONE = '2 layers, 1 head each, plus MLP', TWO = '2 layers, 2 heads each, pl
 /** the two inputs: the same pairs, with the two looked-up values swapped */
 const INPUTS = [{ text: 'a2f5c9d3fc', a: '5', b: '9' }, { text: 'a2f9c5d3fc', a: '9', b: '5' }];
 const mod = (n: number) => ((n % 10) + 10) % 10;
-/** an input as token boxes: f's value and the query f in the accent color, c's value and the query c in purple */
+/** an input as token boxes: f's value and the query f in --key-a, c's value and the query c in --key-b */
 function Seq({ text }: { text: string }) {
   const cls = (i: number) => (i === 3 || i === 8 ? 'a' : i === 5 || i === 9 ? 'b' : '');
   return (
@@ -33,7 +34,7 @@ function Seq({ text }: { text: string }) {
 const A = ({ children }: { children: ComponentChildren }) => <span class="a">{children}</span>;
 const B = ({ children }: { children: ComponentChildren }) => <span class="b">{children}</span>;
 /** one head's write: half of each value, in one blend */
-const Blend = ({ a, b }: { a: string; b: string }) => <span class="w">½ <A>{a}</A> + ½ <B>{b}</B></span>;
+const Blend = ({ a, b }: { a: string; b: string }) => <span class="w"><Tex tex="\tfrac12" /> <A>{a}</A> + <Tex tex="\tfrac12" /> <B>{b}</B></span>;
 /** two heads' writes: each value in its own slot */
 const Slots = ({ a, b }: { a: string; b: string }) => <>
   <span class="w"><i>f's head</i> <A>{a}</A></span><span class="w"><i>c's head</i> <B>{b}</B></span>
@@ -41,13 +42,14 @@ const Slots = ({ a, b }: { a: string; b: string }) => <>
 
 const CSS = `
   .t4 { display: flex; flex-direction: column; gap: 1em; width: 100%; color: var(--muted); }
-  .t4 .a { color: var(--accent); } .t4 .b { color: var(--purple); }
+  .t4 .a { color: var(--key-a); } .t4 .b { color: var(--key-b); }
   .t4 .seq { display: flex; gap: 5px; }
   .t4 .tk { display: inline-flex; align-items: center; justify-content: center; width: 1.45em; height: 1.65em; font-family: var(--mono);
             color: var(--fg); background: var(--raised); border: 2px solid var(--border); border-radius: 7px; }
-  .t4 .tk.dg { color: var(--hot); } .t4 .tk.gap { margin-left: .7em; }
-  .t4 .tk.a { border-color: var(--accent); } .t4 .tk.b { border-color: var(--purple); }
-  .t4 .tk.q.a { color: var(--accent); } .t4 .tk.q.b { color: var(--purple); }
+  .t4 .tk.dg { color: var(--digit); } .t4 .tk.gap { margin-left: .7em; }
+  .t4 .tk.a { border-color: var(--key-a); } .t4 .tk.b { border-color: var(--key-b); }
+  .t4 .tk.q.a { color: var(--key-a); } .t4 .tk.q.b { color: var(--key-b); }
+  .t4 .w .math { font-size: .8em; }
   .t4 .w { display: inline-flex; align-items: baseline; gap: .35em; padding: .15em .55em; font-family: var(--mono); color: var(--fg);
            background: var(--panel); border: 2px solid var(--border); border-radius: 8px; white-space: nowrap; }
   .t4 .w i { font-family: var(--sans); font-style: normal; font-size: .6em; color: var(--muted); }
@@ -86,7 +88,7 @@ export function Order() {
       </div>
       <div class={`fade ${step >= 2 ? 'on' : ''}`}>
         <Bars width={560} max={100} values={[d.sum, one]} labels={['task 3 model, on the sum', 'retrained on the difference']}
-          color={(_, i) => (i === 0 ? 'var(--good)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
+          color={(_, i) => (i === 0 ? 'var(--answer)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
       </div>
       <div class="cap">{caps[Math.min(step, 1)]}</div>
       <style>{CSS + `
@@ -169,27 +171,28 @@ export function TwoHeads() {
       </div>
       <div class={`fade ${step >= 2 ? 'on' : ''}`}>
         <Bars width={560} max={100} values={[one, two]} labels={['1 head per layer', '2 heads per layer']}
-          color={(_, i) => (i === 0 ? 'var(--bad)' : 'var(--good)')} fmtV={(v) => `${v.toFixed(0)}%`} />
+          color={(_, i) => (i === 0 ? 'var(--bad)' : 'var(--answer)')} fmtV={(v) => `${v.toFixed(0)}%`} />
       </div>
       <div class="cap">{caps[Math.min(step, 2)]}</div>
       <style>{CSS + `
         .t4 .in { width: 1000px; overflow: visible; margin-bottom: -.6em; }
-        .t4 .in .row rect { fill: var(--faint); } .t4 .in .row.a rect { fill: var(--accent); } .t4 .in .row.b rect { fill: var(--purple); }
-        .t4 .in .row text { font-family: var(--mono); font-size: 16px; fill: var(--bg); text-anchor: middle; }
-        .t4 .in .row .rl, .t4 .in .rh { font-family: var(--sans); font-size: 19px; fill: var(--muted); text-anchor: end; }
-        .t4 .in .rh { font-size: 16px; text-anchor: start; }
+        .t4 .in .row rect { fill: var(--faint); } .t4 .in .row.a rect { fill: var(--key-a); } .t4 .in .row.b rect { fill: var(--key-b); }
+        .t4 .in .row text { font-family: var(--mono); font-size: 18px; fill: var(--bg); text-anchor: middle; }
+        .t4 .in .row .rl, .t4 .in .rh { font-family: var(--sans); font-size: 21px; fill: var(--muted); text-anchor: end; }
+        .t4 .in .rh { font-size: 18px; text-anchor: start; }
         .t4 .in .tk rect { fill: var(--raised); stroke: var(--border); stroke-width: 2; }
         .t4 .in .tk text { font-family: var(--mono); font-size: 38px; fill: var(--fg); text-anchor: middle; }
-        .t4 .in .tk.dg text { fill: var(--hot); }
-        .t4 .in .tk.a rect { stroke: var(--accent); stroke-width: 3; } .t4 .in .tk.q.a text { fill: var(--accent); }
-        .t4 .in .tk.b rect { stroke: var(--purple); stroke-width: 3; } .t4 .in .tk.q.b text { fill: var(--purple); }
-        .t4 .in .ar { font-family: var(--mono); font-size: 34px; fill: var(--fg); }
-        .t4 .in .arc path { fill: none; stroke-width: 3; } .t4 .in .arc text { font-size: 20px; text-anchor: middle; }
-        .t4 .in .arc.a path { stroke: var(--accent); } .t4 .in .arc.a text { fill: var(--accent); }
-        .t4 .in .arc.b path { stroke: var(--purple); } .t4 .in .arc.b text { fill: var(--purple); }
+        .t4 .in .tk.dg text { fill: var(--digit); }
+        .t4 .in .tk.a rect { stroke: var(--key-a); stroke-width: 3; } .t4 .in .tk.q.a text { fill: var(--key-a); }
+        .t4 .in .tk.b rect { stroke: var(--key-b); stroke-width: 3; } .t4 .in .tk.q.b text { fill: var(--key-b); }
+        .t4 .in .ar { font-family: var(--mono); font-size: 34px; fill: var(--answer); }
+        .t4 .in .arc path { fill: none; stroke-width: 3; } .t4 .in .arc text { font-size: 22px; text-anchor: middle; }
+        .t4 .in .arc.a path { stroke: var(--key-a); } .t4 .in .arc.a text { fill: var(--key-a); }
+        .t4 .in .arc.b path { stroke: var(--key-b); } .t4 .in .arc.b text { fill: var(--key-b); }
+        .t4 .in .arc .tip { stroke-linecap: round; }
         .t4 .writes { display: grid; grid-template-columns: auto auto auto; gap: .35em 2.2em; align-items: center; justify-content: start; font-size: .8em; }
         .t4 .writes .h { font-size: .6em; } .t4 .writes .src { font-size: .8em; color: var(--muted); } .t4 .writes .slots { display: flex; gap: .4em; }
-        .t4 .writes .same { font-size: .6em; } .t4 .writes .same.good { color: var(--good); }
+        .t4 .writes .same { font-size: .6em; } .t4 .writes .same.good { color: var(--answer); }
       `}</style>
     </div>
   );
@@ -224,13 +227,13 @@ export function Spare() {
       <div class={`fade ${step >= 1 ? 'on' : ''}`}>
         <Bars width={220} max={100} values={[ab('full model'), ab('only L1H2 removed'), ab('only L1H1 removed')]}
           labels={['both heads', 'without head 2', 'without head 1']}
-          color={(v) => (v >= 90 ? 'var(--good)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
+          color={(v) => (v >= 90 ? 'var(--answer)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
       </div>
       </div>
       <style>{CSS + `
         .t4.sp { flex-direction: row; align-items: flex-start; gap: 2em; } .t4.sp .side { display: flex; flex-direction: column; gap: 1.4em; padding-top: 2em; }
         .t4.sp .pats { width: 900px; flex: none; overflow: visible; }
-        .t4.sp .mx .rl.dg { fill: var(--hot); } .t4.sp .mx .ct { font-size: 12px; }
+        .t4.sp .mx .ct { font-size: 12px; }
       `}</style>
     </div>
   );

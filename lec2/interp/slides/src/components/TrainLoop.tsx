@@ -1,6 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import { useSlideStep } from '../deck/hooks';
+import { Tex } from './viz';
+import './roles';
 
 /**
  * How every model in the deck is trained, on the hidden digit task's real first rows (hidden_digit_dataset, seed 0).
@@ -14,7 +16,7 @@ const PICKED = [1, 2, 4];
 const STEPS = [
   <>sample <b>512</b> examples</>,
   <>forward → <b>36 scores</b> → probabilities</>,
-  <><b>loss</b> = −log p(answer)
+  <><b>loss</b> <Tex tex="= -\log p(\text{answer})" />
     <span class="eg">1-in-10 guess: <b>2.30</b> · 99% sure and right: <b>0.01</b></span></>,
   <><b>backward</b>: a gradient for every weight the forward pass used</>,
   <><b>optimizer</b> step: nudge each weight against its gradient · <b>repeat</b> a few thousand times</>,
@@ -102,11 +104,11 @@ export default function TrainLoop() {
         {STEPS.map((s, i) => <li class={`fade ${step > i ? 'on' : ''} ${step === i + 1 ? 'now' : ''}`}>{s}{i === 3 && <Backward on={step >= 4} />}</li>)}
       </ol>
       <style>{`
-        .tl { display: grid; grid-template-columns: auto 1fr; gap: 4em; align-items: start; font-size: .8em; }
+        .tl { display: grid; grid-template-columns: auto 1fr; gap: 3em; align-items: start; font-size: .8em; }
         .tl .lbl { font-size: .7em; margin-bottom: .4em; }
         .tl .ex { display: flex; gap: .6em; align-items: center; padding: .1em .5em; border-radius: 6px; transition: background .3s; }
         .tl .ex code { font-size: 1em; background: none; padding: 0; letter-spacing: .05em; }
-        .tl .ex .y { color: var(--good); }
+        .tl .ex .y { color: var(--answer); }
         .tl .ex .arr { color: var(--muted); }
         .tl .ex.pick { background: var(--hl); }
         .tl .ex.more { color: var(--muted); }
@@ -119,24 +121,24 @@ export default function TrainLoop() {
         .tl .loop b { color: var(--fg); }
         .tl .eg { display: block; font-size: .8em; color: var(--muted); margin-top: .2em; }
         .tl .eg b { font-family: var(--mono); }
-        .tl .bw { display: block; width: 860px; margin-top: .3em; overflow: visible; }
+        .tl .bw { display: block; width: 920px; margin-top: .3em; overflow: visible; }
         .tl .bw .node rect { fill: var(--raised); stroke: var(--border); stroke-width: 2; transition: stroke .3s, fill .3s; }
         .tl .bw .node.w rect { stroke-dasharray: none; }
-        .tl .bw .node text { font-family: var(--mono); font-size: 19px; fill: var(--fg); text-anchor: middle; }
+        .tl .bw .node text { font-family: var(--mono); font-size: 21px; fill: var(--fg); text-anchor: middle; }
         .tl .bw .node.none text { fill: var(--muted); }
-        .tl .bw.on .node.got rect { stroke: var(--hot); } .tl .bw .node.none rect { stroke-dasharray: 5 4; }
-        .tl .bw.on .node.got.w rect { fill: color-mix(in srgb, var(--hot) 20%, var(--raised)); }
+        .tl .bw.on .node.got rect { stroke: var(--focus); } .tl .bw .node.none rect { stroke-dasharray: 5 4; }
+        .tl .bw.on .node.got.w rect { fill: color-mix(in srgb, var(--focus) 20%, var(--raised)); }
         .tl .bw .edge path { fill: none; stroke-width: 2; }
         .tl .bw .edge.fwd path { stroke: var(--faint); }
-        .tl .bw .edge.grad path { stroke: var(--hot); stroke-width: 2.5; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .4s linear; }
+        .tl .bw .edge.grad path { stroke: var(--focus); stroke-width: 2.5; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .4s linear; }
         .tl .bw .edge.grad .tip { stroke-dasharray: none; opacity: 0; transition: opacity .1s; }
         .tl .bw.on .edge.grad path { stroke-dashoffset: 0; } .tl .bw.on .edge.grad .tip { opacity: 1; }
         .tl .bw:not(.on) .edge.grad path, .tl .bw:not(.on) .node rect, .tl .bw:not(.on) .tag { transition-delay: 0ms !important; }
         .tl .bw .stub { stroke: var(--faint); stroke-width: 2; stroke-dasharray: 4 5; fill: none; }
-        .tl .bw .note { font-size: 16px; fill: var(--muted); }
-        .tl .bw .tag { font-size: 17px; text-anchor: middle; opacity: 0; transition: opacity .3s; }
+        .tl .bw .note { font-size: 18px; fill: var(--muted); }
+        .tl .bw .tag { font-size: 19px; text-anchor: middle; opacity: 0; transition: opacity .3s; }
         .tl .bw.on .tag { opacity: 1; }
-        .tl .bw .tag.moves { fill: var(--hot); } .tl .bw .tag.zero { fill: var(--muted); }
+        .tl .bw .tag.moves { fill: var(--focus); } .tl .bw .tag.zero { fill: var(--muted); }
       `}</style>
     </div>
   );

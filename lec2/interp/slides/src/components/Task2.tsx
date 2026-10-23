@@ -1,13 +1,14 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
-import { Bars, Mat, diverging, range, sequential, useData, useIsland } from './viz';
+import { Bars, Mat, Tex, diverging, range, sequential, useData, useIsland } from './viz';
+import './roles';
 
 /**
  * Task 2, dictionary lookup (a2f5c9d3f → 5). Schematics first (Twice, OneLayer, Position): every stream drawn as
  * a column of labelled chips, one per thing written into it, so "what does this stream say" is readable. Then the
  * trained model, from public/data/task2.json (export_task.py 2: ~/code/ml/interp/data/task2/*.csv) and
  * task2w.json (export_task2.py: the layer 2 letter match on real streams, one example run).
- * Colors: layer 1's writes are accent, layer 2's are purple.
+ * Colors (roles.css): layer 1's writes --attn, layer 2's --l2, the mlp's --mlp.
  */
 const TEXT = 'a2f5c9d3f';
 const N = TEXT.length, LAST = N - 1;
@@ -70,7 +71,7 @@ export function Streams({ rows, chips, arcs, H, labelsOn = {}, dimCols = [], n =
 export const STREAM_CSS = `
   .t2s svg { width: 100%; display: block; overflow: visible; }
   .t2s .lbl { font-family: var(--mono); font-size: 24px; fill: var(--muted); }
-  .t2s .pos { font-family: var(--mono); font-size: 18px; fill: var(--faint); text-anchor: middle; }
+  .t2s .pos { font-family: var(--mono); font-size: 20px; fill: var(--faint); text-anchor: middle; }
   .t2s .stream { stroke: var(--raised-2); stroke-width: 5; stroke-linecap: round; }
   .t2s .colg, .t2s .chip { transition: opacity .35s; }
   .t2s .colg.dim { opacity: .35; }
@@ -78,23 +79,23 @@ export const STREAM_CSS = `
   .t2s .chip rect { stroke-width: 2; transition: stroke-width .3s; }
   .t2s .chip text { font-family: var(--mono); font-size: 24px; text-anchor: middle; }
   .t2s .chip.tok rect { fill: var(--raised); stroke: var(--line-2); } .t2s .chip.tok text { fill: var(--fg); }
-  .t2s .chip.tok.dg text { fill: var(--hot); }
+  .t2s .chip.tok.dg text { fill: var(--digit); }
   .t2s .chip.pos rect { fill: var(--panel); stroke: var(--line); stroke-dasharray: 4 3; } .t2s .chip.pos text { fill: var(--muted); font-size: 20px; }
-  .t2s .chip.l1 rect { fill: color-mix(in srgb, var(--accent) 20%, var(--bg)); stroke: var(--accent); } .t2s .chip.l1 text { fill: var(--accent); }
-  .t2s .chip.l2 rect { fill: color-mix(in srgb, var(--purple) 20%, var(--bg)); stroke: var(--purple); } .t2s .chip.l2 text { fill: var(--purple); }
-  .t2s .chip.mlp rect { fill: color-mix(in srgb, var(--good) 15%, var(--bg)); stroke: var(--good); } .t2s .chip.mlp text { fill: var(--good); font-size: 19px; }
-  .t2s .chip.out rect { fill: color-mix(in srgb, var(--good) 15%, var(--bg)); stroke: var(--good); } .t2s .chip.out text { fill: var(--good); }
+  .t2s .chip.l1 rect { fill: color-mix(in srgb, var(--attn) 20%, var(--bg)); stroke: var(--attn); } .t2s .chip.l1 text { fill: var(--attn); }
+  .t2s .chip.l2 rect { fill: color-mix(in srgb, var(--l2) 20%, var(--bg)); stroke: var(--l2); } .t2s .chip.l2 text { fill: var(--l2); }
+  .t2s .chip.mlp rect { fill: color-mix(in srgb, var(--mlp) 15%, var(--bg)); stroke: var(--mlp); } .t2s .chip.mlp text { fill: var(--mlp); font-size: 20px; }
+  .t2s .chip.out rect { fill: color-mix(in srgb, var(--answer) 15%, var(--bg)); stroke: var(--answer); } .t2s .chip.out text { fill: var(--answer); }
   .t2s .chip.bad rect { fill: color-mix(in srgb, var(--bad) 15%, var(--bg)); stroke: var(--bad); } .t2s .chip.bad text { fill: var(--bad); }
   .t2s .chip.hl rect { stroke-width: 4; }
   .t2s .arc { fill: none; stroke-width: 3; opacity: 0; transition: opacity .4s; }
   .t2s .arc.on { opacity: .9; }
-  .t2s .arc.l1 { stroke: var(--accent); } .t2s .arc.l2 { stroke: var(--purple); } .t2s .arc.mlp { stroke: var(--good); }
+  .t2s .arc.l1 { stroke: var(--attn); } .t2s .arc.l2 { stroke: var(--l2); } .t2s .arc.mlp { stroke: var(--mlp); }
   .t2s .arc.bad { stroke: var(--bad); stroke-dasharray: 7 6; }
   .t2s .fade { transition: opacity .35s; }
   .t2s .cap { font-size: .78em; min-height: 2.8em; }
   .t2s .cap b { color: var(--fg); }
   .t2s .cap code, .t2s code { font-family: var(--mono); }
-  .t2s .l1c { color: var(--accent); font-weight: 600; } .t2s .l2c { color: var(--purple); font-weight: 600; }
+  .t2s .l1c { color: var(--attn); font-weight: 600; } .t2s .l2c { color: var(--l2); font-weight: 600; }
 `;
 
 const tokChips = (on = true, hl: number[] = []): Chip[] =>
@@ -161,7 +162,7 @@ export function OneLayer() {
         {d && <Bars width={560} max={100} hl={step >= 3 ? 2 : undefined}
           labels={names.map((n, i) => <span class={`fade ${step >= i + 1 ? 'on' : ''}`}>{n}</span>)}
           values={acc.map((a, i) => (step >= i + 1 ? a.test_accuracy : 0))}
-          color={(_, i) => (i === 2 ? 'var(--good)' : 'var(--faint)')}
+          color={(_, i) => (i === 2 ? 'var(--answer)' : 'var(--faint)')}
           fmtV={(v) => (v ? `${v.toFixed(0)}%` : '')} />}
         <div class="ax">test accuracy</div>
       </div>
@@ -177,7 +178,7 @@ export function OneLayer() {
 const POS_CAPS: ComponentChildren[] = [
   <>task 1 asks <b>what</b> a token is: the 7 is the answer wherever it sits. a head finds it by content, no position needed</>,
   <>task 2's answer <b>is</b> the order: same tokens, different answer. but a head only sees what's in each stream, so to it the earlier streams are a <b>bag</b>: shuffle them and the scores just shuffle along</>,
-  <>a second learned table, one row per position (9 × 32): <code>x = tok + pos</code>. now a query can ask for "the one just before me"</>,
+  <>a second learned table, one row per position (9 × 32): <Tex tex="x = \text{tok} + \text{pos}" />. now a query can ask for "the one just before me"</>,
   <>trained without positions it never gets there</>,
 ];
 /**
@@ -216,7 +217,7 @@ export function Position() {
           ? <div class={`fade ${step >= 2 ? 'on' : ''}`}><Streams rows={rows} chips={chips} arcs={[]} H={270} labelsOn={{ pos: step >= 2 }} /></div>
           : d && <div class="acc">
             <Bars width={560} max={100} hl={2} labels={ACC.map(([, l]) => l)} values={ACC.map(([m]) => acc(m))}
-              color={(_, i) => (i === 2 ? 'var(--good)' : 'var(--faint)')} fmtV={(v) => `${v.toFixed(0)}%`} />
+              color={(_, i) => (i === 2 ? 'var(--answer)' : 'var(--faint)')} fmtV={(v) => `${v.toFixed(0)}%`} />
             <div class="ax">test accuracy, 2 layers</div>
           </div>}
       </div>
@@ -224,9 +225,9 @@ export function Position() {
       <style>{STREAM_CSS + `
         .t2p .cmp { display: grid; grid-template-columns: auto auto auto 1fr; gap: .3em 1.6em; align-items: baseline; font-size: .8em; }
         .t2p .cmp code { font-size: 1.1em; letter-spacing: .06em; }
-        .t2p .cmp code .dg { color: var(--hot); }
+        .t2p .cmp code .dg { color: var(--digit); }
         .t2p .cmp code .hl { text-decoration: underline; text-underline-offset: 6px; }
-        .t2p .cmp b { font-family: var(--mono); color: var(--hot); }
+        .t2p .cmp b { font-family: var(--mono); color: var(--answer); }
         .t2p .tn { font-size: .7em; color: var(--muted); }
         .t2p .nt { font-size: .7em; color: var(--muted); }
         .t2p .mid { min-height: 260px; display: flex; flex-direction: column; justify-content: center; }
@@ -255,23 +256,37 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 /** like pct, but keeps the digits that rounding to 0% / 100% would hide */
 const pct2 = (v: number) => (v < 0.01 ? `${(v * 100).toFixed(2)}%` : v > 0.99 ? `${(v * 100).toFixed(1)}%` : pct(v));
 
+/** the input over its roles and the model's answer: the line above an attention matrix's side notes */
+export function Input({ chars, roles, answer }: { chars: string[]; roles: string[]; answer: string }) {
+  return (
+    <div class="ain">
+      {chars.map((c, i) => <span class="ic"><b class={isD(c) ? 'dg' : ''}>{c}</b><i>{roles[i]}</i></span>)}
+      <span class="ar">→ {answer}</span>
+    </div>
+  );
+}
+/** what an attention matrix's cells are. softmax is written out once, on task 1's slide (Head1 HeadScores); short here */
+export const AttnEq = () => (
+  <div class="aeq"><Tex block tex="\mathrm{softmax}\!\left(\frac{q \cdot k}{\sqrt{32}} + \text{mask}\right)" /></div>
+);
+
 /**
  * One head's attention on the example input, every probability written in, rows and columns labelled token over role,
  * in the style of task 1's (Head1.tsx HeadScores). tags: an extra line under a column (what layer 1 wrote into it).
  * keep: rows that stay lit when dim is on
  */
-export function AttnMatrix({ chars, att, keep, dim, hlCells = [], tags, eq = 'softmax(q · k / √32 + mask)', greyCols = [], roles = POS, note }: {
-  chars: string[]; att: (number | null)[][]; keep: number[]; dim: boolean; hlCells?: [number, number][]; tags?: (string | null)[]; eq?: string;
+export function AttnMatrix({ chars, att, keep, dim, hlCells = [], tags, greyCols = [], roles = POS, note }: {
+  chars: string[]; att: (number | null)[][]; keep: number[]; dim: boolean; hlCells?: [number, number][]; tags?: (string | null)[];
   greyCols?: number[];   // columns that are never a target: covered with a veil, labels faded
   roles?: string[];      // the line under each token (task 3 has two queries)
   note?: [row: number, text: string];   // a callout to the right of one row
 }) {
   const n = chars.length;
-  const M = { x: 150, y: tags ? 118 : 96, cw: 52, ch: 52 };
+  const cell = n > 9 ? 54 : 58;   // the grid ~520px either way
+  const M = { x: 160, y: tags ? 108 : 86, cw: cell, ch: cell };
   const dg = (i: number) => (isD(chars[i]) ? 'dg' : '');
   return (
     <svg class="am" viewBox={`0 0 ${M.x + n * M.cw + 22} ${M.y + n * M.ch + 10}`} style={{ width: `${M.x + n * M.cw + 22}px` }}>
-      <text class="eq" x={M.x} y={22}>{eq}</text>
       <text class="ax" x={M.x + n * M.cw} y={22} text-anchor="end">key (looked at) →</text>
       <text class="ax" transform={`translate(12, ${M.y}) rotate(90)`}>query (looking) →</text>
       {chars.map((c, i) => <>
@@ -281,7 +296,7 @@ export function AttnMatrix({ chars, att, keep, dim, hlCells = [], tags, eq = 'so
         </g>
         {tags?.[i] && <text class="tg" x={M.x + i * M.cw + M.cw / 2} y={M.y - 10}>{tags[i]}</text>}
         <g class={`rlab ${dim && !keep.includes(i) ? 'dim' : ''}`}>
-          <text class={`tk ${dg(i)}`} x={M.x - 66} y={M.y + i * M.ch + M.ch / 2 + 8} text-anchor="end">{c}</text>
+          <text class={`tk ${dg(i)}`} x={M.x - 72} y={M.y + i * M.ch + M.ch / 2 + 8} text-anchor="end">{c}</text>
           <text class="rr" x={M.x - 12} y={M.y + i * M.ch + M.ch / 2 + 6} text-anchor="end">{roles[i]}</text>
         </g>
       </>)}
@@ -299,20 +314,26 @@ export function AttnMatrix({ chars, att, keep, dim, hlCells = [], tags, eq = 'so
 }
 export const AM_CSS = `
   .am { width: 640px; flex: none; overflow: visible; }
-  .am .eq { font-family: var(--mono); font-size: 19px; fill: var(--fg); }
-  .am .ax { font-size: 15px; fill: var(--accent); }
-  .am .note { font-size: 24px; font-weight: 700; fill: var(--hot); }
-  .am .tk { font-family: var(--mono); font-size: 24px; font-weight: 600; fill: var(--fg); text-anchor: middle; }
+  .ain { display: flex; gap: .35em; align-items: flex-end; font-size: 1.15em; margin-bottom: .2em; }
+  .ain .ic { display: flex; flex-direction: column; align-items: center; min-width: 1.15em; }
+  .ain .ic b { font-family: var(--mono); color: var(--fg); } .ain .ic b.dg { color: var(--digit); }
+  .ain .ic i { font-size: .45em; font-style: normal; color: var(--muted); }
+  .ain .ar { font-family: var(--mono); color: var(--answer); font-weight: 700; margin: 0 0 .5em .3em; }
+  .aeq { color: var(--fg); font-size: .95em; }
+  .aeq .katex-display { margin: .2em 0; text-align: left; } .aeq .katex-display > .katex { text-align: left; }
+  .am .ax { font-size: 18px; fill: var(--muted); }
+  .am .note { font-size: 26px; font-weight: 700; fill: var(--focus); }
+  .am .tk { font-family: var(--mono); font-size: 28px; font-weight: 600; fill: var(--fg); text-anchor: middle; }
   .am .rlab .tk { text-anchor: end; }
-  .am .tk.dg { fill: var(--hot); }
-  .am .rr { font-family: var(--mono); font-size: 15px; fill: var(--muted); text-anchor: middle; }
-  .am .tg { font-family: var(--mono); font-size: 16px; font-weight: 600; fill: var(--accent); text-anchor: middle; }
+  .am .tk.dg { fill: var(--digit); }
+  .am .rr { font-family: var(--mono); font-size: 17px; fill: var(--muted); text-anchor: middle; }
+  .am .tg { font-family: var(--mono); font-size: 19px; font-weight: 600; fill: var(--attn); text-anchor: middle; }
   .am .rlab .rr { text-anchor: end; }
   .am .rlab { transition: opacity .35s; } .am .rlab.dim { opacity: .3; }
-  .am .mx .ct { font-size: 15px; }
-  .am .mx .hlbox { stroke: var(--hot); stroke-width: 4; }
+  .am .mx .ct { font-size: 18px; }
+  .am .mx .hlbox { stroke: var(--focus); stroke-width: 4; }
   .am .veil { fill: var(--bg); opacity: .72; pointer-events: none; }
-  .am .hlbox.top { fill: none; stroke: var(--hot); stroke-width: 4; }
+  .am .hlbox.top { fill: none; stroke: var(--focus); stroke-width: 4; }
   .am .clab { transition: opacity .35s; } .am .clab.grey { opacity: .3; }
 `;
 
@@ -332,12 +353,12 @@ export function Layer1() {
   const fromTok = grid(d.qk_layer1_split, (r) => [r.query_position, r.key_position, r.score_from_key_token]);
   const lim = Math.max(...[...fromPos, ...fromTok].flat().map((v) => Math.abs(v ?? 0)));
   const oneBack = VALS.map((v) => [v, v - 1] as [number, number]);
-  const dg = (i: number) => (isD(chars[i]) ? 'dg' : '');
 
   const matrix = <AttnMatrix chars={chars} att={att} keep={VALS} dim hlCells={oneBack} />;
+  const input = <Input chars={chars} roles={POS} answer={ex.tokens[ex.probs.indexOf(Math.max(...ex.probs))]} />;
 
   // step 2: the digit rows only, split by where the key's stream got each part. stacked, so the same rows line up
-  const T = { x: 110, cw: 60, ch: 46 };
+  const T = { x: 110, cw: 66, ch: 50 };
   const yPos = 92, yTok = yPos + 4 * T.ch + 110;
   const digitRows = (m: (number | null)[][]) => VALS.map((v) => m[v]);
   const hlBack = VALS.map((v, j) => [j, v - 1] as [number, number]);
@@ -351,7 +372,7 @@ export function Layer1() {
     </g>
   );
   const split = (
-    <svg class="am sp" viewBox="0 0 660 580">
+    <svg class="am sp" viewBox="0 0 720 620" style={{ width: '720px' }}>
       <text class="ax" x={T.x + 9 * T.cw} y={yPos - 46} text-anchor="end">key (looked at) →</text>
       {table(fromPos, yPos, <>scores from the key's <tspan class="b">position</tspan> (test avg)</>)}
       {table(fromTok, yTok, <>scores from the key's <tspan class="b">token</tspan> (test avg)</>)}
@@ -360,14 +381,12 @@ export function Layer1() {
 
   return (
     <div class="t2l1" ref={root}>
-      <div class="in">
-        {chars.map((c, i) => <span class="ic"><b class={dg(i)}>{c}</b><i>{POS[i]}</i></span>)}
-        <span class="ar">→ {ex.tokens[ex.probs.indexOf(Math.max(...ex.probs))]}</span>
-      </div>
       {step < 1 ? (
         <div class="row">
           {matrix}
           <div class="side">
+            {input}
+            <AttnEq />
             <div>every digit looks <b>one back</b>, at its letter: {VALS.map((v, j) => <>{j ? ', ' : ''}<b class="dg">{chars[v]}</b> → <b>{chars[v - 1]}</b> {pct(att[v][v - 1] as number)}</>)}</div>
             <div>and copies it into its own stream: the 5 now says "<b>5, after f</b>"</div>
           </div>
@@ -376,7 +395,8 @@ export function Layer1() {
         <div class="row">
           {split}
           <div class="side">
-            <div>layer 1 reads <code>tok + pos</code>, so each score splits in two</div>
+            {input}
+            <div>layer 1 reads <Tex tex="\text{tok} + \text{pos}" />, so each score splits in two</div>
             <div><b>position</b> picks the key just before</div>
             <div><b>token</b> barely matters</div>
           </div>
@@ -385,13 +405,13 @@ export function Layer1() {
       <style>{AM_CSS + `
         .t2l1 { display: flex; flex-direction: column; gap: .5em; }
         .t2l1 .row { display: flex; gap: 2em; align-items: center; }
-        .t2l1 .sp .mx .ct { font-size: 17px; }
-        .t2l1 .sp .rr { font-size: 17px; }
-        .t2l1 .am .tt { font-size: 19px; fill: var(--muted); }
+        .t2l1 .sp .mx .ct { font-size: 19px; }
+        .t2l1 .sp .rr { font-size: 19px; }
+        .t2l1 .am .tt { font-size: 21px; fill: var(--muted); }
         .t2l1 .am .tt .b { fill: var(--fg); font-weight: 600; }
-        .t2l1 .side code { font-family: var(--mono); color: var(--fg); }
+        .t2l1 .side .math { color: var(--fg); }
         .t2l1 .side { display: flex; flex-direction: column; gap: .8em; font-size: .64em; color: var(--muted); max-width: 22em; }
-        .t2l1 .side b { color: var(--fg); } .t2l1 .side b.dg { color: var(--hot); }
+        .t2l1 .side b { color: var(--fg); } .t2l1 .side b.dg { color: var(--digit); }
         .t2l1 .panels { display: flex; gap: 1.6em; align-items: center; }
         .t2l1 .pt { font-size: .6em; color: var(--muted); margin: 0 0 .5em 3em; }
         .t2l1 .pt b { color: var(--fg); }
@@ -400,12 +420,7 @@ export function Layer1() {
         .t2l1 .ky { font-size: .5em; color: var(--accent); margin: 0 0 1.4em 3.4em; }
         .t2l1 .heat .cl span { transform: none; left: 0; }
         .t2l1 .heat .cl i, .t2l1 .heat .rl i, .t2l1 .ic i { font-style: normal; color: var(--muted); }
-        .t2l1 .heat .hc.on { outline: 3px solid var(--hot); outline-offset: -1px; z-index: 1; }
-        .t2l1 .in { display: flex; gap: .5em; align-items: flex-end; font-size: .7em; }
-        .t2l1 .ic { display: flex; flex-direction: column; align-items: center; min-width: 1.6em; }
-        .t2l1 .ic b { font-family: var(--mono); font-size: 1.2em; color: var(--fg); } .t2l1 .ic b.dg { color: var(--hot); }
-        .t2l1 .ic i { font-size: .5em; }
-        .t2l1 .ar { font-family: var(--mono); color: var(--hot); margin: 0 0 .55em .4em; }
+        .t2l1 .heat .hc.on { outline: 3px solid var(--focus); outline-offset: -1px; z-index: 1; }
       `}</style>
     </div>
   );
@@ -438,6 +453,8 @@ export function Write() {
     <div class="t2w" ref={root}>
       <AttnMatrix chars={chars} att={att} keep={[L]} dim hlCells={[[L, best]]} tags={tags} greyCols={letterCols} />
       <div class="side">
+        <Input chars={chars} roles={POS} answer={ex.tokens[ex.probs.indexOf(Math.max(...ex.probs))]} />
+        <AttnEq />
         <div>each digit's key now carries layer 1's tag: <span class="tg">+f</span> under the 5</div>
         <div>the f's query finds the <span class="tg">+f</span>: the <b class="dg">{chars[best]}</b>, <b>{pct(q[best])}</b></div>
         <div>over the test set: <b>{pct(d.l2_from_query.target)}</b> on the right digit, all <b class="nw">{wins} / 26</b> letters</div>
@@ -445,8 +462,8 @@ export function Write() {
       <style>{AM_CSS + `
         .t2w { display: flex; gap: 2em; align-items: center; }
         .t2w .side { display: flex; flex-direction: column; gap: .8em; font-size: .64em; max-width: 22em; color: var(--muted); }
-        .t2w .side b { color: var(--fg); } .t2w .side .nw { white-space: nowrap; } .t2w .side b.dg { color: var(--hot); }
-        .t2w .side .tg { font-family: var(--mono); color: var(--accent); font-weight: 600; }
+        .t2w .side b { color: var(--fg); } .t2w .side .nw { white-space: nowrap; } .t2w .side b.dg { color: var(--digit); }
+        .t2w .side .tg { font-family: var(--mono); color: var(--attn); font-weight: 600; }
       `}</style>
     </div>
   );
@@ -484,7 +501,7 @@ export function ValueRead({ step, toks, chars, roles, values, A, write, rest, su
         <line class="zero" x1={BX} x2={BX + 36 * BAND} y1={y} y2={y} />
         {vals.map((v, i) => (
           <rect class="vb" x={BX + i * BAND + 4} width={BAND - 8} y={v >= 0 ? y - v * PX : y} height={Math.max(1, Math.abs(v) * PX)} rx="2"
-            style={{ fill: isD(toks[i]) ? 'var(--hot)' : 'var(--faint)', transform: `scaleY(${scale})`, transformOrigin: v >= 0 ? 'bottom' : 'top' }} />
+            style={{ fill: isD(toks[i]) ? 'var(--digit)' : 'var(--faint)', transform: `scaleY(${scale})`, transformOrigin: v >= 0 ? 'bottom' : 'top' }} />
         ))}
         {peak && <text class="pv" x={BX + b * BAND + BAND / 2} y={y - vals[b] * PX * scale - 6}>{(vals[b] * scale).toFixed(1)}</text>}
       </g>
@@ -528,20 +545,20 @@ export function ValueRead({ step, toks, chars, roles, values, A, write, rest, su
       <style>{`
         .t2v { display: flex; flex-direction: column; gap: .3em; width: 100%; }
         .t2v svg { width: 100%; display: block; overflow: visible; }
-        .t2v .hd { font-size: 17px; fill: var(--muted); }
-        .t2v .tl { font-family: var(--mono); font-size: 15px; fill: var(--muted); text-anchor: middle; } .t2v .tl.dg { fill: var(--hot); }
-        .t2v .rt { font-family: var(--mono); font-size: 24px; fill: var(--fg); font-weight: 600; } .t2v .rt.dg { fill: var(--hot); }
-        .t2v .rr { font-family: var(--mono); font-size: 15px; fill: var(--muted); }
-        .t2v .sy { font-family: var(--mono); font-size: 24px; fill: var(--muted); font-weight: 700; } .t2v .sy.dg { fill: var(--hot); }
-        .t2v .ap { font-family: var(--mono); font-size: 14px; fill: var(--fg); text-anchor: middle; } .t2v .ap.inv { fill: var(--bg); }
-        .t2v .pv { font-family: var(--mono); font-size: 13px; fill: var(--fg); text-anchor: middle; }
-        .t2v .note { font-size: 20px; fill: var(--muted); } .t2v .note .dg { fill: var(--hot); font-weight: 700; } .t2v .note .b { fill: var(--fg); font-weight: 700; }
+        .t2v .hd { font-size: 19px; fill: var(--muted); }
+        .t2v .tl { font-family: var(--mono); font-size: 17px; fill: var(--muted); text-anchor: middle; } .t2v .tl.dg { fill: var(--digit); }
+        .t2v .rt { font-family: var(--mono); font-size: 26px; fill: var(--fg); font-weight: 600; } .t2v .rt.dg { fill: var(--digit); }
+        .t2v .rr { font-family: var(--mono); font-size: 17px; fill: var(--muted); }
+        .t2v .sy { font-family: var(--mono); font-size: 26px; fill: var(--muted); font-weight: 700; } .t2v .sy.dg { fill: var(--digit); }
+        .t2v .ap { font-family: var(--mono); font-size: 16px; fill: var(--fg); text-anchor: middle; } .t2v .ap.inv { fill: var(--bg); }
+        .t2v .pv { font-family: var(--mono); font-size: 15px; fill: var(--fg); text-anchor: middle; }
+        .t2v .note { font-size: 22px; fill: var(--muted); } .t2v .note .dg { fill: var(--digit); font-weight: 700; } .t2v .note .b { fill: var(--fg); font-weight: 700; }
         .t2v .zero { stroke: var(--raised-2); } .t2v .sep { stroke: var(--border); }
         .t2v .vrow { transition: opacity .5s; }
         .t2v .vb { transform-box: fill-box; transition: transform .8s cubic-bezier(.5, 0, .2, 1); }
         .t2v .fd { opacity: 0; transition: opacity .35s; } .t2v .fd.on { opacity: 1; }
         .t2v .cap { font-size: .72em; min-height: 2.6em; }
-        .t2v .cap b { color: var(--fg); } .t2v .cap b.dg { color: var(--hot); }
+        .t2v .cap b { color: var(--fg); } .t2v .cap b.dg { color: var(--digit); }
       `}</style>
     </div>
   );
@@ -584,7 +601,7 @@ export function Ablate() {
   return (
     <div class="t2b" ref={root}>
       <Bars width={620} max={100} values={d.ablation.map((a) => a.test_accuracy)} labels={d.ablation.map((a) => names[a.model] ?? a.model)}
-        color={(_, i) => (i === 0 ? 'var(--good)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
+        color={(_, i) => (i === 0 ? 'var(--answer)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
       <div class="cap">the same trained weights, one piece zeroed. every piece does one step of the lookup</div>
       <style>{`
         .t2b { display: flex; flex-direction: column; gap: 1.2em; font-size: 1.25em; }

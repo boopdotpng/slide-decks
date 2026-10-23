@@ -1,7 +1,8 @@
 /** @jsxImportSource preact */
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useSlideStep } from '../deck/hooks';
-import { Heatmap, diverging, range, sequential, tip, useData } from './viz';
+import { Heatmap, Tex, diverging, range, sequential, tip, useData } from './viz';
+import './roles';
 import { BarChart, CHART_CSS, DIGIT, LETTER, LineChart } from './Charts';
 
 /**
@@ -22,8 +23,8 @@ export function Loss({ data }: { data: string }) {
   return (
     <div class="s0">
       <LineChart ys={col(d.loss, 'loss')} yLabel="loss" height={440} refs={[
-        { y: all, label: `guess evenly over all 36 tokens: ln 36 = ${all.toFixed(2)}`, step: 1 },
-        { y: digits, label: `guess evenly over the 10 digits: ln 10 = ${digits.toFixed(2)}`, step: 2 },
+        { y: all, label: 'guess evenly over all 36 tokens:', tex: `\\ln 36 = ${all.toFixed(2)}`, step: 1 },
+        { y: digits, label: 'guess evenly over the 10 digits:', tex: `\\ln 10 = ${digits.toFixed(2)}`, step: 2 },
       ]} />
       <style>{CHART_CSS}</style>
     </div>
@@ -62,8 +63,8 @@ export function LossPred({ data }: { data: string }) {
   return (
     <div class="s0" ref={root}>
       <LineChart ys={col(d.loss, 'loss')} yLabel="loss" height={330} refs={[
-        { y: all, label: `guess evenly over all 36 tokens: ln 36 = ${all.toFixed(2)}`, step: 1 },
-        { y: digits, label: `guess evenly over the 10 digits: ln 10 = ${digits.toFixed(2)}`, step: 2 },
+        { y: all, label: 'guess evenly over all 36 tokens:', tex: `\\ln 36 = ${all.toFixed(2)}`, step: 1 },
+        { y: digits, label: 'guess evenly over the 10 digits:', tex: `\\ln 10 = ${digits.toFixed(2)}`, step: 2 },
       ]} />
       <div class={`fade ${step >= 3 ? 'on' : ''}`}>
         <BarChart title="what it predicts after training, averaged over the test set" values={col(p, 'probability_trained')} labels={str(p, 'token')} kinds={str(p, 'kind')}
@@ -140,9 +141,9 @@ export function Unembed({ data, query, show: SHOW }: { data: string; query: stri
   const shown = (r: number) => step >= 2 || (step === 1 && r === show);
   const PX = 17, ZERO = 90; // bar px per unit of score; where 0 sits in the score column
   const CAPS = [
-    <>unembedding <b>(36, 32)</b> · stream (<b>{QUERY}</b>'s embedding)</>,
-    <>row <b>{SHOW}</b> · stream = <b>{scores[show].toFixed(2)}</b></>,
-    <>36 dot products → <b>36 scores</b>. letters low, digits high. the digits' own embedding rows never moved: never at the last position, so never a gradient</>,
+    <>unembedding <Tex tex="U\ (36 \times 32)" /> · stream <Tex tex="x" /> (<b>{QUERY}</b>'s embedding)</>,
+    <>row <b class="dg">{SHOW}</b>: <Tex tex={`U_{\\htmlClass{dg}{${SHOW}}} \\cdot x = ${scores[show].toFixed(2)}`} /></>,
+    <><Tex tex="U x" />: 36 dot products → <b>36 scores</b>. letters low, digits high. the digits' own embedding rows never moved: never at the last position, so never a gradient</>,
     <>output: <b class="best">{toks[best]}</b>. the answer was <b class="dg">{SHOW}</b>: the last position never saw it</>,
   ];
   const cell = (v: number) => <i style={{ background: diverging(v, 0.5) }} />;
@@ -166,25 +167,25 @@ export function Unembed({ data, query, show: SHOW }: { data: string; query: stri
         .s0u { display: flex; gap: 3em; align-items: center; font-size: .8em; }
         .s0u .grid { display: grid; grid-template-columns: auto auto 200px; column-gap: .7em; row-gap: 1px; align-items: center; }
         .s0u .vec { display: flex; gap: 1px; transition: opacity .3s; }
-        .s0u .vec i { width: 16px; height: 15px; display: block; }
-        .s0u .vec.x i { height: 22px; }
+        .s0u .vec i { width: 18px; height: 16px; display: block; }
+        .s0u .vec.x i { height: 24px; }
         .s0u .vec.dim { opacity: .2; }
-        .s0u .vec.on { outline: 2px solid var(--accent); outline-offset: 1px; }
+        .s0u .vec.on { outline: 3px solid var(--focus); outline-offset: 1px; }
         .s0u .gap { height: 10px; }
         .s0u .rl { font-family: var(--mono); font-size: .6em; color: var(--muted); text-align: right; line-height: 1; }
-        .s0u .rl.dg { color: var(--hot); }
+        .s0u .rl.dg { color: var(--digit); }
         .s0u .rl.best { color: var(--fg); font-weight: 700; font-size: .75em; }
         .s0u .sh { font-size: .55em; }
-        .s0u .sc { position: relative; height: 15px; }
+        .s0u .sc { position: relative; height: 16px; }
         .s0u .sc .zero { position: absolute; left: 90px; top: -1px; bottom: -1px; width: 1px; background: var(--border); }
-        .s0u .sc i { position: absolute; top: 2px; height: 11px; background: var(--faint); border-radius: 2px; }
-        .s0u .sc i.dg { background: var(--hot); }
+        .s0u .sc i { position: absolute; top: 2px; height: 12px; background: var(--faint); border-radius: 2px; }
+        .s0u .sc i.dg { background: var(--digit); }
         .s0u .sc b { position: absolute; left: 160px; top: -.3em; font-family: var(--mono); font-size: .65em; color: var(--fg); }
-        .s0u .sc.best i { background: var(--good); }
+        .s0u .sc.best i { background: var(--answer); }
         .s0u .cap { max-width: 18em; font-size: .9em; }
         .s0u .cap b { font-family: var(--mono); color: var(--fg); }
-        .s0u .cap .best { color: var(--good); }
-        .s0u .cap .dg { color: var(--hot); }
+        .s0u .cap b.best { color: var(--answer); }
+        .s0u .cap b.dg, .s0u .cap .math .dg { color: var(--digit); }
       `}</style>
     </div>
   );
@@ -227,7 +228,7 @@ export function Attention({ data }: { data: string }) {
         .t1a .cell { height: 44px; display: grid; place-items: center; font-family: var(--mono); font-size: .8em; color: var(--muted); border-radius: 4px; }
         .t1a .cell.hot { color: var(--on-color); font-weight: 700; }
         .t1a .side { display: flex; flex-direction: column; gap: .4em; max-width: 14em; }
-        .t1a .big { font-family: var(--mono); font-size: 2em; color: var(--accent); }
+        .t1a .big { font-family: var(--mono); font-size: 2em; color: var(--attn); }
       `}</style>
     </div>
   );
@@ -363,13 +364,13 @@ export function HowDigits({ data }: { data: string }) {
         .hd .bar { fill: ${LETTER}; transition: y .25s linear, height .25s linear, opacity .4s; }
         .hd .bar.dg { fill: ${DIGIT}; }
         .hd .bar.dim { opacity: .3; }
-        .hd .pu { stroke: var(--good); stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .hd .pu { stroke: var(--answer); stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
         .hd .pd { stroke: var(--bad); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-        .hd .up { font-size: 30px; fill: var(--good); font-weight: 700; }
+        .hd .up { font-size: 30px; fill: var(--answer); font-weight: 700; }
         .hd .pr { font-family: var(--mono); font-size: 15px; fill: var(--fg); }
         .hd .cap { font-size: .95em; min-height: 3em; }
         .hd .cap b { color: var(--fg); font-family: var(--mono); }
-        .hd .cap b.v { color: var(--good); }
+        .hd .cap b.v { color: var(--digit); }
         .hd code { font-family: var(--mono); color: var(--fg); }
       `}</style>
     </div>

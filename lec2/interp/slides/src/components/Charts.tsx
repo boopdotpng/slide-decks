@@ -1,16 +1,29 @@
 /** @jsxImportSource preact */
 import { useRef, useState } from 'preact/hooks';
 import { useSlideStep } from '../deck/hooks';
-import { fmt, tip } from './viz';
+import { Tex, fmt, tip } from './viz';
+import './roles';
 
 /**
  * Small svg charts drawn from the section csvs (public/data/section<N>.json).
  * Bars: one per token / position, letters and digits colored apart, optional dashed reference lines.
  * Line: one series over steps, with a hover crosshair and reference lines that appear with the slide step.
  */
-export const LETTER = 'var(--muted)', DIGIT = 'var(--accent)';
+export const LETTER = 'var(--muted)', DIGIT = 'var(--digit)', LINE = 'var(--accent)';
 const AXIS = 'var(--raised-2)', GRID = 'var(--border)';
-type Ref = { y: number; label: string; step?: number };
+/** a dashed line at y; tex: a formula after the label */
+type Ref = { y: number; label: string; tex?: string; step?: number };
+
+/** a reference line's label, with its formula in KaTeX: html in a foreignObject, anchored like svg text */
+function RefLabel({ r, x, y, align }: { r: Ref; x: number; y: number; align: 'start' | 'end' }) {
+  if (!r.tex) return <text x={x} y={y} text-anchor={align}>{r.label}</text>;
+  const W = 900, H = 40;
+  return (
+    <foreignObject x={align === 'end' ? x - W : x} y={y - H + 8} width={W} height={H} style={{ overflow: 'visible' }}>
+      <div class={`rlab ${align}`}>{r.label} <Tex tex={r.tex} /></div>
+    </foreignObject>
+  );
+}
 
 function ticks(lo: number, hi: number, n = 4) {
   const raw = (hi - lo) / n, mag = 10 ** Math.floor(Math.log10(raw));
@@ -49,7 +62,7 @@ export function BarChart({ values, labels, kinds, refs = [], min, max, height = 
         {refs.map((r) => (
           <g class={`ref ${(r.step ?? 0) <= step ? 'on' : ''}`}>
             <line x1={L} x2={width - R} y1={y(r.y)} y2={y(r.y)} />
-            <text x={width - R + 10} y={y(r.y) + 6}>{r.label}</text>
+            <RefLabel r={r} x={width - R + 10} y={y(r.y) + 6} align="start" />
           </g>
         ))}
         {values.map((v, i) => {
@@ -104,13 +117,13 @@ export function LineChart({ ys, refs = [], height = 420, width = 1200, xLabel = 
         {refs.map((r) => (
           <g class={`ref ${(r.step ?? 0) <= step ? 'on' : ''}`}>
             <line x1={L} x2={width - R} y1={y(r.y)} y2={y(r.y)} />
-            <text x={width - R} y={y(r.y) - 10} text-anchor="end">{r.label}</text>
+            <RefLabel r={r} x={width - R} y={y(r.y) - 10} align="end" />
           </g>
         ))}
-        <polyline points={pts} fill="none" stroke={DIGIT} stroke-width="2" stroke-linejoin="round" />
+        <polyline points={pts} fill="none" stroke={LINE} stroke-width="2.5" stroke-linejoin="round" />
         {hover !== null && <>
           <line x1={x(hover)} x2={x(hover)} y1={T} y2={height - B} stroke="var(--faint)" />
-          <circle cx={x(hover)} cy={y(ys[hover])} r="5" fill={DIGIT} stroke="var(--bg)" stroke-width="2" />
+          <circle cx={x(hover)} cy={y(ys[hover])} r="5" fill={LINE} stroke="var(--bg)" stroke-width="2" />
         </>}
       </svg>
     </div>
@@ -123,10 +136,14 @@ export const CHART_CSS = `
   .chart .ct { font-size: .7em; color: var(--muted); margin-bottom: .2em; }
   .chart .lg { margin-left: 1.2em; font-size: .9em; }
   .chart .lg i { display: inline-block; width: .7em; height: .7em; border-radius: 2px; margin: 0 .35em 0 .8em; vertical-align: -.05em; }
-  .chart .tk { font-family: var(--mono); font-size: 18px; fill: var(--muted); }
-  .chart .xl { font-family: var(--mono); font-size: 20px; fill: var(--muted); }
+  .chart .tk { font-family: var(--mono); font-size: 20px; fill: var(--muted); }
+  .chart .xl { font-family: var(--mono); font-size: 22px; fill: var(--muted); }
   .chart .ref { opacity: 0; transition: opacity .4s; }
   .chart .ref.on { opacity: 1; }
   .chart .ref line { stroke: color-mix(in srgb, var(--fg) 15%, var(--muted)); stroke-width: 1.5; stroke-dasharray: 6 6; }
-  .chart .ref text { font-family: var(--mono); font-size: 20px; fill: color-mix(in srgb, var(--fg) 50%, var(--muted)); }
+  .chart .ref text { font-family: var(--mono); font-size: 22px; fill: color-mix(in srgb, var(--fg) 50%, var(--muted)); }
+  .chart .rlab { display: flex; align-items: flex-end; gap: .4em; height: 100%; font-size: 24px; line-height: 1.1; white-space: nowrap;
+    color: color-mix(in srgb, var(--fg) 50%, var(--muted)); }
+  .chart .rlab.end { justify-content: flex-end; }
+  .chart .rlab .math { color: var(--fg); }
 `;
