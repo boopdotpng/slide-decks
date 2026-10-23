@@ -440,12 +440,12 @@ export function Write() {
       <div class="side">
         <div>each digit's key now carries layer 1's tag: <span class="tg">+f</span> under the 5</div>
         <div>the f's query finds the <span class="tg">+f</span>: the <b class="dg">{chars[best]}</b>, <b>{pct(q[best])}</b></div>
-        <div>over the test set: <b>{pct(d.l2_from_query.target)}</b> on the right digit, all <b>{wins} / 26</b> letters</div>
+        <div>over the test set: <b>{pct(d.l2_from_query.target)}</b> on the right digit, all <b class="nw">{wins} / 26</b> letters</div>
       </div>
       <style>{AM_CSS + `
         .t2w { display: flex; gap: 2em; align-items: center; }
         .t2w .side { display: flex; flex-direction: column; gap: .8em; font-size: .64em; max-width: 22em; color: var(--muted); }
-        .t2w .side b { color: var(--fg); } .t2w .side b.dg { color: var(--hot); }
+        .t2w .side b { color: var(--fg); } .t2w .side .nw { white-space: nowrap; } .t2w .side b.dg { color: var(--hot); }
         .t2w .side .tg { font-family: var(--mono); color: var(--accent); font-weight: 600; }
       `}</style>
     </div>
