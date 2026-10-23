@@ -479,8 +479,8 @@ export function Patterns() {
         <div class={`fade ${step >= 1 ? 'on' : ''} crowd`}>
           <div class="hd">together, all 64 get <b>{pct(tk.acc)}</b> of pairs right (<span class="g">green</span>)</div>
           <div class="row">
-            <PairGrid data={tk.cells} color={right} cw={18} />
-            <Bars width={120} max={100} values={g.topk.map((t) => (t.k <= kk ? t.acc * 100 : 0))} labels={g.topk.map((t) => `top ${t.k}`)}
+            <PairGrid data={tk.cells} color={right} cw={25} />
+            <Bars width={110} max={100} values={g.topk.map((t) => (t.k <= kk ? t.acc * 100 : 0))} labels={g.topk.map((t) => `top ${t.k}`)}
               hl={g.topk.findIndex((t) => t.k === kk)} color={(_, i) => (g.topk[i].k === kk ? 'var(--answer)' : 'var(--faint)')} fmtV={(v) => (v ? `${v.toFixed(0)}%` : '')} />
           </div>
         </div>
@@ -497,7 +497,7 @@ export function Patterns() {
         .t3t .ml { font-family: var(--mono); font-size: .55em; } .t3t .ml b { color: var(--focus); } .t3t .ml i { font-style: normal; color: var(--fg); }
         .t3t .cap { font-size: .68em; }
         .t3t .crowd { display: flex; flex-direction: column; gap: .5em; padding-top: .6em; }
-        .t3t .crowd .row { display: flex; gap: 1em; align-items: center; } .t3t .crowd .bars { font-size: .8em; }
+        .t3t .crowd .row { display: flex; gap: 1em; align-items: center; } .t3t .crowd .bars { font-size: .55em; row-gap: 1.1em; } .t3t .crowd .bar-row .track { height: 1.5em; }
         .t3t .fade { opacity: 0; transition: opacity .35s; } .t3t .fade.on { opacity: 1; }
       `}</style>
     </div>
