@@ -13,6 +13,9 @@ const modules = import.meta.glob<{ default: any }>('../slides/*.{astro,mdx}', { 
 const slides = Object.entries(modules)
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([path, mod]) => ({ name: path.split('/').pop()!, Slide: mod.default }));
+// file numbers that aren't slide numbers make "slide 18" hard to find: say so (bun run slides renumber fixes it)
+const drift = slides.filter((s, j) => Number(s.name.match(/^\d+/)?.[0]) !== j + 1 || /^\d+[a-z]/.test(s.name)).length;
+if (drift) console.warn(`${drift} slide file(s) aren't numbered by position: bun run slides renumber`);
 
 // speaker notes from src/slides/notes.md (read from disk, not imported, so saving
 // notes from the presenter window doesn't reload the page). Rendered in the presenter.

@@ -57,7 +57,7 @@ export function initPresenter({ slides, position, onChange }: {
     const atEnd = step >= total && slide >= slides.length - 1;
     end.style.display = atEnd ? 'flex' : 'none';
     if (!atEnd) nxt.src = embed(step < total ? `${slide + 1}.${step + 1}` : `${slide + 2}`);
-    pos.textContent = `${slide + 1} / ${slides.length}` + (total ? `  ·  step ${step} / ${total}` : '');
+    pos.textContent = `${slide + 1} / ${slides.length}  ·  ${nameOf(slide)}` + (total ? `  ·  step ${step} / ${total}` : '');
     if (editing && editing !== nameOf(slide)) { flush(); startEdit(); } // follow the deck while typing
     renderNotes();
   }

@@ -79,6 +79,7 @@ export function initDeck() {
     i = Math.max(0, Math.min(slides.length - 1, n));
     slides.forEach((s, j) => s.classList.toggle('active', j === i));
     counter.textContent = `${i + 1} / ${slides.length}`;
+    counter.title = `${slides[i].dataset.file} · go to slide (g)`;
     if (prevI !== i) slides[prevI].dispatchEvent(new CustomEvent('slide:leave'));
     setStep(atEnd ? total(slides[i]) : 0);
     slides[i].dispatchEvent(new CustomEvent('slide:enter'));
@@ -125,10 +126,12 @@ export function initDeck() {
     remote = false;
   };
 
-  // #7 = slide 7, #7.3 = slide 7 at step 3 (so a reload keeps your place)
+  // #7 = slide 7, #7.3 = slide 7 at step 3 (so a reload keeps your place); #22-recap.3 = by file name
+  const fileOf = (s: HTMLElement) => (s.dataset.file ?? '').replace(/\.\w+$/, '');
   const fromHash = () => {
-    const [n, k] = location.hash.slice(1).split('.').map(Number);
-    return [(n || 1) - 1, k || 0] as const;
+    const [at, k] = decodeURIComponent(location.hash.slice(1)).split(/\.(?=\d+$)/);
+    const n = /^\d*$/.test(at) ? Number(at) || 1 : slides.findIndex((s) => fileOf(s) === at) + 1 || 1;
+    return [n - 1, Number(k) || 0] as const;
   };
 
   // ── slide picker: a grid of every slide, fully revealed ────────────────────
@@ -183,11 +186,10 @@ export function initDeck() {
   function pickerKey(e: KeyboardEvent) {
     const move = (d: number) => { sel = Math.max(0, Math.min(slides.length - 1, sel + d)); digits = ''; };
     const cols = grid?.cols() ?? 1;
-    if (/^\d$/.test(e.key)) {
-      digits += e.key;
-      const n = Number(digits) - 1;
-      if (n >= 0 && n < slides.length) sel = n;
-    } else if (e.key === 'Backspace') digits = digits.slice(0, -1);
+    // typed numbers clamp into range: 0 is the first slide, too big is the last
+    const typedSel = () => { if (digits) sel = Math.max(0, Math.min(slides.length - 1, Number(digits) - 1)); };
+    if (/^\d$/.test(e.key)) { digits += e.key; typedSel(); }
+    else if (e.key === 'Backspace') { digits = digits.slice(0, -1); typedSel(); }
     else if (e.key === 'ArrowRight' || e.key === 'l') move(1);
     else if (e.key === 'ArrowLeft' || e.key === 'h') move(-1);
     else if (e.key === 'ArrowDown' || e.key === 'j') move(cols);
@@ -282,6 +284,7 @@ export function initDeck() {
       cell.className = 'ov-cell';
       cell.innerHTML = `<div class="ov-label"><span class="n">${j + 1}</span> </div>`;
       cell.firstElementChild!.append(title(s));
+      cell.title = s.dataset.file ?? '';
       cell.onclick = () => api.onPick(j);
       stage.append(cell);
       return cell;

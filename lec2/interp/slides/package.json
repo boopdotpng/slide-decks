@@ -6,10 +6,11 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "bun scripts/colors.mjs && astro check",
+    "check": "bun scripts/slides.mjs check && bun scripts/colors.mjs && astro check",
     "record": "bun scripts/record.mjs",
     "sync": "bun scripts/sync.mjs",
-    "shot": "bun scripts/shot.mjs"
+    "shot": "bun scripts/shot.mjs",
+    "slides": "bun scripts/slides.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.1",

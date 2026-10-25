@@ -3,6 +3,7 @@
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 const { tex, block = false } = Astro.props as { tex: string; block?: boolean };
-const html = katex.renderToString(tex, { displayMode: block, throwOnError: true });
+const html = katex.renderToString(tex, { displayMode: block, throwOnError: true, strict: false,
+  trust: (ctx) => ctx.command === '\\htmlClass' });   // \htmlClass{name}{...}: color a part from css
 ---
 <span class="math" set:html={html} />

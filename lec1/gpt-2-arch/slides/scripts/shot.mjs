@@ -3,7 +3,7 @@
  *
  *   bun dev --port 4400 &                       # or any running deck
  *   bun run shot 3.0 3.2 14.5             # -> /tmp/shots/3.0.png ...
- *   bun run shot 14-stack.3               # by file name (numbers shift as slides are added)
+ *   bun run shot 14-stack.3               # by file name (the number = the slide's, see slides.mjs)
  *   bun run shot --url http://localhost:4400/ --out /tmp/x --wait 2000 --jobs 4 3.1
  *
  * Saves --width × --height (default 1600×900), and says OVERFLOW if the slide's content doesn't fit on the canvas

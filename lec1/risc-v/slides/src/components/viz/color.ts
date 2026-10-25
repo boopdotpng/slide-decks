@@ -12,6 +12,7 @@ const v = (name: string) => `var(--${name})`;
 export const COLORS = {
   neg: v('neg'), pos: v('pos'), mid: v('mid'),
   accent: v('accent'), hot: v('hot'), good: v('good'), bad: v('bad'), purple: v('purple'),
+  teal: v('teal'), pink: v('pink'), yellow: v('yellow'),
   // muted fills for regions / fields
   slate: v('fill-slate'), green: v('fill-green'), blue: v('fill-blue'), amber: v('fill-amber'), red: v('fill-red'), violet: v('fill-violet'),
   // categorical: lines / series that only need to differ from each other

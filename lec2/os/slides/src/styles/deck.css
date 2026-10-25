@@ -20,6 +20,7 @@
   --border:#262626; --line:#333; --line-2:#444;
   /* meaning: readable as text and as strokes */
   --accent:#60a5fa; --hot:#f69d50; --good:#8ddb8c; --bad:#f47067; --purple:#dcbdfb;
+  --teal:#7dd8cf; --pink:#f5a8cf; --yellow:#efd27a; /* pastel extras, same weight as the five above */
   --hl: rgba(96, 165, 250, .16);
   /* region fills, with --fg text on top */
   --fill-slate:#334155; --fill-blue:#1e3a8a; --fill-green:#14532d; --fill-amber:#713f12; --fill-red:#7f1d1d; --fill-violet:#4c1d95;
@@ -41,7 +42,7 @@
      an island's hard-coded sizes all grow and shrink together. For "% of the slide" use cqw / cqh, not vw / vh
      (the window). --scale is deck.config.ts's `scale` */
   --pad-y: 36px; --pad-x: 72px; --inset-y: 18px; --inset-x: 32px;
-  --base: calc(37.8px * var(--scale, 1));
+  --base: calc(43.5px * var(--scale, 1));
   color-scheme: dark; }
 
 /* light theme: the same names, light values. <html data-theme> is set before the first paint (index.astro) from the
@@ -53,6 +54,7 @@
   --on-color:#fff;
   --border:#e5e5e5; --line:#d4d4d4; --line-2:#bdbdbd;
   --accent:#2563eb; --hot:#c2570c; --good:#16803c; --bad:#d92d20; --purple:#7c3aed;
+  --teal:#0e8277; --pink:#c0307a; --yellow:#9a6d00;
   --hl: rgba(37, 99, 235, .12);
   --fill-slate:#e2e8f0; --fill-blue:#dbeafe; --fill-green:#dcfce7; --fill-amber:#fdecc8; --fill-red:#fee2e2; --fill-violet:#ede9fe;
   --tint-blue:#eff5ff; --tint-green:#effaf2; --tint-violet:#f5f2ff;

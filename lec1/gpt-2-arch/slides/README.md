@@ -16,7 +16,7 @@ bun dev                                # http://localhost:4321
 Then:
 1. set the title in `src/deck.config.ts` (and `scale`, if the deck is dense: it sets the type size)
 2. delete the demo slides in `src/slides/` (and `src/components/demos/`) once you've seen them
-3. write `src/slides/01-whatever.astro`, `02-….astro`, …
+3. add slides with `bun run slides new <name>` (see "writing slides")
 
 `bun run build` makes a static site in `dist/`. `bun run check` typechecks and fails on color literals outside the palette (`scripts/colors.mjs`).
 
@@ -39,7 +39,8 @@ islands, `public/` assets and `deck.config.ts` are never touched, so keep deck-s
 | t | theme: auto (follows the browser / os) → light → dark, also the button in the corner. Remembered across decks and windows; dark until you pick |
 | home / end | first / last |
 
-The URL keeps your place: `#7.3` is slide 7, step 3.
+The URL keeps your place: `#7.3` is slide 7, step 3. `#07-loss.3` works too (the file name, without the extension).
+The counter's tooltip, the grid (hover a thumbnail) and the presenter show the current slide's file.
 `bun run build && bun run record` exports `deck.mp4`: it presses → through every step, waiting for each step's
 animations to finish plus `--hold` ms (default 1500). Options: `--out`, `--hold`, `--from 3 --to 7`, `--width`, `--height`, `--fps`, `--crf` (14), `--scale` (2× supersampling).
 JS-driven animations (`LatencyRace`, `auto` Walkthrough, `Terminal`) set their own `data-hold`; put `data-hold="5000"` on any
@@ -53,7 +54,23 @@ into `/tmp/shots/`, and prints any page errors. Options: `--url`, `--out`, `--wa
 
 ## writing slides
 
-One file per slide in `src/slides/`, ordered by filename. Title in the picker
+One file per slide in `src/slides/`, ordered by filename, and the file's number is its slide number (the `#N` in the
+URL, the counter and the grid), so slide 18 is `18-….astro`. Let the scripts keep it that way:
+
+```sh
+bun run slides                        # list: number, file, steps, notes, title
+bun run slides 22                     # path of slide 22 (or a name: bun run slides loss)
+bun run slides new loss               # 21-loss.astro, at the end
+bun run slides new loss --after 7     # 08-loss.astro; the old 08- and everything after it move up one
+                                      # --after 07-net (a file), --at 3 (becomes slide 3), --mdx (markdown)
+bun run slides mv 12 --after 3        # 12-x becomes 04-x (--at works too)
+bun run slides rename 12 cross-entropy
+bun run slides rm 12                  # deletes it and its notes, closes the gap
+bun run slides renumber               # after adding / renaming files by hand; --dry to preview
+```
+
+They use `git mv` and keep notes.md's headings on their slides. `bun run check` fails (and the dev server warns)
+when the numbers have drifted. Title in the picker
 comes from `data-title`, else the first h1/h2, else the filename.
 
 ```astro
@@ -117,6 +134,7 @@ Copy `src/components/TemplateIsland.tsx`. Hooks (`src/deck/hooks.ts`):
 
 - `Code`: tiny highlighter for `asm` (risc-v / x86 / arm names), `c`, `cpp`, `py`. `hl` highlights lines and dims the rest; `highlight(line, lang)` for inline.
 - `Math`: LaTeX via KaTeX at build time, `<Math tex="..." />` inline or `block`. static html, no client js.
+- `Tex` / `SvgTex` (from `viz`): the same in an island, `<Tex tex="..." />` / `block`; `SvgTex` puts one inside an svg at (x, y), anchored like `<text>`; `SvgHtml` does the same for any html (words and a `<Tex>`).
 - `components/viz` (see the demo slides for each one in use):
   - `Walkthrough`: code + state table + caption, stepped or `auto`; `StateTable` on its own
   - `BitFields`, `Bytes`: binary words split into fields, memory as byte cells
@@ -126,6 +144,7 @@ Copy `src/components/TemplateIsland.tsx`. Hooks (`src/deck/hooks.ts`):
   - `Terminal`: types out new output
   - `StepCode`: `Code` whose highlighted lines follow the slide step (`hl={{ 1: [0], 2: [1] }}`), to show the real code beside an island
   - `ZoomStage`, `ZoomView`, `nest`: a picture you zoom into, views nested in views (put it in a `.fill`)
+  - `Mat`, `DotRow`: matmuls as svg cells; `t` transposes with the cells sliding into place, highlights, per-cell visibility; one dot product spelled out
   - `Strip`, `Heatmap`, `HeatCanvas`, `ByteHeat` (big matrices, 1 byte per cell), `Bars`, `Shape`, `Tok`, `Chip`, `Crumbs`: data marks
   - `useMeasure`, `box`: measure rendered HTML inside an island (to point Arrows at it, box cells)
   - `diverging`, `sequential`, `COLORS`, `useData('name')` (loads `public/data/name.json`), `tip`
