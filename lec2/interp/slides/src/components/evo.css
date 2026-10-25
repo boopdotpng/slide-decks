@@ -1,0 +1,8 @@
+/* the "since gpt-2" slides: elements that appear together at slide step n (a slide's step count comes from an
+   empty <i data-steps="N" />; .step can't group). .at1 shows from step 1 on, .at2 from step 2, … */
+.at1, .at2, .at3, .at4, .at5 { opacity: 0; transition: opacity .3s; }
+.slide[data-step="1"] .at1, .slide[data-step="2"] .at1, .slide[data-step="3"] .at1, .slide[data-step="4"] .at1, .slide[data-step="5"] .at1, .slide[data-step="6"] .at1, .slide[data-step="7"] .at1, .slide[data-step="8"] .at1 { opacity: 1; }
+.slide[data-step="2"] .at2, .slide[data-step="3"] .at2, .slide[data-step="4"] .at2, .slide[data-step="5"] .at2, .slide[data-step="6"] .at2, .slide[data-step="7"] .at2, .slide[data-step="8"] .at2 { opacity: 1; }
+.slide[data-step="3"] .at3, .slide[data-step="4"] .at3, .slide[data-step="5"] .at3, .slide[data-step="6"] .at3, .slide[data-step="7"] .at3, .slide[data-step="8"] .at3 { opacity: 1; }
+.slide[data-step="4"] .at4, .slide[data-step="5"] .at4, .slide[data-step="6"] .at4, .slide[data-step="7"] .at4, .slide[data-step="8"] .at4 { opacity: 1; }
+.slide[data-step="5"] .at5, .slide[data-step="6"] .at5, .slide[data-step="7"] .at5, .slide[data-step="8"] .at5 { opacity: 1; }

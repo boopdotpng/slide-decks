@@ -1,0 +1,72 @@
+---
+import Goal from '../components/Goal.astro';
+// back-of-envelope costs per token for llama 3 8b's shapes (32 layers, d 4096, 32 query heads, 8 kv heads of 128,
+// mlp 14336, bf16), embeddings left out. left: flops of one forward pass (training and prefill: compute-bound).
+// right: bytes read from memory to generate one token (decode: bandwidth-bound), 64 sequences served at once
+const L = 32, D = 4096, HQ = 32, HKV = 8, DH = 128, FF = 14336, BYTES = 2, BATCH = 64;
+const ATTN_W = L * (2 * D * HQ * DH + 2 * D * HKV * DH);   // W_Q, W_O + W_K, W_V
+const MLP_W = L * 3 * D * FF;                              // swiglu: three matrices
+const CTX = [1024, 4096, 16384, 32768];
+const ctxLabel = (n: number) => `${n / 1024}k`;
+// a token at position p does QK and AV over p keys: 2 matmuls × 2 flops × p × (32 × 128), per layer. average p = n / 2
+const flops = CTX.map(n => [2 * MLP_W, 2 * ATTN_W, 4 * L * HQ * DH * n / 2].map(f => f / 1e9));
+// weights are read once per step and shared by the batch; every sequence reads its whole kv cache
+const reads = CTX.map(n => [MLP_W * BYTES / BATCH, ATTN_W * BYTES / BATCH, 2 * L * HKV * DH * n * BYTES].map(b => b / 1e9));
+const PANELS = [
+  { title: 'training / reading the prompt', unit: 'billions of flops (multiplies + adds) per token', rows: flops,
+    parts: ['mlp', 'attention weights', 'attention over the context'], fix: ['swiglu, moe', '', 'windows, sparse, linear'] },
+  { title: 'generating, 64 users at once', unit: 'GB read from gpu memory per new token', rows: reads,
+    parts: ['mlp weights', 'attention weights', 'kv cache'], fix: ['moe', '', 'gqa, mla, windows, sparse, linear'] },
+];
+const COL = ['var(--series-4)', 'var(--series-1)', 'var(--series-2)'];
+const W = 640, LBL = 60, ROW = 46, BAR = 30, TOP = 8;
+---
+<header>
+  <Goal band={[1, 2]} />
+  <h2>where the work goes</h2>
+  <p class="sub">llama 3 8b, per token, by context length</p>
+</header>
+<div class="cp">
+  {PANELS.map((p, pi) => {
+    const max = Math.max(...p.rows.map(r => r.reduce((a, b) => a + b, 0)));
+    const sx = (v: number) => (v / max) * (W - LBL - 70);
+    return (
+      <div class:list={['panel', { step: pi > 0 }]}>
+        <div class="pt">{p.title}</div>
+        <svg viewBox={`0 0 ${W} ${TOP + CTX.length * ROW}`}>
+          {p.rows.map((r, ri) => {
+            let x = LBL;
+            const total = r.reduce((a, b) => a + b, 0);
+            return (
+              <g transform={`translate(0 ${TOP + ri * ROW})`}>
+                <text class="cl" x={LBL - 12} y={BAR / 2 + 7} text-anchor="end">{ctxLabel(CTX[ri])}</text>
+                {r.map((v, k) => { const w = sx(v); const el = <rect x={x} y={0} width={w} height={BAR} fill={COL[k]} />; x += w; return el; })}
+                <text class="tv" x={x + 10} y={BAR / 2 + 7}>{total < 10 ? total.toFixed(1) : Math.round(total)}</text>
+              </g>
+            );
+          })}
+        </svg>
+        <div class="unit">{p.unit}</div>
+        <div class="lg">
+          {p.parts.map((name, k) => (
+            <div class="li"><i style={`background: ${COL[k]}`} /><span>{name}</span>{p.fix[k] && <b class={k === 2 || pi === 1 ? 'g2' : 'g1'}>← {p.fix[k]}</b>}</div>
+          ))}
+        </div>
+      </div>
+    );
+  })}
+</div>
+<style>
+  .cp { display: grid; grid-template-columns: 1fr 1fr; gap: 2.4em; }
+  .panel { display: flex; flex-direction: column; gap: .3em; }
+  .pt { font-size: .72em; font-weight: 700; }
+  .panel svg { width: 100%; }
+  .cl { font-family: var(--mono); font-size: 20px; fill: var(--muted); }
+  .tv { font-family: var(--mono); font-size: 20px; fill: var(--fg); }
+  .unit { font-size: .48em; color: var(--muted); margin-left: 3.6em; margin-top: -.3em; }
+  .lg { display: flex; flex-direction: column; gap: .15em; font-size: .52em; margin-top: .5em; }
+  .li { display: flex; align-items: center; gap: .5em; }
+  .li i { width: .9em; height: .9em; border-radius: 2px; flex: none; }
+  .li b { font-family: var(--mono); font-weight: 700; font-size: .9em; color: var(--good); }
+  .li b.g2 { color: var(--hot); }
+</style>

@@ -1,0 +1,71 @@
+---
+import Goal from '../components/Goal.astro';
+import Tex from '../components/Math.astro';
+// relu, silu = z·σ(z), and σ itself, on z ∈ [-4, 4]
+const sig = (z: number) => 1 / (1 + Math.exp(-z));
+const W = 520, H = 340, X0 = -4, X1 = 4, Y0 = -1, Y1 = 4;
+const px = (z: number) => ((z - X0) / (X1 - X0)) * W;
+const py = (y: number) => H - ((y - Y0) / (Y1 - Y0)) * H;
+// shazeer 2020 (arxiv 2002.05202), table 1, 524,288 steps: lower is better
+const RES: [string, number][] = [['relu', 1.677], ['gelu', 1.679], ['swiglu', 1.636]];
+const path = (f: (z: number) => number) =>
+  Array.from({ length: 161 }, (_, i) => X0 + (i / 160) * (X1 - X0)).map((z, i) => `${i ? 'L' : 'M'}${px(z).toFixed(1)},${py(f(z)).toFixed(1)}`).join('');
+---
+<header>
+  <Goal band={[1]} />
+  <h2>the mlp: relu → swiglu</h2>
+</header>
+<i data-steps="3" />
+<div class="sw">
+  <div class="plot">
+    <svg viewBox={`-10 -10 ${W + 20} ${H + 20}`}>
+      <line x1={0} x2={W} y1={py(0)} y2={py(0)} class="ax" />
+      <line x1={px(0)} x2={px(0)} y1={0} y2={H} class="ax" />
+      <path d={path(z => Math.max(0, z))} class="relu" />
+      <text x={px(2.4)} y={py(3.2)} text-anchor="end" class="lb rl">relu</text>
+      <g class="at1">
+        <path d={path(sig)} class="sg" />
+        <path d={path(z => z * sig(z))} class="silu" />
+        <text x={px(-3.9)} y={py(2)} class="lb sgl">σ(z): a soft 0 → 1 switch</text>
+        <text x={px(-3.9)} y={py(-.15) + 30} class="lb sl">silu = z × switch</text>
+      </g>
+    </svg>
+  </div>
+  <div class="eqs">
+    <div class="eq"><span class="k">relu</span><Tex tex={'\\max(0,\\ z)'} /></div>
+    <div class="eq at1"><span class="k">silu</span><Tex tex={'z \\cdot \\sigma(z)'} /></div>
+    <div class="eq at2 big"><span class="k">swiglu</span><Tex tex={'\\big(\\mathrm{silu}(x W_1) \\odot x W_3\\big)\\, W_2'} /></div>
+    <div class="gate at2">
+      <span class="g1">silu(<Tex tex="xW_1" />)</span> decides how much of each of <span class="g3"><Tex tex="xW_3" /></span>'s numbers gets through
+    </div>
+    <div class="res at3">
+      <div class="rh">t5-base, same params · held-out log-perplexity, lower is better</div>
+      {RES.map(([n, v]) => (
+        <div class:list={['rr', { best: n === 'swiglu' }]}><span>{n}</span><b>{v.toFixed(3)}</b></div>
+      ))}
+    </div>
+  </div>
+</div>
+<blockquote class="at3">“We offer no explanation as to why these architectures seem to work; we attribute their success, as all else, to divine benevolence.” <cite>shazeer 2020, glu variants improve transformer</cite></blockquote>
+<style>
+  .sw { display: grid; grid-template-columns: 1fr 1.25fr; gap: 2.4em; align-items: center; }
+  .plot svg { width: 100%; overflow: visible; }
+  .ax { stroke: var(--line-2); stroke-width: 1.5; }
+  .plot path { fill: none; stroke-width: 5; stroke-linecap: round; }
+  .relu { stroke: var(--muted); }
+  .silu { stroke: var(--accent); }
+  .sg { stroke: var(--good); stroke-dasharray: 2 9; }
+  .lb { font-size: 22px; } .rl { fill: var(--muted); } .sl { fill: var(--accent); } .sgl { fill: var(--good); }
+  .eqs { display: flex; flex-direction: column; gap: .7em; }
+  .eq { display: grid; grid-template-columns: 4.2em 1fr; align-items: baseline; font-size: .9em; }
+  .eq.big { font-size: 1.05em; }
+  .res { margin-top: .4em; font-size: .55em; display: flex; flex-direction: column; gap: .2em; }
+  .rh { color: var(--muted); margin-bottom: .2em; }
+  .rr { display: grid; grid-template-columns: 5em auto; font-family: var(--mono); color: var(--muted); }
+  .rr.best { color: var(--accent); } .rr b { font-weight: 700; }
+  blockquote { margin: 1.4em 0 0; font-size: .5em; color: var(--muted); font-style: italic; }
+  blockquote cite { display: block; font-style: normal; font-size: .85em; color: var(--faint); margin-top: .2em; }
+  .eq .k { font-family: var(--mono); font-size: .55em; color: var(--accent); }
+  .gate { font-size: .6em; color: var(--muted); margin-left: 7.5em; }
+  .gate .g1 { color: var(--good); } .gate .g3 { color: var(--fg); }
+</style>

@@ -1,0 +1,49 @@
+---
+import Goal from '../components/Goal.astro';
+import Tex from '../components/Math.astro';
+// attention masks: row = query position, column = key position. n positions, window w, top-k picks k
+const N = 12, W = 4, K = 4;
+const hash = (i: number, j: number) => { const x = Math.sin(i * 12.9898 + j * 78.233) * 43758.5453; return x - Math.floor(x); };
+// top-k: the k highest "indexer scores" among the visible keys (made up: a fixed hash, plus the token itself)
+const topk = (i: number) => {
+  const keys = Array.from({ length: i }, (_, j) => j).sort((a, b) => hash(i, b) - hash(i, a)).slice(0, K - 1);
+  return new Set([...keys, i]);
+};
+const MASKS = [
+  { name: 'full causal', who: 'gpt-2', see: (i: number, j: number) => j <= i,
+    reads: '\\text{all } n' },
+  { name: 'sliding window', who: 'mistral, gemma 3, gpt-oss', see: (i: number, j: number) => j <= i && j > i - W,
+    reads: '\\text{last } w' },
+  { name: 'learned sparse', who: 'deepseek v3.2 (dsa)', see: (i: number, j: number) => topk(i).has(j),
+    reads: '\\text{top } k' },
+];
+---
+<header>
+  <Goal band={[2]} />
+  <h2>attention: read less of the cache</h2>
+  <p class="sub">same math, different mask</p>
+</header>
+<div class="ms">
+  {MASKS.map((m, mi) => (
+    <div class:list={['m', { step: mi > 0 }]}>
+      <div class="grid">
+        {Array.from({ length: N * N }, (_, c) => <i class:list={{ on: m.see(Math.floor(c / N), c % N), fut: c % N > Math.floor(c / N) }} />)}
+      </div>
+      <div class="nm">{m.name}</div>
+      <div class="who">{m.who}</div>
+      <div class="rd"><Tex tex={`\\text{reads } ${m.reads}`} /></div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .ms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.2em; }
+  .m { display: flex; flex-direction: column; gap: .3em; }
+  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; width: 7.4em; aspect-ratio: 1; margin-bottom: .4em; font-size: .9em; }
+  .grid i { background: var(--surface); border-radius: 1px; }
+  .grid i.fut { background: transparent; }
+  .grid i.on { background: var(--hot); }
+  .nm { font-family: var(--mono); color: var(--accent); font-size: .75em; }
+  .who { font-size: .55em; color: var(--muted); }
+  .rd { font-size: .9em; margin-top: .2em; }
+</style>

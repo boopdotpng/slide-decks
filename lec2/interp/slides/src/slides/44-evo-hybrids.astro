@@ -1,0 +1,47 @@
+---
+import Goal from '../components/Goal.astro';
+// the first 12 layers (all of gpt-2) of each model, by attention type. f full, w sliding window, s mla + learned sparse, l linear
+// (gated deltanet / kda), m mla
+const TYPES = {
+  f: ['full', 'var(--series-1)'], w: ['sliding window', 'var(--teal)'], s: ['mla + sparse', 'var(--series-2)'],
+  m: ['mla', 'var(--yellow)'], l: ['linear (deltanet, kda)', 'var(--good)'],
+} as const;
+type T = keyof typeof TYPES;
+const rep = (p: string) => p.repeat(12).slice(0, 12).split('') as T[];
+const MODELS: [string, T[], string][] = [
+  ['gpt-2', rep('f'), 'dense'],
+  ['llama 3', rep('f'), 'dense'],
+  ['gemma 3', rep('wwwwwf'), 'dense'],
+  ['gpt-oss', rep('wf'), 'moe'],
+  ['deepseek v3.2', rep('s'), 'moe'],
+  ['qwen3-next', rep('lllf'), 'moe'],
+  ['kimi linear', rep('lllm'), 'moe'],
+];
+---
+<header>
+  <Goal band={[1, 2]} />
+  <h2>real models mix the answers</h2>
+  <p class="sub">first 12 layers, by attention type</p>
+</header>
+<div class="hy">
+  {MODELS.map(([m, layers, mlp], i) => (
+    <div class:list={['row', { step: i > 1 }]}>
+      <div class="m">{m}</div>
+      <div class="ls">{layers.map(t => <i style={`background: ${TYPES[t][1]}`} />)}</div>
+      <div class:list={['mlp', mlp]}>{mlp}</div>
+    </div>
+  ))}
+</div>
+<div class="lg">{Object.values(TYPES).map(([n, c]) => <span><i style={`background: ${c}`} />{n}</span>)}</div>
+<style>
+  .hy { display: grid; grid-template-columns: auto 1fr auto; gap: .45em 1.2em; font-size: .62em; align-items: center; }
+  .hy .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; }
+  .m { font-family: var(--mono); white-space: nowrap; }
+  .ls { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; }
+  .ls i { display: block; height: 1.25em; border-radius: 3px; }
+  .mlp { font-family: var(--mono); font-size: .85em; padding: .1em .6em; border-radius: 99px; border: 1.5px solid var(--line-2); color: var(--muted); }
+  .mlp.moe { border-color: var(--good); color: var(--good); }
+  .lg { display: flex; gap: 1.4em; justify-content: center; font-size: .5em; color: var(--muted); margin-top: 1.2em; }
+  .lg span { display: flex; align-items: center; gap: .4em; }
+  .lg i { width: .9em; height: .9em; border-radius: 2px; }
+</style>

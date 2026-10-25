@@ -1,0 +1,94 @@
+---
+import Goal from '../components/Goal.astro';
+import Tex from '../components/Math.astro';
+// an illustration, not a trained model: one token's router scores, and which 2 of 8 experts a few tokens pick
+const EXPERTS = 8;
+const SCORES = [0.3, -0.5, 2.1, 0.1, -1.0, 1.7, 0.4, -0.2];
+const TOP = [2, 5];
+const SMIN = -1.2, SMAX = 2.4;
+const PICKS: [string, number[]][] = [
+  ['the', [2, 5]], ['cat', [1, 6]], ['sat', [3, 6]], ['on', [2, 7]], ['a', [0, 5]], ['mat', [1, 4]],
+];
+// [name, total params, active per token] in billions, and how many experts each moe layer has / picks
+const MODELS: [string, number, number, string][] = [
+  ['mixtral 8×7b', 47, 13, 'top 2 of 8'],
+  ['gpt-oss-120b', 117, 5.1, 'top 4 of 128'],
+  ['deepseek-v3', 671, 37, 'top 8 of 256, + 1 shared'],
+];
+---
+<header>
+  <Goal band={[1, 2]} />
+  <h2>mixture of experts</h2>
+  <p class="sub">one mlp → many mlps ("experts"). a router picks a few for each token</p>
+</header>
+<i data-steps="3" />
+<div class="moe">
+  <div class="one">
+    <div class="ph">one token: the router</div>
+    <div class="scores">
+      {SCORES.map((s, i) => (
+        <div class:list={['sc', { on: TOP.includes(i) }]}>
+          <div class="col"><b style={`height: ${(100 * (s - SMIN)) / (SMAX - SMIN)}%`} /></div>
+          <span>{i}</span>
+        </div>
+      ))}
+    </div>
+    <div class="cap"><Tex tex={'x\\, W_{\\text{router}}'} />: a score per expert. keep the top 2, softmax them</div>
+    <div class="eq"><Tex tex={'\\text{write} = 0.6 \\cdot \\text{mlp}_2(x) + 0.4 \\cdot \\text{mlp}_5(x)'} /></div>
+    <div class="cap">each <Tex tex={'\\text{mlp}_i'} /> is task 3's mlp: up, nonlinearity, down. the other 6 don't run</div>
+  </div>
+  <div class="many at1">
+    <div class="ph">every token picks its own 2</div>
+    <div class="grid">
+      <div /><div class="hd">{Array.from({ length: EXPERTS }, (_, i) => <span>{i}</span>)}</div>
+      {PICKS.map(([t, p]) => <>
+        <div class="tk">{t}</div>
+        <div class="cells">{Array.from({ length: EXPERTS }, (_, i) => <i class:list={{ on: p.includes(i) }} />)}</div>
+      </>)}
+    </div>
+    <div class="cap">still one position at a time, like any mlp. different tokens, different experts</div>
+  </div>
+</div>
+<div class="bars at2">
+  <div class="lgd"><span><i class="tt" />all params: what it can store</span><span><i class="ac" />used per token: what it costs</span></div>
+  {MODELS.map(([m, t, a, k]) => (
+    <div class="row">
+      <div class="m">{m}</div>
+      <div class="track"><b style={`width: ${(100 * a) / t}%`} /></div>
+      <div class="n">{a}B of {t}B</div>
+      <div class="k">{k}</div>
+    </div>
+  ))}
+</div>
+<div class="big at3">store like a <b>671B</b> model, pay like a <b>37B</b> one. the catch: all 671B still sit in gpu memory</div>
+<style>
+  .moe { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 3em; font-size: .6em; }
+  .ph { font-weight: 700; margin-bottom: .6em; }
+  .cap { color: var(--muted); font-size: .85em; margin-top: .4em; }
+  .eq { font-size: 1.15em; margin-top: .7em; }
+  .scores { display: flex; gap: .5em; height: 5em; }
+  .sc { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .2em; }
+  .sc .col { flex: 1; width: 100%; display: flex; align-items: flex-end; border-bottom: 1px solid var(--line-2); }
+  .sc b { display: block; width: 100%; background: var(--surface); border: 1px solid var(--line-2); border-bottom: none; border-radius: 3px 3px 0 0; }
+  .sc span { font-family: var(--mono); font-size: .85em; color: var(--faint); }
+  .sc.on b { background: var(--hot); border-color: var(--hot); }
+  .sc.on span { color: var(--fg); font-weight: 700; }
+  .grid { display: grid; grid-template-columns: auto 1fr; gap: .25em .8em; align-items: center; }
+  .hd, .cells { display: grid; grid-template-columns: repeat(8, 1fr); gap: .25em; }
+  .hd span { font-family: var(--mono); font-size: .8em; color: var(--faint); text-align: center; }
+  .tk { font-family: var(--mono); text-align: right; }
+  .cells i { display: block; height: 1.1em; border-radius: 3px; background: var(--surface); border: 1px solid var(--border); }
+  .cells i.on { background: var(--hot); border-color: var(--hot); }
+  .bars { width: 100%; align-self: stretch; display: flex; flex-direction: column; gap: .4em; font-size: .56em; margin-top: 1.6em; }
+  .lgd { display: flex; gap: 1.5em; color: var(--muted); font-size: .9em; margin-bottom: .2em; }
+  .lgd span { display: flex; align-items: center; gap: .4em; }
+  .lgd i { width: .9em; height: .9em; border-radius: 2px; }
+  .tt { background: var(--surface); border: 1px solid var(--line-2); } .ac { background: var(--hot); }
+  .row { width: 100%; display: grid; grid-template-columns: 9em 1fr 9em 13em; gap: 1em; align-items: center; }
+  .m { font-family: var(--mono); white-space: nowrap; }
+  .track { height: 1.2em; background: var(--surface); border: 1px solid var(--line-2); border-radius: 3px; overflow: hidden; }
+  .track b { display: block; height: 100%; background: var(--hot); }
+  .n { font-family: var(--mono); color: var(--fg); white-space: nowrap; text-align: right; }
+  .k { color: var(--muted); white-space: nowrap; }
+  .big { margin-top: 1em; padding: .6em 1em; border: 2px solid var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: .72em; } .big b { color: var(--fg); }
+</style>

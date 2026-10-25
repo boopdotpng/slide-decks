@@ -1,0 +1,57 @@
+---
+import Goal from '../components/Goal.astro';
+// 8 query heads drawn (the picture is the sharing pattern); the cache numbers all use deepseek-v3's 128 query heads
+// of 128 dims, per token per layer, with the sum written out under each bar
+const ROWS = [
+  { name: 'mha', who: 'gpt-2', kv: 8, what: 'one K, V per head', cache: 2 * 128 * 128, calc: 'K, V × 128 heads × 128' },
+  { name: 'gqa', who: 'llama 3, qwen, gemma', kv: 2, what: 'groups share one', cache: 2 * 8 * 128, calc: 'K, V × 8 kv heads × 128' },
+  { name: 'mqa', who: 'palm', kv: 1, what: 'all heads read the same K, V', cache: 2 * 128, calc: 'K, V × 1 head × 128' },
+  { name: 'mla', who: 'deepseek, kimi', kv: 0, what: 'one compressed vector', cache: 512 + 64, calc: '512 latent + 64 for rope' },
+];
+const MAX = ROWS[0].cache;
+---
+<header>
+  <Goal band={[2]} />
+  <h2>attention: shrink the kv cache</h2>
+  <p class="sub">numbers stored per past token, per layer</p>
+</header>
+<div class="kv">
+  <div class="h" /><div class="h key"><span><i class="q" />query head</span><span><i class="k kk" />K, V head (cached)</span></div><div class="h" /><div class="h">cache size, all at deepseek-v3's 128 heads</div>
+  {ROWS.map((r, i) => (
+    <div class:list={['row', { step: i > 0 }]}>
+      <div class="nm">{r.name}<span>{r.who}</span></div>
+      <div class="pic">
+        <div class="qs">{Array.from({ length: 8 }, () => <i class="q" />)}</div>
+        <div class="ks">
+          {r.kv ? Array.from({ length: r.kv }, () => <i class="k" style={`width: calc(${8 / r.kv} * 1.1em - .3em)`} />)
+                : <i class="lat">one latent vector</i>}
+        </div>
+      </div>
+      <div class="what">{r.what}</div>
+      <div class="bar"><b style={`width: ${Math.max(100 * r.cache / MAX, .6)}%`} /><span>{r.cache.toLocaleString('en-US')}<em>{r.calc}</em></span></div>
+    </div>
+  ))}
+</div>
+<div class="step big">mla: <b>57× smaller</b> than mha, ≈ same quality</div>
+<style>
+  .kv { display: grid; grid-template-columns: auto auto 1fr 1.1fr; gap: .8em 1.4em; font-size: .66em; align-items: center; }
+  .kv .h { font-size: .8em; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: .3em; align-self: end; }
+  .kv .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; }
+  .nm { font-family: var(--mono); color: var(--accent); font-size: 1.2em; display: flex; flex-direction: column; }
+  .nm span { font-family: var(--sans); font-size: .55em; color: var(--muted); white-space: nowrap; }
+  .pic { display: flex; flex-direction: column; gap: .3em; }
+  .qs, .ks { display: flex; gap: .3em; }
+  .q, .k { display: block; height: .8em; border-radius: 3px; }
+  .q { width: .8em; background: var(--accent); }
+  .k { background: var(--hot); }
+  .lat { font-style: normal; font-family: var(--mono); font-size: .75em; padding: 0 .5em; border-radius: 3px; background: var(--hot); color: var(--on-color); white-space: nowrap; line-height: 1.1em; }
+  .key { display: flex; flex-direction: column; gap: .15em; white-space: nowrap; }
+  .key span { display: flex; align-items: center; gap: .4em; }
+  .key .kk { width: .8em; }
+  .what { color: var(--muted); }
+  .bar { display: flex; align-items: center; gap: .5em; }
+  .bar b { display: block; height: .9em; background: var(--muted); border-radius: 2px; }
+  .bar span { font-family: var(--mono); white-space: nowrap; display: flex; flex-direction: column; line-height: 1.15; }
+  .bar em { font-style: normal; font-family: var(--sans); font-size: .6em; color: var(--muted); }
+  .big { margin-top: 1em; padding: .7em 1em; border: 2px solid var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: .8em; } .big b { color: var(--fg); }
+</style>

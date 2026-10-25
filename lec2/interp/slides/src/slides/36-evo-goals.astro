@@ -1,0 +1,37 @@
+---
+import Tex from '../components/Math.astro';
+const GOALS = [
+  { g: 1, name: 'better per flop', tex: '\\text{loss} \\downarrow,\\ \\text{same } 6ND', ex: 'swiglu · moe · rope',
+    def: 'flop: one multiply or one add. training costs ≈ 6 per parameter per token' },
+  { g: 2, name: 'cheaper to run', tex: '\\text{bytes read per token}\\ \\downarrow', ex: 'moe · gqa · mla · windows · sparse · linear',
+    def: 'generating a token reads every weight and the whole kv cache from gpu memory. the read is the slow part' },
+  { g: 3, name: 'stable training', tex: '\\text{no loss spikes}', ex: 'rmsnorm · qk-norm · no biases',
+    def: 'a run takes months on thousands of gpus. one loss spike can waste days of it' },
+];
+---
+<header>
+  <div class="section">since gpt-2</div>
+  <h2>2019 → now: three goals</h2>
+  <p class="sub">the stream and the heads stay. almost every change since buys one of these</p>
+</header>
+<div class="gg">
+  {GOALS.map(({ g, name, tex, ex, def }, i) => (
+    <div class:list={['card', `g${g}`, { step: i > 0 }]}>
+      <div class="nm">{name}</div>
+      <div class="tx"><Tex tex={tex} /></div>
+      {def && <div class="def">{def}</div>}
+      <div class="ex"><span>coming up</span>{ex}</div>
+    </div>
+  ))}
+</div>
+<style>
+  .gg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; }
+  .card { --c: var(--good); border-radius: 12px; border: 2px solid var(--c); background: color-mix(in srgb, var(--c) 10%, transparent);
+    padding: .8em 1em; display: flex; flex-direction: column; gap: .6em; min-height: 8em; }
+  .card.g2 { --c: var(--hot); } .card.g3 { --c: var(--purple); }
+  .nm { color: var(--c); font-size: .6em; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+  .tx { font-size: .8em; }
+  .def { font-size: .48em; color: var(--muted); margin-top: -.2em; }
+  .ex { font-family: var(--mono); font-size: .5em; color: var(--muted); margin-top: auto; }
+  .ex span { display: block; font-family: var(--sans); font-size: .85em; color: var(--faint); margin-bottom: .2em; }
+</style>

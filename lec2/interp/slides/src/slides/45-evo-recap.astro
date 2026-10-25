@@ -1,0 +1,51 @@
+---
+import Goal from '../components/Goal.astro';
+// one transformer block, bottom to top (the stack is drawn top to bottom, so reversed below). g = which goal changed it
+type Part = { t: string; g?: (1 | 2 | 3)[]; kind: 'norm' | 'attn' | 'mlp' | 'io' };
+const GPT2: Part[] = [
+  { t: 'token + learned position embedding', kind: 'io' },
+  { t: 'layernorm', kind: 'norm' },
+  { t: 'attention: 12 heads, own K, V each, every past token', kind: 'attn' },
+  { t: 'layernorm', kind: 'norm' },
+  { t: 'mlp: gelu, 4d', kind: 'mlp' },
+  { t: 'unembed', kind: 'io' },
+];
+const NOW: Part[] = [
+  { t: 'token embedding (positions: rope, inside attention)', kind: 'io', g: [1] },
+  { t: 'rmsnorm', kind: 'norm', g: [3] },
+  { t: 'attention: gqa / mla, qk-norm; some layers windowed, sparse or linear', kind: 'attn', g: [2, 3] },
+  { t: 'rmsnorm', kind: 'norm', g: [3] },
+  { t: 'mlp: moe of swiglu experts', kind: 'mlp', g: [1, 2] },
+  { t: 'unembed', kind: 'io' },
+];
+---
+<header>
+  <Goal band={[1, 2, 3]} />
+  <h2>the same block, retuned</h2>
+</header>
+<div class="rc">
+  {[['gpt-2 (2019)', GPT2], ['a 2025 model', NOW]].map(([title, parts], ci) => (
+    <div class:list={['col', { step: ci === 1 }]}>
+      <div class="ttl">{title}</div>
+      {(parts as Part[]).map(p => (
+        <div class:list={['part', p.kind, { inblock: p.kind !== 'io' }]}>
+          <span>{p.t}</span>
+          {p.g && <span class="gs">{p.g.map(g => <Goal g={g} />)}</span>}
+        </div>
+      ))}
+    </div>
+  ))}
+</div>
+<div class="step big">unchanged: the stream, QK picks where, V copies what</div>
+<style>
+  .rc { display: grid; grid-template-columns: 1fr 1.3fr; gap: 2em; font-size: .56em; }
+  .col { display: flex; flex-direction: column; gap: .4em; }
+  .ttl { font-family: var(--mono); color: var(--accent); margin-bottom: .2em; }
+  .part { display: flex; justify-content: space-between; align-items: center; gap: .8em; padding: .45em .8em; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); }
+  .part.attn { background: var(--tint-blue); }
+  .part.mlp { background: var(--tint-violet); }
+  .part.norm { padding: .2em .8em; color: var(--muted); }
+  .part.inblock { margin-left: 1.2em; }
+  .gs { display: flex; gap: 1em; flex-shrink: 0; }
+  .big { margin-top: 1em; padding: .7em 1em; border: 2px solid var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: .8em; }
+</style>

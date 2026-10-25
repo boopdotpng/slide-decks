@@ -1,0 +1,50 @@
+---
+import Goal from '../components/Goal.astro';
+import Tex from '../components/Math.astro';
+// numbers stored per layer for one sequence, llama 3 8b shapes: a kv cache holds 2 × 8 kv heads × 128 per token;
+// a linear-attention state is one 128 × 128 matrix per head, 32 heads, whatever the length
+const KV_PER_TOK = 2 * 8 * 128, STATE = 32 * 128 * 128, NMAX = 32768;
+const W = 640, H = 300, LM = 70, BM = 40;
+const px = (n: number) => LM + (n / NMAX) * (W - LM - 20);
+const py = (v: number) => H - BM - (v / (KV_PER_TOK * NMAX)) * (H - BM - 10);
+const XT = [0, 8192, 16384, 24576, 32768];
+const YT = [0, 20e6, 40e6, 60e6];
+---
+<header>
+  <Goal band={[2]} />
+  <h2>attention: no cache at all</h2>
+  <p class="sub">drop the softmax, keep one fixed-size matrix <Tex tex="S" /> instead</p>
+</header>
+<i data-steps="2" />
+<div class="st">
+  <div class="eqs">
+    <div class="eq"><span class="k">write</span><Tex tex={'S \\leftarrow S + v_t\\, k_t^\\top'} /></div>
+    <div class="eq"><span class="k">read</span><Tex tex={'o_t = S\\, q_t'} /></div>
+    <div class="note at2"><Tex tex="S" />: a key → value table, like task 2, built as it reads</div>
+  </div>
+  <div class="chart at1">
+    <svg viewBox={`0 0 ${W} ${H}`}>
+      {YT.map(v => <g><line x1={LM} x2={W - 20} y1={py(v)} y2={py(v)} class="gr" /><text x={LM - 10} y={py(v) + 6} text-anchor="end" class="tk">{v ? `${v / 1e6}M` : 0}</text></g>)}
+      {XT.map(n => <text x={px(n)} y={H - BM + 26} text-anchor="middle" class="tk">{n / 1024}k</text>)}
+      <line x1={px(0)} y1={py(0)} x2={px(NMAX)} y2={py(KV_PER_TOK * NMAX)} class="kv" />
+      <line x1={px(0)} y1={py(STATE)} x2={px(NMAX)} y2={py(STATE)} class="s" />
+      <text x={px(NMAX * .55)} y={py(KV_PER_TOK * NMAX * .55) - 18} text-anchor="end" class="lb kvl">kv cache</text>
+      <text x={px(NMAX)} y={py(STATE) - 12} text-anchor="end" class="lb sl">state S</text>
+    </svg>
+    <div class="ax">context length → · numbers stored per layer</div>
+  </div>
+</div>
+<style>
+  .st { display: grid; grid-template-columns: 1fr 1.15fr; gap: 2.4em; align-items: center; }
+  .eqs { display: flex; flex-direction: column; gap: .5em; }
+  .eq { display: grid; grid-template-columns: 3.2em 1fr; align-items: baseline; font-size: 1.1em; }
+  .eq .k { font-family: var(--mono); font-size: .45em; color: var(--accent); }
+  .note { font-size: .58em; color: var(--muted); margin-top: .6em; }
+  .chart svg { width: 100%; }
+  .gr { stroke: var(--border); }
+  .tk { font-family: var(--mono); font-size: 18px; fill: var(--muted); }
+  .kv { stroke: var(--hot); stroke-width: 5; stroke-linecap: round; }
+  .s { stroke: var(--good); stroke-width: 5; stroke-linecap: round; }
+  .lb { font-size: 22px; font-weight: 700; } .kvl { fill: var(--hot); } .sl { fill: var(--good); }
+  .ax { font-size: .48em; color: var(--muted); text-align: center; }
+</style>

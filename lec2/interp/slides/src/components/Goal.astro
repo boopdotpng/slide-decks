@@ -1,0 +1,17 @@
+---
+// the three goals in the "since gpt-2" slides: 1 better per flop, 2 cheaper to run, 3 stable training.
+// <Goal g={1} />: the goal's name in its color, small caps like the .section kicker.
+// <Goal band={[1, 2]} />: a slide's kicker, "since gpt-2 · better per flop · cheaper to run"
+import './evo.css';
+type G = 1 | 2 | 3;
+const { g, band } = Astro.props as { g?: G; band?: G[] };
+const LABEL = { 1: 'better per flop', 2: 'cheaper to run', 3: 'stable training' };
+---
+{band ? (
+  <div class="section">since gpt-2{band.map(b => <> · <span class={`goal g${b}`}>{LABEL[b]}</span></>)}</div>
+) : <span class={`goal tag g${g}`}>{LABEL[g!]}</span>}
+<style>
+  .goal { white-space: nowrap; font-weight: 700; }
+  .tag { font-size: .6em; letter-spacing: .15em; text-transform: uppercase; }
+  .g1 { color: var(--good); } .g2 { color: var(--hot); } .g3 { color: var(--purple); }
+</style>

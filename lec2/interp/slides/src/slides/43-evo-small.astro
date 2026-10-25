@@ -1,0 +1,30 @@
+---
+import Goal from '../components/Goal.astro';
+import Tex from '../components/Math.astro';
+const ROWS: [string, string, (1 | 2 | 3)[]][] = [
+  ['rmsnorm', '\\dfrac{x}{\\mathrm{rms}(x)} \\cdot g', [3]],
+  ['qk-norm', '\\mathrm{norm}(q) \\cdot \\mathrm{norm}(k)', [3]],
+  ['no biases', 'x W \\;\\; \\cancel{+\\, b}', [3]],
+  ['rope', 'q_m = R(m)\\, q', [1]],
+];
+---
+<header>
+  <Goal band={[1, 3]} />
+  <h2>the smaller swaps</h2>
+</header>
+<div class="sm">
+  {ROWS.map(([k, tex, gs], i) => (
+    <div class:list={['row', { step: i > 0 }]}>
+      <div class="k">{k}</div>
+      <div class="f"><Tex tex={tex} /></div>
+      <div class="g">{gs.map(g => <Goal g={g} />)}</div>
+    </div>
+  ))}
+</div>
+<style>
+  .sm { display: grid; grid-template-columns: auto 1fr auto; gap: .9em 2em; align-items: center; }
+  .sm .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; }
+  .sm .k { font-family: var(--mono); color: var(--accent); font-size: .8em; }
+  .sm .f { font-size: 1em; }
+  .sm .g { display: flex; gap: .4em; justify-content: flex-end; gap: 1.2em; }
+</style>
