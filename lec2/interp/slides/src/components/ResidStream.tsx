@@ -22,9 +22,9 @@ const Y = { tok: 64, emb: 100, read: 128, attn: 263, mlp: 393, top: 477, out: 56
 const CW = 56, CH = 30;
 
 const CAPS = [
-  <>one vector per position: its <b>residual stream</b></>,
+  <>one vector per position: its <b>residual stream</b>. stacked, one row each: <Tex tex="X" />, <Tex tex="9 \times 32" /></>,
   <>attention at f: reads every stream up to itself, <b>adds</b> a vector into its own</>,
-  <>every position does the same, at once: one matmul, each reads only earlier streams</>,
+  <>every position does the same, at once: one matmul on all of <Tex tex="X" />, each reads only earlier streams</>,
   <>mlp: each position reads its own stream, <b>adds</b> back into it</>,
   <>unembed reads only the last stream → 36 scores</>,
   <>nothing overwrites: <Tex tex="x \leftarrow x + f(x)" /></>,

@@ -23,8 +23,8 @@ export function Loss({ data }: { data: string }) {
   return (
     <div class="s0">
       <LineChart ys={col(d.loss, 'loss')} yLabel="loss" height={440} refs={[
-        { y: all, label: 'guess evenly over all 36 tokens:', tex: `\\ln 36 = ${all.toFixed(2)}`, step: 1 },
-        { y: digits, label: 'guess evenly over the 10 digits:', tex: `\\ln 10 = ${digits.toFixed(2)}`, step: 2 },
+        { y: all, label: 'guess evenly over all 36 tokens:', tex: `-\\ln \\tfrac{1}{36} = \\ln 36 = ${all.toFixed(2)}`, step: 1 },
+        { y: digits, label: 'guess evenly over the 10 digits:', tex: `-\\ln \\tfrac{1}{10} = \\ln 10 = ${digits.toFixed(2)}`, step: 2 },
       ]} />
       <style>{CHART_CSS}</style>
     </div>
@@ -63,8 +63,8 @@ export function LossPred({ data }: { data: string }) {
   return (
     <div class="s0" ref={root}>
       <LineChart ys={col(d.loss, 'loss')} yLabel="loss" height={330} refs={[
-        { y: all, label: 'guess evenly over all 36 tokens:', tex: `\\ln 36 = ${all.toFixed(2)}`, step: 1 },
-        { y: digits, label: 'guess evenly over the 10 digits:', tex: `\\ln 10 = ${digits.toFixed(2)}`, step: 2 },
+        { y: all, label: 'guess evenly over all 36 tokens:', tex: `-\\ln \\tfrac{1}{36} = \\ln 36 = ${all.toFixed(2)}`, step: 1 },
+        { y: digits, label: 'guess evenly over the 10 digits:', tex: `-\\ln \\tfrac{1}{10} = \\ln 10 = ${digits.toFixed(2)}`, step: 2 },
       ]} />
       <div class={`fade ${step >= 3 ? 'on' : ''}`}>
         <BarChart title="what it predicts after training, averaged over the test set" values={col(p, 'probability_trained')} labels={str(p, 'token')} kinds={str(p, 'kind')}

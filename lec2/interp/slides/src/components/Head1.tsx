@@ -1,5 +1,4 @@
 /** @jsxImportSource preact */
-import { useEffect, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { DotRow, Mat, SvgHtml, SvgTex, Tex, diverging, sequential, useIsland } from './viz';
 import './roles';
@@ -79,7 +78,11 @@ export function HeadReads({ data }: { data: string }) {
   return (
     <div class="h1" ref={root}>
       <svg viewBox="0 0 1500 640">
-        <Mat data={r.x} x={80} y={170} cw={10} ch={32} color={div(scaleOf(r.x))} rowLabels={chars} labelCls={lab} name="the stream" />
+        <Mat data={r.x} x={80} y={170} cw={10} ch={32} color={div(scaleOf(r.x))} rowLabels={chars} labelCls={lab} name="the stream: X, 9 × 32" />
+        <g class={`fd ${step === 1 ? 'on' : ''}`}>
+          <SvgTex x={80} y={540} size={24} tex="Q = X\,W_Q \;\; (9 \times 32)(32 \times 32)" />
+          <Lines x={80} y={592} lines={[<>the same <tspan class="b">32 × 32</tspan> weights on each row:</>, <>no row sees another</>]} />
+        </g>
         {mats.map(([name, m, role, read], i) => {
           const cy = ys[i] + (9 * CH) / 2;
           return (
@@ -107,7 +110,7 @@ export function HeadReads({ data }: { data: string }) {
 
 // ── query · key, ÷ √32, mask, softmax ────────────────────────────────────────
 /**
- *   0 queries as rows, keys as columns   1 one score: a row · a column   2 all 81, filled cell by cell   3 ÷ √32
+ *   0 queries as rows, keys as columns   1 one score: a row · a column   2 all 81 at once: the shapes of the matmul   3 ÷ √32
  *   4 the causal mask, and why   5 masked   6 softmax per row: the attention   7 the digit's column   8 the last row
  */
 /** the formula over the scores, as it grows step by step */
@@ -116,19 +119,8 @@ const scoreTex = (step: number) => {
   if (step >= 5) t += ' + \\text{mask}';
   return step >= 6 ? `\\mathrm{softmax}\\left(${t}\\right)` : t;
 };
-// a pause while the last step's dimming fades, the first row slowly enough to read each dot product, then the rest quickly
-const START_MS = 700, SLOW_MS = 420, FAST_MS = 45, fillDelay = (i: number) => (i === 0 ? START_MS : i <= 9 ? SLOW_MS : FAST_MS);
 export function HeadScores({ data }: { data: string }) {
   const { root, step, d } = useIsland<H>(data);
-  const [n, setN] = useState(0);   // step 2: how many cells are filled, in reading order (82: done, outlines off)
-  useEffect(() => {
-    if (step !== 2) return;
-    setN(0);
-    let i = 0, id = 0;
-    const tick = () => { i += 1; setN(i); if (i < 82) id = window.setTimeout(tick, fillDelay(i)); };
-    id = window.setTimeout(tick, fillDelay(0));
-    return () => clearTimeout(id);
-  }, [step]);
   if (!d) return <div ref={root} />;
   const r = d.trained, chars = [...d.text], L = chars.length - 1, T = chars.length;
   const best = argmax(r.attn[L] as number[]);
@@ -138,36 +130,41 @@ export function HeadScores({ data }: { data: string }) {
   const S = step >= 6 ? r.attn : step >= 5 ? r.scores : step >= 3 ? scaled : r.raw;
   const sColor = step >= 6 ? (v: number) => sequential(v) : div(step >= 3 ? 4 : 4 * SQ);
   const sText = (v: number | null) => (v === null ? (step >= 6 ? '' : '−∞') : step >= 6 ? pct(v) : v.toFixed(Math.abs(v) >= 10 ? 0 : 1));
-  // the outlined cell is the one just filled, so its value and the panel's sum appear together
-  const sweep = step === 2 && n >= 1 && n <= T * T, cur = n - 1, cr = Math.floor(cur / T), cc = cur % T;
-  const sVis = (rr: number, c: number) => step >= 3 || (rr === L && c === best && step >= 1) || (step === 2 && rr * T + c < n);
+  const sVis = (rr: number, c: number) => step >= 2 || (rr === L && c === best && step >= 1);
   const mask = Array.from({ length: T }, (_, i) => Array.from({ length: T }, (_, c) => (c > i ? 1 : 0)));   // 1: hidden (−∞)
   const one = step === 1;
   const Kp = { x: 420, y: 40, cw: 6, ch: 40 }, Qp = { x: 140, y: 276, cw: 7, ch: 40 }, Sp = { x: 420, y: 276, cw: 40, ch: 40 };
   // from the softmax on, the attention is the point: Q and K fade out and the grid grows (its cells' transforms animate)
   const big = step >= 6, Ap = big ? { x: 150, y: 116, cw: 58, ch: 58 } : Sp;
   return (
-    <div class="h1" ref={root} data-hold={String(START_MS + 9 * SLOW_MS + 72 * FAST_MS + 500)}>
+    <div class="h1" ref={root}>
       <svg viewBox="0 0 1500 680">
         <SvgTex x={30} y={58} size={26} class="eqn" tex={scoreTex(step)} />
         <Lines x={30} y={130} on={!big} lines={[<>row: who's asking (<tspan class="b">query</tspan>)</>, <>column: who it looks at (<tspan class="b">key</tspan>)</>]} />
         <g class={`fd ${big ? '' : 'on'}`}>
-        <Mat data={r.q} {...Qp} color={div(sq)} rowLabels={chars} labelCls={lab} name="queries" hlRows={one ? [L] : sweep ? [cr] : []} dim={one} />
-        <Mat data={r.k} {...Kp} t color={div(sk)} rowLabels={chars} labelCls={lab} name="keys" hlRows={one ? [best] : sweep ? [cc] : []} dim={one} />
+        <Mat data={r.q} {...Qp} color={div(sq)} rowLabels={chars} labelCls={lab} name="queries" hlRows={one ? [L] : []} dim={one} />
+        <Mat data={r.k} {...Kp} t color={div(sk)} rowLabels={chars} labelCls={lab} name="keys" hlRows={one ? [best] : []} dim={one} />
         </g>
         <g class={`fd ${step >= 1 ? 'on' : ''}`}>
            <Mat data={S} {...Ap} class={big ? 'att' : 'sm'} rowLabels={big ? chars : undefined} colLabels={big ? chars : undefined} labelCls={lab} color={sColor} text={sText} visible={sVis} inv={step >= 6 ? HI : undefined} name={step >= 6 ? 'attention' : 'scores'}
-            hlCells={one ? [[L, best]] : sweep ? [[cr, cc]] : []} hlCols={step === 7 ? [best] : []} hlRows={step === 8 ? [L] : []} dim={step === 8} />
+            hlCells={one ? [[L, best]] : []} hlCols={step === 7 ? [best] : []} hlRows={step === 8 ? [L] : []} dim={step === 8} />
         </g>
-        {(one || sweep) && (() => {
-          const [qi, ki] = one ? [L, best] : [cr, cc];
-          return (
-            <DotRow a={r.q[qi]} b={r.k[ki]} x={920} y={60} cw={17} color={diverging} scale={[sq, sk, sq * sk / 2]}
-              la={`${chars[qi]}'s query`} lb={`${chars[ki]}'s key`} sum={<>Σ = {r.raw[qi][ki].toFixed(1)}  → row {chars[qi]}, column {chars[ki]}</>} />
-          );
-        })()}
+        {one && (
+          <DotRow a={r.q[L]} b={r.k[best]} x={920} y={60} cw={17} color={diverging} scale={[sq, sk, sq * sk / 2]}
+            la={`${chars[L]}'s query`} lb={`${chars[best]}'s key`} sum={<>Σ = {r.raw[L][best].toFixed(1)}  → row {chars[L]}, column {chars[best]}</>} />
+        )}
+        <g class={`fd ${step === 2 ? 'on' : ''}`}>
+          <SvgTex x={840} y={86} size={26} tex="\underset{9 \times 32}{Q}\;\underset{32 \times 9}{K^\top} = \underset{9 \times 9}{\text{scores}}" />
+          <Lines x={840} y={200} lines={[
+            <>the inner <tspan class="b">32</tspan>s meet: one dot product</>,
+            <>the outer <tspan class="b">9</tspan> and <tspan class="b">9</tspan> are the grid</>,
+            '',
+            <>that dot product, for every row × column:</>,
+            <><tspan class="b">81</tspan> at once, one matmul</>,
+          ]} />
+        </g>
         <g class={`fd ${step === 3 ? 'on' : ''}`}>
-          <SvgTex x={840} y={86} size={26} tex={`q_{a} \\cdot k_{\\htmlClass{dg}{7}} \\,/\\, \\sqrt{32} = \\frac{${r.raw[L][best].toFixed(1)}}{\\sqrt{32}} = ${scaled[L][best].toFixed(1)}`} />
+          <SvgTex x={840} y={96} size={26} h={120} tex={`\\dfrac{q_{a} \\cdot k_{\\htmlClass{dg}{7}}}{\\sqrt{32}} = \\dfrac{${r.raw[L][best].toFixed(1)}}{\\sqrt{32}} = ${scaled[L][best].toFixed(1)}`} />
           <text class="note" x={840} y={176}>keeps the scores from blowing up</text>
         </g>
         <g class={`fd ${step === 4 || step === 5 ? 'on' : ''}`}>
@@ -225,10 +222,10 @@ export function HeadAsk({ data }: { data: string }) {
     <div class="h1" ref={root}>
       <svg viewBox="0 0 1500 480">
         <Lines x={X0} y={30} lines={[<>if any of the 36 tokens were in the input, how much would <tspan class="b">a</tspan>'s query want to look at it?</>]} />
-        <SvgHtml x={X0} y={66} size={23}><Tex tex="q_{a} \cdot k_{t} \,/\, \sqrt{32}" /> for every token <Tex tex="t" />, sorted</SvgHtml>
+        <SvgHtml x={X0 + 12 * BAND} y={88} size={23} h={100}><Tex tex="\dfrac{q_{a} \cdot k_{t}}{\sqrt{32}}" /> for every token <Tex tex="t" />, sorted</SvgHtml>
         <g class={`fd ${step >= 1 ? 'on' : ''}`}>
-          <text class="big" x={X0 + 12 * BAND} y={Y0 - 150}>"is this a digit?"</text>
-          <Lines x={X0 + 12 * BAND} y={Y0 - 105} lines={[<>every digit &gt; every letter · <tspan class="b">{agree} / {nLetters}</tspan> letters' queries agree</>]} />
+          <text class="big" x={X0 + 12 * BAND} y={Y0 - 110}>"is this a digit?"</text>
+          <Lines x={X0 + 12 * BAND} y={Y0 - 65} lines={[<>every digit &gt; every letter · <tspan class="b">{agree} / {nLetters}</tspan> letters' queries agree</>]} />
         </g>
         <line class="zero" x1={X0} x2={X0 + 36 * BAND} y1={Y0} y2={Y0} />
         {order.map((i, j) => {
@@ -320,6 +317,7 @@ export function HeadValue({ data }: { data: string }) {
         <g class={`fd ${step === 2 ? 'on' : ''}`}>
           <line class="sep" x1={TX} x2={SX + 60} y1={WY - 50} y2={WY - 50} />
           <text class="note" x={TX} y={WY}>the head's write</text>
+          <SvgTex x={TX} y={WY + 32} size={20} tex="\textstyle\sum_j A_{\text{a}j}\, v_j" />
           {bars(r.logits_head, WY, 1)}
           <text class="note" x={BX} y={WY + 36}>+ a's embedding → output <tspan class="dg"> {toks[out]}</tspan>, <tspan class="b">{pct(r.probs[out])}</tspan></text>
         </g>

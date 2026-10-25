@@ -1,3 +1,6 @@
+---
+import Math from '../components/Math.astro';
+---
 <header>
   <div class="section">task 1 · hidden digit, one head</div>
   <h2>what one head does</h2>
@@ -7,11 +10,17 @@
     <div class="k">QK · where to look</div>
     <div class="v">picks a position by <b>what's in its stream</b></div>
     <div class="ex">task 1: "is this a digit?" every letter's query asks it, the 7's key answers yes</div>
+    <div class="m">builds <Math tex={'A'} />, <Math tex={'9 \\times 9'} />: which <b>rows</b> to mix</div>
   </div>
   <div class="card step">
     <div class="k">OV · what to bring back</div>
     <div class="v">copies <b>what's in that stream</b> into this one</div>
     <div class="ex">task 1: the 7's value, read by the unembedding, says 7</div>
+    <div class="m"><Math tex={'W_{OV}'} />, <Math tex={'32 \\times 32'} />: what to do to <b>each row</b></div>
+  </div>
+  <div class="eqr step">
+    <div class="f"><Math tex={'\\text{write} = A\\,X\\,W_{OV}'} /></div>
+    <div class="v"><Math tex={'A'} /> works across positions, <Math tex={'W_{OV}'} /> across the 32 numbers. they never mix, so either can go first: <Math tex={'(AX)\\,W_{OV} = A\\,(X W_{OV})'} />. ours: <Math tex={'W_{OV} = W_V'} /></div>
   </div>
   <div class="so step">
     a head can only find what's <b>already written</b> in a stream. but what it <b>writes</b> back is something a later head can find
@@ -23,5 +32,8 @@
   .card .k { font-family: var(--mono); font-size: .6em; color: var(--accent); text-transform: uppercase; letter-spacing: .1em; }
   .card .v { font-size: .95em; }
   .card .ex { font-size: .6em; color: var(--muted); }
+  .card .m { font-size: .6em; color: var(--muted); border-top: 1px solid var(--border); padding-top: .4em; } .card .m b { color: var(--fg); }
+  .eqr { grid-column: 1 / -1; display: flex; align-items: center; gap: 1.2em; padding: .2em .4em; }
+  .eqr .f { font-size: 1em; white-space: nowrap; } .eqr .v { font-size: .6em; color: var(--muted); }
   .so { grid-column: 1 / -1; padding: .7em 1em; border: 2px solid var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: .8em; }
 </style>
