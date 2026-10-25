@@ -10,10 +10,9 @@
  */
 import { marked } from 'marked';
 
-// slides are laid out at this size in the previews, then scaled to fit. 16:10, not the canvas's 16:9: the deck window
-// stretches the canvas to its own shape (a laptop is about 1600×1000), so a slide a little over 900 tall fits there
-// and would be cut off here
-const W = 1600, H = 1000;
+// slides are laid out at this size in the previews, then scaled to fit: the canvas, so a slide that overflows it (and
+// would be cut off on a 16:9 projector) is cut off here too. `bun run shot` reports those as OVERFLOW
+const W = 1600, H = 900;
 
 type Pos = { slide: number; step: number; total: number };
 

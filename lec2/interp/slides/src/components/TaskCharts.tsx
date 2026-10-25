@@ -167,18 +167,18 @@ export function Unembed({ data, query, show: SHOW }: { data: string; query: stri
         .s0u { display: flex; gap: 3em; align-items: center; font-size: .8em; }
         .s0u .grid { display: grid; grid-template-columns: auto auto 200px; column-gap: .7em; row-gap: 1px; align-items: center; }
         .s0u .vec { display: flex; gap: 1px; transition: opacity .3s; }
-        .s0u .vec i { width: 18px; height: 16px; display: block; }
+        .s0u .vec i { width: 18px; height: 14px; display: block; }
         .s0u .vec.x i { height: 24px; }
         .s0u .vec.dim { opacity: .2; }
         .s0u .vec.on { outline: 3px solid var(--focus); outline-offset: 1px; }
         .s0u .gap { height: 10px; }
-        .s0u .rl { font-family: var(--mono); font-size: .6em; color: var(--muted); text-align: right; line-height: 1; }
+        .s0u .rl { font-family: var(--mono); font-size: .55em; color: var(--muted); text-align: right; line-height: 1; }
         .s0u .rl.dg { color: var(--digit); }
         .s0u .rl.best { color: var(--fg); font-weight: 700; font-size: .75em; }
         .s0u .sh { font-size: .55em; }
-        .s0u .sc { position: relative; height: 16px; }
+        .s0u .sc { position: relative; height: 14px; }
         .s0u .sc .zero { position: absolute; left: 90px; top: -1px; bottom: -1px; width: 1px; background: var(--border); }
-        .s0u .sc i { position: absolute; top: 2px; height: 12px; background: var(--faint); border-radius: 2px; }
+        .s0u .sc i { position: absolute; top: 2px; height: 10px; background: var(--faint); border-radius: 2px; }
         .s0u .sc i.dg { background: var(--digit); }
         .s0u .sc b { position: absolute; left: 160px; top: -.3em; font-family: var(--mono); font-size: .65em; color: var(--fg); }
         .s0u .sc.best i { background: var(--answer); }

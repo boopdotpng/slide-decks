@@ -115,8 +115,8 @@ export default function TrainLoop() {
         .tl .test { margin-top: 1em; padding-top: .6em; border-top: 1px dashed var(--border); opacity: .45; transition: opacity .3s; }
         .tl .test.on { opacity: 1; }
         .tl .test .y { color: var(--muted); }
-        .tl .loop { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: .5em; }
-        .tl .loop li { padding: .2em .4em; border-radius: 6px; transition: background .3s, opacity .35s; }
+        .tl .loop { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: .3em; }
+        .tl .loop li { margin: 0; padding: .2em .4em; border-radius: 6px; transition: background .3s, opacity .35s; }
         .tl .loop li.now { background: var(--hl); }
         .tl .loop b { color: var(--fg); }
         .tl .eg { display: block; font-size: .8em; color: var(--muted); margin-top: .2em; }

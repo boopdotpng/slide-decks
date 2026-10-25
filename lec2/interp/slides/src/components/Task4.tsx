@@ -86,8 +86,8 @@ export function Order() {
         <div /><div class={`same fade ${step >= 1 ? 'on' : ''}`}>the same blend</div>
         <div class="same">same</div><div class="same bad">different</div>
       </div>
-      <div class={`fade ${step >= 2 ? 'on' : ''}`}>
-        <Bars width={560} max={100} values={[d.sum, one]} labels={['task 3 model, on the sum', 'retrained on the difference']}
+      <div class={`fade ${step >= 2 ? 'on' : ''} acc`}>
+        <Bars width={220} max={100} values={[d.sum, one]} labels={['task 3 model, on the sum', 'retrained on the difference']}
           color={(_, i) => (i === 0 ? 'var(--answer)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
       </div>
       <div class="cap">{caps[Math.min(step, 1)]}</div>
@@ -162,6 +162,7 @@ export function TwoHeads() {
   return (
     <div class="t4" ref={root}>
       <Attn rows={[{ label: "f's head", attn: at[1], cls: 'a' }, { label: "c's head", attn: at[0], cls: 'b' }]} />
+      <div class="r2">
       <div class={`fade ${step >= 1 ? 'on' : ''} writes`}>
         <div class="h" /><div class="h">one head adds</div><div class="h">two heads add</div>
         {INPUTS.map(({ text, a, b }) => <>
@@ -169,9 +170,10 @@ export function TwoHeads() {
         </>)}
         <div /><div class="same">the same</div><div class="same good">different</div>
       </div>
-      <div class={`fade ${step >= 2 ? 'on' : ''}`}>
-        <Bars width={560} max={100} values={[one, two]} labels={['1 head per layer', '2 heads per layer']}
+      <div class={`fade ${step >= 2 ? 'on' : ''} acc`}>
+        <Bars width={220} max={100} values={[one, two]} labels={['1 head per layer', '2 heads per layer']}
           color={(_, i) => (i === 0 ? 'var(--bad)' : 'var(--answer)')} fmtV={(v) => `${v.toFixed(0)}%`} />
+      </div>
       </div>
       <div class="cap">{caps[Math.min(step, 2)]}</div>
       <style>{CSS + `
@@ -193,6 +195,8 @@ export function TwoHeads() {
         .t4 .writes { display: grid; grid-template-columns: auto auto auto; gap: .35em 2.2em; align-items: center; justify-content: start; font-size: .8em; }
         .t4 .writes .h { font-size: .6em; } .t4 .writes .src { font-size: .8em; color: var(--muted); } .t4 .writes .slots { display: flex; gap: .4em; }
         .t4 .writes .same { font-size: .6em; } .t4 .writes .same.good { color: var(--answer); }
+        .t4 .r2 { display: flex; gap: 2.4em; align-items: center; }
+        .t4 .r2 .acc { font-size: .8em; }
       `}</style>
     </div>
   );

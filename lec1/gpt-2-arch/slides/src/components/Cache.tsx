@@ -45,7 +45,7 @@ export default function Cache() {
         .kc .saved.on { border-color: var(--faint); }
         .kc .tag { position: absolute; right: 8px; bottom: -1.4em; font-size: .5em; color: var(--muted); }
         .kc .row { display: grid; grid-template-columns: 6em 1fr 3.5em; gap: .6em; align-items: center; }
-        .kc .row.new { margin: 0 8px; opacity: 0; transform: translateX(30%); transition: opacity .5s, transform .6s cubic-bezier(.4, 0, .2, 1); }
+        .kc .row.new { margin: 0 8px; opacity: 0; transform: translateX(4%); transition: opacity .5s, transform .6s cubic-bezier(.4, 0, .2, 1); }
         .kc .row.new.on { opacity: 1; transform: none; margin-top: 1.2em; }
         .kc .t { font-size: .7em; text-align: right; }
         .kc .ok { font-size: .5em; color: var(--good); }
