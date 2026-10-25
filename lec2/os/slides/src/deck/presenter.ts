@@ -7,12 +7,13 @@
  *   - the slide's notes: every <aside class="notes"> in it, then its section of
  *     src/slides/notes.md as markdown. Under `bun dev`, click the notes (or press e)
  *     to edit that section; it saves as you type (deck/notes-server.ts). esc to finish.
- *   - elapsed time (click to reset) and the clock
  */
 import { marked } from 'marked';
 
-// slides are laid out at this size in the previews, then scaled to fit
-const W = 1600, H = 900;
+// slides are laid out at this size in the previews, then scaled to fit. 16:10, not the canvas's 16:9: the deck window
+// stretches the canvas to its own shape (a laptop is about 1600×1000), so a slide a little over 900 tall fits there
+// and would be cut off here
+const W = 1600, H = 1000;
 
 type Pos = { slide: number; step: number; total: number };
 
@@ -30,8 +31,6 @@ export function initPresenter({ slides, position, onChange }: {
       <div class="pv-frame pv-next"><iframe tabindex="-1"></iframe><div class="pv-end">end</div></div>
       <div class="pv-meta">
         <span class="pv-pos"></span>
-        <span class="pv-timer" title="click to reset">0:00</span>
-        <span class="pv-clock"></span>
       </div>
       <div class="pv-label">notes <span class="pv-save"></span></div>
       <div class="pv-notes"></div>
@@ -45,8 +44,6 @@ export function initPresenter({ slides, position, onChange }: {
   const notes = root.querySelector<HTMLElement>('.pv-notes')!;
   const edit = root.querySelector<HTMLTextAreaElement>('.pv-edit')!;
   const saveState = root.querySelector<HTMLElement>('.pv-save')!;
-  const timer = root.querySelector<HTMLElement>('.pv-timer')!;
-  const clock = root.querySelector<HTMLElement>('.pv-clock')!;
 
   // only the fragment changes after the first load, so the iframes don't reload
   const embed = (hash: string) => `${location.pathname}?embed#${hash}`;
@@ -67,7 +64,7 @@ export function initPresenter({ slides, position, onChange }: {
   const nameOf = (i: number) => (slides[i].dataset.file ?? '').replace(/\.\w+$/, '');
   const canEdit = import.meta.env.DEV;
   let editing: string | null = null; // slide name whose notes are in the textarea
-  let timer_: number | undefined;
+  let saveTimer: number | undefined;
 
   function renderNotes() {
     const { slide } = position();
@@ -106,17 +103,17 @@ export function initPresenter({ slides, position, onChange }: {
   }
 
   function flush() {
-    if (timer_ === undefined || !editing) return;
-    clearTimeout(timer_);
-    timer_ = undefined;
+    if (saveTimer === undefined || !editing) return;
+    clearTimeout(saveTimer);
+    saveTimer = undefined;
     save(editing, md[editing] ?? '');
   }
 
   edit.oninput = () => {
     md[editing!] = edit.value;
     saveState.textContent = '…';
-    clearTimeout(timer_);
-    timer_ = window.setTimeout(() => { timer_ = undefined; save(editing!, edit.value); }, 400);
+    clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(() => { saveTimer = undefined; save(editing!, edit.value); }, 400);
   };
   edit.onkeydown = (e) => { if (e.key === 'Escape') { e.preventDefault(); stopEdit(); } };
   edit.onblur = stopEdit;
@@ -136,20 +133,6 @@ export function initPresenter({ slides, position, onChange }: {
     }).observe(frame);
   }
 
-  // timer starts at the first move, not when the window opens
-  let started: number | undefined;
-  const pad = (n: number) => String(n).padStart(2, '0');
-  timer.onclick = () => (started = Date.now());
-  setInterval(() => {
-    const s = started ? Math.floor((Date.now() - started) / 1000) : 0;
-    timer.textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`;
-    const d = new Date();
-    clock.textContent = `${d.getHours()}:${pad(d.getMinutes())}`;
-  }, 500);
-
-  onChange(() => {
-    started ??= Date.now();
-    update();
-  });
+  onChange(update);
   update();
 }

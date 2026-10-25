@@ -202,15 +202,14 @@ html:has(.mode-overview), .mode-overview { height: auto; background: var(--panel
   font-size: 18px; }
 #presenter .pv-main, #presenter .pv-side { min-width: 0; min-height: 0; }
 #presenter .pv-main { display: flex; align-items: center; }
-#presenter .pv-main .pv-frame { width: 100%; aspect-ratio: 16 / 9; }
+#presenter .pv-main .pv-frame { width: 100%; aspect-ratio: 16 / 10; }
 #presenter .pv-side { display: flex; flex-direction: column; gap: 12px; }
 #presenter .pv-frame { position: relative; overflow: hidden; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
-#presenter .pv-next { aspect-ratio: 16 / 9; flex: none; }
+#presenter .pv-next { aspect-ratio: 16 / 10; flex: none; }
 #presenter iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; pointer-events: none; }
 #presenter .pv-end { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: var(--muted); }
 #presenter .pv-label { color: var(--muted); font-size: 14px; text-transform: uppercase; letter-spacing: .1em; }
 #presenter .pv-meta { display: flex; gap: 1.5em; align-items: baseline; font-variant-numeric: tabular-nums; color: var(--muted); }
-#presenter .pv-timer { font-size: 32px; color: var(--fg); cursor: pointer; }
 #presenter .pv-notes { flex: 1; overflow: auto; font-size: 22px; line-height: 1.5; padding-right: 8px; }
 #presenter .pv-notes p { margin: 0 0 .6em; }
 #presenter .pv-none { color: var(--muted); }

@@ -17,7 +17,7 @@
  *
  * The URL picks a mode:
  *   (none)      the deck
- *   ?presenter  notes, next-step preview, timer (deck/presenter.ts). Kept in sync
+ *   ?presenter  notes, next-step preview (deck/presenter.ts). Kept in sync
  *               with the deck window over a BroadcastChannel, both ways.
  *   ?embed      no ui, no keys; follows its #hash. Used for the presenter previews.
  *   ?print      every slide fully revealed, one per page: cmd+p → save as pdf.
