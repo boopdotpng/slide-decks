@@ -246,7 +246,10 @@ type T2d = {
   head_copies_test_average: { head: string; position: string; attention_on_top_position: number }[];
   ablation: { model: string; test_accuracy: number }[];
 };
+// the data's names for the 9 positions. on the slides a position is just its number: "key" and "value" mean attention's
 const POS = ['k1', 'v1', 'k2', 'v2', 'k3', 'v3', 'k4', 'v4', 'query'];
+/** the label under each token: its position, 0 … n − 1 */
+export const places = (n: number) => Array.from({ length: n }, (_, i) => String(i));
 const grid = <R,>(rows: R[], get: (r: R) => [string, string, number]) => {
   const m: (number | null)[][] = POS.map(() => POS.map(() => null));
   for (const r of rows) { const [q, k, v] = get(r); m[POS.indexOf(q)][POS.indexOf(k)] = v; }
@@ -256,11 +259,11 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 /** like pct, but keeps the digits that rounding to 0% / 100% would hide */
 const pct2 = (v: number) => (v < 0.01 ? `${(v * 100).toFixed(2)}%` : v > 0.99 ? `${(v * 100).toFixed(1)}%` : pct(v));
 
-/** the input over its roles and the model's answer: the line above an attention matrix's side notes */
-export function Input({ chars, roles, answer }: { chars: string[]; roles: string[]; answer: string }) {
+/** the input and the model's answer: the line above an attention matrix's side notes */
+export function Input({ chars, answer }: { chars: string[]; answer: string }) {
   return (
     <div class="ain">
-      {chars.map((c, i) => <span class="ic"><b class={isD(c) ? 'dg' : ''}>{c}</b><i>{roles[i]}</i></span>)}
+      {chars.map((c, i) => <span class="ic"><b class={isD(c) ? 'dg' : ''}>{c}</b></span>)}
       <span class="ar">→ {answer}</span>
     </div>
   );
@@ -271,17 +274,18 @@ export const AttnEq = () => (
 );
 
 /**
- * One head's attention on the example input, every probability written in, rows and columns labelled token over role,
+ * One head's attention on the example input, every probability written in, rows and columns labelled token over position,
  * in the style of task 1's (Head1.tsx HeadScores). tags: an extra line under a column (what layer 1 wrote into it).
  * keep: rows that stay lit when dim is on
  */
-export function AttnMatrix({ chars, att, keep, dim, hlCells = [], tags, greyCols = [], roles = POS, note }: {
+export function AttnMatrix({ chars, att, keep, dim, hlCells = [], tags, greyCols = [], roles, note }: {
   chars: string[]; att: (number | null)[][]; keep: number[]; dim: boolean; hlCells?: [number, number][]; tags?: (string | null)[];
   greyCols?: number[];   // columns that are never a target: covered with a veil, labels faded
-  roles?: string[];      // the line under each token (task 3 has two queries)
+  roles?: string[];      // the line under each token: its position unless given
   note?: [row: number, text: string];   // a callout to the right of one row
 }) {
   const n = chars.length;
+  const lab = roles ?? places(n);
   const cell = n > 9 ? 54 : 58;   // the grid ~520px either way
   const M = { x: 160, y: tags ? 108 : 86, cw: cell, ch: cell };
   const dg = (i: number) => (isD(chars[i]) ? 'dg' : '');
@@ -292,12 +296,12 @@ export function AttnMatrix({ chars, att, keep, dim, hlCells = [], tags, greyCols
       {chars.map((c, i) => <>
         <g class={`clab ${greyCols.includes(i) ? 'grey' : ''}`}>
           <text class={`tk ${dg(i)}`} x={M.x + i * M.cw + M.cw / 2} y={M.y - (tags ? 54 : 32)}>{c}</text>
-          <text class="rr" x={M.x + i * M.cw + M.cw / 2} y={M.y - (tags ? 34 : 12)}>{roles[i]}</text>
+          <text class="rr" x={M.x + i * M.cw + M.cw / 2} y={M.y - (tags ? 34 : 12)}>{lab[i]}</text>
         </g>
         {tags?.[i] && <text class="tg" x={M.x + i * M.cw + M.cw / 2} y={M.y - 10}>{tags[i]}</text>}
         <g class={`rlab ${dim && !keep.includes(i) ? 'dim' : ''}`}>
           <text class={`tk ${dg(i)}`} x={M.x - 72} y={M.y + i * M.ch + M.ch / 2 + 8} text-anchor="end">{c}</text>
-          <text class="rr" x={M.x - 12} y={M.y + i * M.ch + M.ch / 2 + 6} text-anchor="end">{roles[i]}</text>
+          <text class="rr" x={M.x - 12} y={M.y + i * M.ch + M.ch / 2 + 6} text-anchor="end">{lab[i]}</text>
         </g>
       </>)}
       <Mat data={att} {...M} gap={2} class="att" color={(v) => sequential(v)}
@@ -355,7 +359,7 @@ export function Layer1() {
   const oneBack = VALS.map((v) => [v, v - 1] as [number, number]);
 
   const matrix = <AttnMatrix chars={chars} att={att} keep={VALS} dim hlCells={oneBack} />;
-  const input = <Input chars={chars} roles={POS} answer={ex.tokens[ex.probs.indexOf(Math.max(...ex.probs))]} />;
+  const input = <Input chars={chars} answer={ex.tokens[ex.probs.indexOf(Math.max(...ex.probs))]} />;
 
   // step 2: the digit rows only, split by where the key's stream got each part. stacked, so the same rows line up
   const T = { x: 110, cw: 66, ch: 50 };
@@ -365,8 +369,8 @@ export function Layer1() {
   const table = (m: (number | null)[][], y: number, title: ComponentChildren) => (
     <g>
       <text class="tt" x={T.x} y={y - 46}>{title}</text>
-      {POS.map((p, i) => <text class="rr" x={T.x + i * T.cw + T.cw / 2} y={y - 12}>{p}</text>)}
-      {VALS.map((v, j) => <text class="rr" x={T.x - 18} y={y + j * T.ch + T.ch / 2 + 6} text-anchor="end">{POS[v]}</text>)}
+      {POS.map((_, i) => <text class="rr" x={T.x + i * T.cw + T.cw / 2} y={y - 12}>{i}</text>)}
+      {VALS.map((v, j) => <text class="rr" x={T.x - 18} y={y + j * T.ch + T.ch / 2 + 6} text-anchor="end">{v}</text>)}
       <Mat data={digitRows(m)} x={T.x} y={y} cw={T.cw} ch={T.ch} gap={2} color={(v) => diverging(v, lim / 2)}
         text={(v) => (v === null ? null : v.toFixed(1))} hlCells={hlBack} />
     </g>
@@ -453,7 +457,7 @@ export function Write() {
     <div class="t2w" ref={root}>
       <AttnMatrix chars={chars} att={att} keep={[L]} dim hlCells={[[L, best]]} tags={tags} greyCols={letterCols} />
       <div class="side">
-        <Input chars={chars} roles={POS} answer={ex.tokens[ex.probs.indexOf(Math.max(...ex.probs))]} />
+        <Input chars={chars} answer={ex.tokens[ex.probs.indexOf(Math.max(...ex.probs))]} />
         <AttnEq />
         <div>each digit's key now carries layer 1's tag: <span class="tg">+f</span> under the 5</div>
         <div>the f's query finds the <span class="tg">+f</span>: the <b class="dg">{chars[best]}</b>, <b>{pct(q[best])}</b></div>
@@ -576,7 +580,7 @@ export function Value2() {
   const out = ex.probs.indexOf(Math.max(...ex.probs));
   return (
     <div ref={root}>
-      <ValueRead step={step} toks={toks} chars={[...ex.text]} roles={POS} values={ex.v2_logits} A={ex.attn2[LAST] as number[]}
+      <ValueRead step={step} toks={toks} chars={[...ex.text]} roles={places(9)} values={ex.v2_logits} A={ex.attn2[LAST] as number[]}
         write={ex.write2_logits} rest={ex.rest_logits}
         head={['position', 'f\'s attention', 'its value, read by the unembedding: one score per token']}
         sum={<>= output <tspan class="dg">{toks[out]}</tspan>, <tspan class="b">{pct2(ex.probs[out])}</tspan></>}

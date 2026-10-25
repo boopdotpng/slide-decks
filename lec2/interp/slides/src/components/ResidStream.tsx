@@ -8,8 +8,10 @@ import './roles';
  * One stream per position, running top to bottom (embedding first, the 36 scores last). Schematic, one layer. Every write is a chip on the stream,
  * so a column ends up showing its stream as the sum of what was added to it.
  *   0 each position starts as its token's embedding: that vector is its residual stream
- *   1 attention for one position (the last): reads every stream up to itself, adds a vector into its own
- *   2 every position does the same, all at once (the full causal triangle of reads)
+ *   1 attention for one position (the last): pulls from a few earlier streams, adds a vector into its own
+ *   2 every position does the same, all at once, each from its own few
+ * which streams each position reads (READS) is made up, on purpose: not the lookup the tasks will need. the last f
+ * stays away from the first f and its 5, so this slide doesn't give task 2 away
  *   3 the mlp: each position reads its own stream and adds back into it
  *   4 the unembedding reads only the last stream
  *   5 nothing overwrites: x = x + f(x)
@@ -20,10 +22,22 @@ const W = 1400, H = 600;
 const x = (i: number) => 290 + i * 125;
 const Y = { tok: 64, emb: 100, read: 128, attn: 263, mlp: 393, top: 477, out: 565 };
 const CW = 56, CH = 30;
+/** per position: the earlier streams it reads, each with a weight (line width) */
+const READS: [number, number][][] = [
+  [[0, 1]],
+  [[0, .7], [1, .4]],
+  [[1, .8], [2, .3]],
+  [[0, .5], [2, .9]],
+  [[1, .6], [3, .4]],
+  [[2, .3], [4, .9]],
+  [[0, .4], [3, .7], [6, .3]],
+  [[5, .8], [6, .5]],
+  [[1, .5], [5, .9], [6, .4]],
+];
 
 const CAPS = [
   <>one vector per position: its <b>residual stream</b>. stacked, one row each: <Tex tex="X" />, <Tex tex="9 \times 32" /></>,
-  <>attention at f: reads every stream up to itself, <b>adds</b> a vector into its own</>,
+  <>attention at f: pulls from a few earlier streams (which ones is learned), <b>adds</b> a vector into its own</>,
   <>every position does the same, at once: one matmul on all of <Tex tex="X" />, each reads only earlier streams</>,
   <>mlp: each position reads its own stream, <b>adds</b> back into it</>,
   <>unembed reads only the last stream → 36 scores</>,
@@ -88,11 +102,11 @@ export default function ResidStream({ layers = true }: { layers?: boolean }) {
           </g>
         ))}
 
-        {/* attention reads: position i reads streams 0..i */}
+        {/* attention reads: position i reads a few of streams 0..i */}
         {layers && range(N).map((i) => (
           <g class={`arcs ${attended(i) ? 'on' : ''} ${step === 1 ? 'one' : ''} ${step >= 3 ? 'past' : ''}`}
             style={{ transitionDelay: `${delay(i)}ms` }}>
-            {range(i + 1).map((j) => <path d={arc(j, i)} />)}
+            {READS[i].map(([j, w]) => <path d={arc(j, i)} style={{ strokeWidth: 1.5 + 3 * w }} />)}
           </g>
         ))}
 
@@ -143,8 +157,8 @@ export default function ResidStream({ layers = true }: { layers?: boolean }) {
         .resid .chip.mlp rect { fill: color-mix(in srgb, var(--mlp) 22%, var(--bg)); stroke: var(--mlp); }
         .resid .chip.mlp path { stroke: var(--mlp); }
         .resid .arcs path { fill: none; stroke: var(--attn); stroke-width: 2; opacity: 0; transition: opacity .4s; transition-delay: inherit; }
-        .resid .arcs.on path { opacity: .35; }
-        .resid .arcs.on.one path { opacity: .85; stroke-width: 2.5; }
+        .resid .arcs.on path { opacity: .5; }
+        .resid .arcs.on.one path { opacity: .85; }
         .resid .arcs.on.past path { opacity: .12; }
         .resid .loop { fill: none; stroke: var(--mlp); stroke-width: 2.5; }
         .resid .unemb { fill: color-mix(in srgb, var(--answer) 10%, transparent); stroke: var(--answer); stroke-width: 2; }

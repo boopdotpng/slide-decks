@@ -143,7 +143,7 @@ export function Unembed({ data, query, show: SHOW }: { data: string; query: stri
   const CAPS = [
     <>unembedding <Tex tex="U\ (36 \times 32)" /> · stream <Tex tex="x" /> (<b>{QUERY}</b>'s embedding)</>,
     <>row <b class="dg">{SHOW}</b>: <Tex tex={`U_{\\htmlClass{dg}{${SHOW}}} \\cdot x = ${scores[show].toFixed(2)}`} /></>,
-    <><Tex tex="U x" />: 36 dot products → <b>36 scores</b>. letters low, digits high. the digits' own embedding rows never moved: never at the last position, so never a gradient</>,
+    <><Tex tex="U x" />: 36 dot products → <b>36 scores</b>. letters low, digits high: all it learned is "answer with a digit". the digits' own embeddings never trained: only the last token gets a gradient, and a digit is never last</>,
     <>output: <b class="best">{toks[best]}</b>. the answer was <b class="dg">{SHOW}</b>: the last position never saw it</>,
   ];
   const cell = (v: number) => <i style={{ background: diverging(v, 0.5) }} />;

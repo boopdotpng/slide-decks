@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
 import { Bars, Mat, Tex, diverging, range, sequential, useIsland } from './viz';
-import { AM_CSS, AttnEq, AttnMatrix, CH, Input, STREAM_CSS, Streams, ValueRead, type Arc, type Chip } from './Task2';
+import { AM_CSS, AttnEq, AttnMatrix, CH, Input, places, STREAM_CSS, Streams, ValueRead, type Arc, type Chip } from './Task2';
 import './roles';
 
 /**
@@ -133,9 +133,8 @@ export function Intro() {
 }
 
 // ── the heads, in task 2's format ────────────────────────────────────────────
-const ROLES = ['k1', 'v1', 'k2', 'v2', 'k3', 'v3', 'k4', 'v4', 'q1', 'q2'];
 /** the input and its answer, at the top of the side notes, like task 2's slides */
-const Prompt = () => <Input chars={[...TEXT]} roles={ROLES} answer="4" />;
+const Prompt = () => <Input chars={[...TEXT]} answer="4" />;
 const HEAD_CSS = AM_CSS + STREAM_CSS + `
   .t3col { display: flex; flex-direction: column; gap: .3em; }
   .t3a { display: flex; gap: 2em; align-items: center; }
@@ -148,21 +147,25 @@ const HEAD_CSS = AM_CSS + STREAM_CSS + `
 `;
 /**
  * Layer 1, head 1 on a2f5c9d3fc: task 2's slide, with one new row.
- *   the matrix, the digit rows and the last row lit: every digit looks one back, and so does the last row (c at q2 → f at q1)
+ *   0 the matrix, the digit rows lit: every digit looks one back, as in task 2
+ *   1 the last row lit too: the c looks one back as well, at the f, so its stream holds two letters (the setup for layer 2)
  */
 export function L1() {
-  const { root, d } = useIsland<T3>('task3w');
+  const { root, step, d } = useIsland<T3>('task3w');
   if (!d) return <div ref={root} />;
   const att = d.example.attn1, chars = [...TEXT], ob = d.l1.one_back;
-  const back = [...VALS, LAST].map((v) => [v, v - 1] as [number, number]);
+  const rows = step >= 1 ? [...VALS, LAST] : VALS;
+  const back = rows.map((v) => [v, v - 1] as [number, number]);
   return (
     <div class="t3col" ref={root}>
     <div class="t2s t3a">
-      <AttnMatrix chars={chars} att={att} keep={[...VALS, LAST]} dim hlCells={back} roles={ROLES} note={[LAST, 'new!']} />
+      <AttnMatrix chars={chars} att={att} keep={rows} dim hlCells={back} note={step >= 1 ? [LAST, 'new!'] : undefined} />
       <div class="side">
         <Prompt />
         <AttnEq />
         <div>every digit looks <b>one back</b>, as in task 2 ({pct1(Math.min(...ob))}–{pct1(Math.max(...ob))})</div>
+        <div class={`fade ${step >= 1 ? 'on' : ''}`}>new: the last <b>c</b> looks one back too, at the <b>f</b> ({pct1(d.l1.q2_on_q1)}).
+          its stream now holds <span class="l1c">two letters, c and f</span>: two things to ask for in layer 2</div>
       </div>
     </div>
       <style>{HEAD_CSS}</style>
@@ -184,7 +187,7 @@ export function L2() {
   return (
     <div class="t3col" ref={root}>
     <div class="t2s t3a">
-      <AttnMatrix chars={chars} att={att} keep={[LAST]} dim hlCells={[[LAST, 3], [LAST, 5]]} tags={tags} greyCols={letterCols} roles={ROLES} />
+      <AttnMatrix chars={chars} att={att} keep={[LAST]} dim hlCells={[[LAST, 3], [LAST, 5]]} tags={tags} greyCols={letterCols} />
       <div class="side">
         <Prompt />
         <AttnEq />
@@ -228,7 +231,7 @@ export function Value3() {
   const says = (v: number[]) => toks[argmax(v)];
   return (
     <div ref={root}>
-      <ValueRead step={step} toks={toks} chars={[...TEXT]} roles={ROLES} values={ex.v2_logits} A={ex.attn2[LAST] as number[]}
+      <ValueRead step={step} toks={toks} chars={[...TEXT]} roles={places(10)} values={ex.v2_logits} A={ex.attn2[LAST] as number[]}
         write={ex.write2_logits} rest={ex.rest_logits}
         head={['position', 'c\'s attention', 'its value, read by the unembedding: one score per token']}
         sum={<>= the stream entering the mlp says <tspan class="dg">{says(ex.logits_before)}</tspan>. the answer is <tspan class="b">4</tspan></>}
