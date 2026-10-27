@@ -21,6 +21,7 @@ type T3 = {
   shapes: [string, number][]; ablation: [string, number][];
   l1: { one_back: number[]; q2_on_q1: number }; l2: { q1: number; q2: number; q1_row: number; q1_row_top: number };
   qk: Record<'q1' | 'q2', { token: number; write: number }>;
+  qk2: Record<'q1' | 'q2' | 'self', { token: number; write: number; pos: number; total: number }>;   // raw scores from the last c
   acc: { full: number; before: number; write: number }; active: number;
   mlp_in: { pair: number; unordered: number; sum: number }; mlp_out: { pair: number; sum: number }; fit_r2: number;
   grid: { h: number[][][]; help: number[]; match: number[]; score: number[][]; bias: number[]; topk: { k: number; acc: number; cells: number[][] }[] };
@@ -37,7 +38,7 @@ type T3 = {
 
 // ── the task ─────────────────────────────────────────────────────────────────
 const INTRO_CAPS: ComponentChildren[] = [
-  <>attention only: it can fetch both digits, but nothing <b>adds</b></>,
+  <>attention only: one head can fetch both digits, but nothing <b>adds</b></>,
   <>add one piece: an <b>mlp</b> after layer 2</>,
 ];
 /**
@@ -165,7 +166,7 @@ export function L1() {
         <AttnEq />
         <div>every digit looks <b>one back</b>, as in task 2 ({pct1(Math.min(...ob))}–{pct1(Math.max(...ob))})</div>
         <div class={`fade ${step >= 1 ? 'on' : ''}`}>new: the last <b>c</b> looks one back too, at the <b>f</b> ({pct1(d.l1.q2_on_q1)}).
-          its stream now holds <span class="l1c">two letters, c and f</span>: two things to ask for in layer 2</div>
+          its stream now holds <span class="l1c">two letters, c and f</span>. layer 2's W<sub>Q</sub> reads the whole stream, so it will ask about both</div>
       </div>
     </div>
       <style>{HEAD_CSS}</style>
@@ -175,41 +176,55 @@ export function L1() {
 
 /**
  * Layer 2, head 1 on a2f5c9d3fc: task 2's slide, digits tagged with what layer 1 wrote, and the last column tagged too.
- *   0 the matrix, every row but the last dimmed from the start: the last row splits between the 5 and the 9
- *   1 why: two questions from one stream (QK split, test averages)
+ *   0 the matrix, every row but the last dimmed: the rule first. the last stream is a sum (c + f), W_Q is linear, so its query is a sum too
+ *   1 the two questions, scored: each part of the query against the tag under the 5 and under the 9 (test averages). same total
+ *   2 the result: the last row splits between the 5 and the 9. both digits, not their sum
  */
 export function L2() {
   const { root, step, d } = useIsland<T3>('task3w');
   if (!d) return <div ref={root} />;
-  const att = d.example.attn2, chars = [...TEXT], A = att[LAST] as number[], q = d.qk;
+  const att = d.example.attn2, chars = [...TEXT], A = att[LAST] as number[], q = d.qk2;
   const tags = chars.map((_, i) => (VALS.includes(i) || i === LAST ? `+${chars[i - 1]}` : null));
   const letterCols = range(N).filter((i) => !VALS.includes(i));
+  const sc = (v: number) => (v < 0 ? '−' : '+') + Math.abs(v).toFixed(1);
   return (
     <div class="t3col" ref={root}>
     <div class="t2s t3a">
-      <AttnMatrix chars={chars} att={att} keep={[LAST]} dim hlCells={[[LAST, 3], [LAST, 5]]} tags={tags} greyCols={letterCols} />
+      <AttnMatrix chars={chars} att={att} keep={[LAST]} dim hlCells={step >= 2 ? [[LAST, 3], [LAST, 5]] : []} tags={tags} greyCols={letterCols} />
       <div class="side">
         <Prompt />
         <AttnEq />
         {step === 0 && <>
-          <div>the c splits: <b>{pct(A[3])}</b> on the <b class="dg">5</b>, <b>{pct(A[5])}</b> on the <b class="dg">9</b></div>
-          <div>its stream holds two letters, so it asks two questions</div>
+          <div>the last stream is a <b>sum</b>: its token <span class="ch tok">c</span> plus the <span class="ch l1">f</span> layer 1 copied in</div>
+          <div>W<sub>Q</sub> is linear, so its query is a sum too:</div>
+          <div class="eq"><Tex block tex="W_Q(c + f) = W_Q\,c + W_Q\,f" /></div>
+          <div>one stream, <b>two questions</b></div>
         </>}
         {step === 1 && <div class="qk">
-          <div class="h">part of the last stream</div><div class="h">matches</div><div class="h">pulls toward</div><div class="h n">score</div>
-          <div><span class="ch tok">c</span> its token</div><div><span class="ch l1">c</span></div><div>the <b class="dg">9</b></div><div class="n">+{q.q2.token.toFixed(1)}</div>
-          <div><span class="ch l1">f</span> layer 1's copy</div><div><span class="ch l1">f</span></div><div>the <b class="dg">5</b></div><div class="n">+{q.q1.write.toFixed(1)}</div>
-          <div class="note">two matches, nearly the same size: softmax splits about evenly (test averages)</div>
+          <div class="h">part of the query</div><div class="h n">tag under the <b class="dg">9</b></div><div class="h n">tag under the <b class="dg">5</b></div>
+          <div><span class="ch tok">c</span> its token</div><div class="n">{sc(q.q2.token)}</div><div class="n">{sc(q.q1.token)}</div>
+          <div><span class="ch l1">f</span> layer 1's copy</div><div class="n">{sc(q.q2.write)}</div><div class="n">{sc(q.q1.write)}</div>
+          <div class="m">position, the rest</div><div class="n m">{sc(q.q2.pos)}</div><div class="n m">{sc(q.q1.pos)}</div>
+          <div class="t">score</div><div class="n t">{q.q2.total.toFixed(1)}</div><div class="n t">{q.q1.total.toFixed(1)}</div>
+          <div class="note">the c finds the 9, the f finds the 5. same score, so softmax splits about evenly (test averages)</div>
         </div>}
+        {step >= 2 && <>
+          <div>the c splits: <b>{pct(A[3])}</b> on the <b class="dg">5</b>, <b>{pct(A[5])}</b> on the <b class="dg">9</b></div>
+          <div>so the write is half the <b class="dg">5</b>'s value plus half the <b class="dg">9</b>'s: <b>both digits, not their sum</b></div>
+          <div>next: who adds</div>
+        </>}
       </div>
     </div>
       <style>{HEAD_CSS + `
         .t3a b.dg { color: var(--digit); }
         .t3a .side { max-width: 30em; }
+        .t3a .side .eq { color: var(--fg); } .t3a .side .eq .katex-display { margin: 0; text-align: left; } .t3a .side .eq .katex-display > .katex { text-align: left; }
         .t3a .qk .h, .t3a .qk > div:not(.note) { white-space: nowrap; }
-        .t3a .qk { display: grid; grid-template-columns: auto auto auto auto; gap: .35em 1.2em; align-items: center; color: var(--muted); }
+        .t3a .qk { display: grid; grid-template-columns: auto auto auto; gap: .35em 1em; align-items: center; color: var(--muted); }
         .t3a .qk .h { font-size: .8em; border-bottom: 1px solid var(--border); padding-bottom: .2em; }
         .t3a .qk .n { font-family: var(--mono); color: var(--fg); text-align: right; }
+        .t3a .qk .m { color: var(--muted); font-size: .9em; } .t3a .qk .n.m { color: var(--muted); }
+        .t3a .qk .t { border-top: 1px solid var(--border); padding-top: .25em; font-weight: 600; color: var(--fg); }
         .t3a .qk .note { grid-column: 1 / -1; font-size: .9em; margin-top: .3em; }
         .t3a .ch { display: inline-block; font-family: var(--mono); font-weight: 600; padding: 0 .45em; border-radius: 5px; border: 2px solid; margin-right: .3em; }
         .t3a .ch.tok { background: var(--raised); border-color: var(--line-2); color: var(--fg); }

@@ -24,10 +24,10 @@ const MODELS: [string, T[], P[], string][] = [
 <header>
   <Goal band={[1, 2]} />
   <h2>real models mix the answers</h2>
-  <p class="sub">first 12 layers: which tokens attention reads, and the mlp under it</p>
+  <p class="sub">first 12 layers. both dials: which past tokens attention reads (colors), what each one stores (right)</p>
 </header>
 <div class="hy">
-  <div class="h" /><div class="h">attention · mlp, layer by layer</div><div class="h">kv cache</div>
+  <div class="h" /><div class="h">which past tokens it reads · the mlp under it</div><div class="h">what it stores</div>
   {MODELS.map(([m, layers, mlps, kv], i) => (
     <div class:list={['row', { step: i > 1 }]}>
       <div class="m">{m}</div>

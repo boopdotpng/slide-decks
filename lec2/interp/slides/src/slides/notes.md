@@ -157,7 +157,7 @@
 # 25-t3-task
 
 - two query letters at the end; output their digits added **mod 10** (so the answer stays one token)
-- step 3: attention only: 27% with one head, 30% with two. attention can fetch both digits, but **nothing in attention adds**: it only takes weighted averages
+- step 3: attention only: 27% with one head, 30% with two. one head can fetch both digits (slide 27 shows how), but **nothing in attention adds**: it only takes weighted averages
 - step 4: one new piece, an mlp after layer 2: 98%
 - likely question: why didn't two heads help? the problem here isn't finding, it's computing
 
@@ -165,14 +165,16 @@
 
 - step 0: same as task 2's layer 1: every digit looks one back at its letter
 - step 1: new: the last c looks one back too, at the f. **its stream now holds two letters, c and f**. point at that cell: the next slide depends on it
+- say the forward reference: layer 2's W_Q reads the whole stream, both letters, so it will ask about both
 
 # 27-t3-l2
 
-- probably the most confusing slide; go slow
-- the last stream holds **two letters**: its own token c, and the f layer 1 copied in
-- so its query asks two questions at once: the 9 matches "c", the 5 matches "f"
-- step 1: the two matches are about the same size (6.3 vs 6.4), so softmax splits ~50/50
-- result: the write is **half the 5's value + half the 9's value**. it has both digits, not their sum
+- probably the most confusing slide; go slow. the reason comes before the result
+- step 0, the rule: the last stream is a **sum**, its token c plus the f layer 1 copied in. W_Q is linear, so W_Q(c + f) = W_Q c + W_Q f: one query that is two questions added together. this is slide 24's point again, different matrices read different parts of one stream
+- step 1, the questions scored (test averages, each part of the query against layer 1's tag under the 5 and under the 9): the c part finds the 9's tag (+6.4) and nothing at the 5 (+0.1); the f part finds the 5's tag (+5.8) and nothing at the 9 (−0.6). position adds the same +3.3 to both. **totals 9.2 and 9.2**, so softmax splits evenly, not by luck
+- "the tag under the 9" is what layer 1 wrote there: the c from position 4. the c's token embedding and that tag are different vectors; W_Q and W_K learned to line them up
+- step 2, the result: 48% on the 5, 51% on the 9. the write is **half the 5's value + half the 9's value**. both digits, not their sum. that's not a failure, it's the setup: the next slide adds
+- likely question: the last column carries the f tag too, why doesn't the c attend to itself? it does match on the tag (+6.5), but the position part of the score is −1.7 there against +3.3 at the digit slots: layer 2's position part only pays for digit slots. total 4.6 against 9.2, so 0.3%
 
 # 28-t3-mlp
 
@@ -204,7 +206,7 @@
 
 - difference = first minus second. swap the two values: the sum stays the same, the difference doesn't
 - step 1: an **even** split, like task 3's head (47 / 47), writes ½·5 + ½·9: the **same stream for both orders**. V is linear, so tagging the values doesn't save it: ½V(5 + f) + ½V(9 + c) = ½V(9 + f) + ½V(5 + c). with an even split the best is ~60% (always right when the digits are equal or 5 apart, a coin flip otherwise)
-- step 2: retrained on the difference: 42%. careful: this run doesn't blend at all, it puts 98% on the second value and never fetches the first. the even split is the argument, not what this model does
+- step 2: retrained on the difference: 42%. careful: this run doesn't blend at all, it puts 98% on the second value and never fetches the first. the even split is the argument, not what this model does. bridge out loud: "an even split can't work. this run didn't even try. next: a run that found a way around"
 
 # 33-t4-lean
 
@@ -273,6 +275,7 @@
 
 # 41-evo-kv
 
+- say it once here: attention cost has **two separate dials**. dial 1 (this slide): what each past token stores. dial 2 (next slide): which past tokens get read. a model can turn both (deepseek: mla + sparse)
 - each new token's query reads every past token's K and V: the kv cache, the big bar on the cost slide
 - mha: every head has its own K, V. gqa: groups of query heads share one (llama 3 8b: 32 query heads, 8 kv heads). mqa: all share one, quality drops
 - the picture: blue = 8 query heads, orange = the K, V heads that get cached, each drawn under the query heads that share it (one each, groups of 4, all 8, one compressed vector)
@@ -283,6 +286,7 @@
 
 # 42-evo-window
 
+- dial 2: which past tokens get read. the cache can still be mha, gqa or mla underneath
 - same attention as all lecture, different mask
 - sliding window: only the last w tokens; the cache is a fixed buffer. stacked layers still pass info back about layers × w
 - learned sparse (deepseek v3.2's dsa): a tiny cheap scorer ranks all past tokens, real attention runs on the top k = 2048. the sparse picture is made up, just "a few per row"

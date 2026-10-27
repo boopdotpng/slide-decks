@@ -6,6 +6,9 @@
 #              q1's position: on q1's value, and how often that's its top pick
 #   "qk"       layer 2's score advantage of each target value over the other values, split by which part of the query
 #              stream (its token, layer 1's write) meets which part of the key stream (layer 1's write). test averages
+#   "qk2"      the same split as raw scores from the last position: on the value at q1, at q2, and on the last position
+#              itself: "token" its token x the key's tag, "write" layer 1's copy x the tag, "pos" everything else
+#              (position), "total". test averages
 #   "acc"      test accuracy: the full model, the stream before the MLP read by the unembedding, the MLP's write alone
 #   "active"   MLP neurons above 0 at the last position, test average (of 64)
 #   "mlp_in"   how much of the variation in the MLP's input (the last stream after attention) is explained by the ordered
@@ -39,9 +42,9 @@ text = sys.argv[2] if len(sys.argv) > 2 else "a2f5c9d3fc"
 dst = os.path.join(os.path.dirname(os.path.abspath(__file__)), "slides/public/data/task3w.json")
 sys.path.insert(0, src); os.chdir(src)
 from tinygrad import nn
-from model import Model
-from dataset import VOCAB, N_LETTERS, two_key_dataset
-from analysis import forward, qk_parts, two_key_inputs
+from lib.model import Model
+from lib.dataset import VOCAB, N_LETTERS, two_key_dataset
+from lib.analysis import forward, qk_parts, two_key_inputs
 
 model = Model(seq_len=10, n_layers=2, n_heads=1, mlp=True)
 nn.state.load_state_dict(model, nn.state.safe_load("checkpoints/task3.safetensors"))
@@ -66,6 +69,22 @@ for target, name in ((first, "q1"), (second, "q2")):
   names, M = qk_parts(model, r, 1, 0, -1, target, is_value)
   t, w = names.index("token"), names.index("L1H1")
   qk[name] = {"token": float(M[t, w]), "write": float(M[w, w])}   # query part x layer 1's write in the key
+# the same split as raw scores (not advantages), for the slide's 2 x 2: the last stream's token (c) and layer 1's copy (f),
+# each against layer 1's tag under the 5 and the 9; "pos" is the rest of the score (position with everything), and the last
+# column itself, which carries the f tag too but sits in a letter slot
+from lib.analysis import head_dim
+attn2 = model.layers[1].attn
+Wq2, Wk2 = attn2.q_proj.weight.numpy()[:head_dim], attn2.k_proj.weight.numpy()[:head_dim]
+def score(nq, nk, idx):
+  s = np.einsum("bd,btd->bt", r["parts"][nq][:, -1] @ Wq2.T, r["parts"][nk] @ Wk2.T) / head_dim ** 0.5
+  return float(s[I, idx].mean())
+qk2 = {}
+for name, idx in (("q1", first), ("q2", second), ("self", np.full(B, 9))):
+  parts = ["token", "position", "L1H1"]
+  full = sum(score(a, b, idx) for a in parts for b in parts)
+  qk2[name] = {"token": score("token", "L1H1", idx), "write": score("L1H1", "L1H1", idx)}
+  qk2[name]["pos"] = full - qk2[name]["token"] - qk2[name]["write"]
+  qk2[name]["total"] = full
 pre_stream = r["resid"][2][:, -1]                             # after layer 2's attention, entering the MLP
 acc = {"full": float((r["logits"].argmax(-1) == Y).mean()), "before": float(((pre_stream @ U.T).argmax(-1) == Y).mean()),
        "write": float(((r["parts"]["MLP"][:, -1] @ U.T).argmax(-1) == Y).mean())}
@@ -152,7 +171,7 @@ neuron = {"id": k, "score": np.round(score[:, k].astype(np.float64), 2).tolist()
 nul = lambda m: [[None if j > i else round(float(m[i][j]), 3) for j in range(len(m))] for i in range(len(m))]
 rows = lambda m: [{f"d{k}": round(float(v), 3) for k, v in enumerate(row)} for row in m]   # Net.tsx's table format
 table = lambda f: [(row["model"], float(row["test_accuracy"])) for row in csv.DictReader(open(f"data/task3/{f}.csv"))]
-out = {"shapes": table("accuracy"), "ablation": table("ablation"), "embedding": rows(E), "position": rows(P), "l1": l1, "l2": l2, "qk": qk, "acc": acc, "active": round(active, 1),
+out = {"shapes": table("accuracy"), "ablation": table("ablation"), "embedding": rows(E), "position": rows(P), "l1": l1, "l2": l2, "qk": qk, "qk2": {k_: {k2: round(v, 2) for k2, v in d_.items()} for k_, d_ in qk2.items()}, "acc": acc, "active": round(active, 1),
        "mlp_in": {k_: round(v, 3) for k_, v in mlp_in.items()}, "fit_r2": round(float(fit_r2.min()), 3), "neuron": neuron, "votes": rd(V),
        "mlp_out": {k_: round(v, 3) for k_, v in mlp_out.items()}, "grid": grid,
        "no_relu": {k_: round(v, 3) for k_, v in no_relu.items()},
@@ -164,7 +183,7 @@ out = {"shapes": table("accuracy"), "ablation": table("ablation"), "embedding": 
                    "v2_logits": rd(v2 @ U.T), "write2_logits": rd(U @ w2), "rest_logits": rd(U @ e["resid"][1][0, -1]), "logits_write": rd(U @ write), "logits_after": rd(lg)}}
 json.dump(out, open(dst, "w"), separators=(",", ":"))
 print(f"layer 1: one back {np.round(l1['one_back'], 3)}, q2 on q1 {l1['q2_on_q1']:.3f}; layer 2: {l2}")
-print(f"qk: {qk}")
+print(f"qk: {qk}\nqk2: {qk2}")
 print(f"acc: {acc}; active neurons {active:.1f} / 64; mlp input explained by {mlp_in}; score(a) + score(b) + bias fit, worst r² {fit_r2.min():.3f}")
 print(f"leaving the mlp: {mlp_out}; top-k helpful neurons: {[(t['k'], t['acc']) for t in topk]}; top vote in own patch: {stripe}/{grid['fire_any']}; votes vs answers under the patch: median corr {np.median(match):.2f}, min {min(match):.2f}, >= 0.9: {sum(m_ >= 0.9 for m_ in match)}")
 print(f"no relu: {no_relu}; neuron {k}: score {np.round(score[:, k], 1)}, bias {bias[k]:.1f}, votes {np.round(V[N_LETTERS:, k], 2)}")

@@ -308,10 +308,9 @@ export function AttnMatrix({ chars, att, keep, dim, hlCells = [], tags, greyCols
         text={(v) => (v === null ? null : pct(v))} inv={(v) => v > 0.55}
         hlRows={dim ? keep : []} hlCells={dim ? [] : hlCells} dim={dim} />
       {greyCols.map((c) => <rect class="veil" x={M.x + c * M.cw - 1} y={M.y - 1} width={M.cw + 1} height={n * M.ch + 1} />)}
-      {/* the veils cover the outlines' edges: draw them again on top (same geometry as Mat's) */}
-      {greyCols.length > 0 && (dim
-        ? keep.map((r) => <rect class="hlbox top" x={M.x - 1.5} y={M.y + r * M.ch - 1.5} width={n * M.cw + 1} height={M.ch + 1} rx="3" />)
-        : hlCells.map(([r, c]) => <rect class="hlbox top" x={M.x + c * M.cw - 1.5} y={M.y + r * M.ch - 1.5} width={M.cw + 1} height={M.ch + 1} rx="3" />))}
+      {/* the veils cover the outlines' edges: draw them again on top (same geometry as Mat's); a dimmed matrix gets its cell boxes here too */}
+      {greyCols.length > 0 && dim && keep.map((r) => <rect class="hlbox top" x={M.x - 1.5} y={M.y + r * M.ch - 1.5} width={n * M.cw + 1} height={M.ch + 1} rx="3" />)}
+      {greyCols.length > 0 && hlCells.map(([r, c]) => <rect class="hlbox top" x={M.x + c * M.cw - 1.5} y={M.y + r * M.ch - 1.5} width={M.cw + 1} height={M.ch + 1} rx="3" />)}
       {note && <text class="note" x={M.x + n * M.cw + 16} y={M.y + note[0] * M.ch + M.ch / 2 + 8}>← {note[1]}</text>}
     </svg>
   );

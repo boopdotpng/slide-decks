@@ -74,7 +74,7 @@ export function Order() {
   const caps: ComponentChildren[] = [
     <><b>first minus second</b>. swap the two values: the sum doesn't change, the difference does</>,
     <>split the attention <b>evenly</b>, like task 3's head ({pct(s.first)} / {pct(s.second)}), and the write is half of each: the <b>same stream</b> for both inputs, so the same answer</>,
-    <>retrained on the difference: <b>{one.toFixed(0)}%</b>. this run doesn't even blend: {pct(z.second)} on the second value, so the first never arrives</>,
+    <>retrained on the difference: <b>{one.toFixed(0)}%</b>. an even split can't work, and this run didn't even try: {pct(z.second)} on the second value, so the first never arrives. next: a run that found a way around</>,
   ];
   return (
     <div class="t4" ref={root}>
