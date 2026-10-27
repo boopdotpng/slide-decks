@@ -5,8 +5,9 @@ import './roles';
 
 /**
  * Task 4, two-lookup difference (a2f5c9d3 fc → (5 − 9) mod 10 = 6), told as an argument: swap the two values and the
- * difference changes, but one head's write (half of each value) doesn't, so the mlp can't tell the inputs apart. A second
- * head gives each value its own write. Numbers from public/data/task4.json (export_task4.py, the csvs in
+ * difference changes, but an evenly split head's write (half of each value) doesn't, so the mlp can't tell the inputs apart.
+ * One head can still do it by splitting unevenly, but training only sometimes finds that. A second head gives each value
+ * its own write, every time. Numbers from public/data/task4.json (export_task4.py, the csvs in
  * ~/code/ml/interp/data). The first value (f's) in --key-a, the second (c's) in --key-b (roles.css), in both inputs.
  */
 type Run = { attn: number[][]; answer: string };
@@ -17,7 +18,7 @@ type T4 = {
   example: { text: string; one_head: Run; two_heads: Run; l1: number[][][] };
 };
 const pct = (v: number) => `${Math.round(v * 100)}%`;
-const ONE = '2 layers, 1 head each, plus MLP', TWO = '2 layers, 2 heads each, plus MLP';
+const ONE = '2 layers, 1 head each, plus MLP', TWO = '2 layers, 2 heads each, plus MLP', LUCKY = '2 layers, 1 head each, plus MLP (seed 1)';
 
 /** the two inputs: the same pairs, with the two looked-up values swapped */
 const INPUTS = [{ text: 'a2f5c9d3fc', a: '5', b: '9' }, { text: 'a2f9c5d3fc', a: '9', b: '5' }];
@@ -33,8 +34,9 @@ function Seq({ text }: { text: string }) {
 }
 const A = ({ children }: { children: ComponentChildren }) => <span class="a">{children}</span>;
 const B = ({ children }: { children: ComponentChildren }) => <span class="b">{children}</span>;
-/** one head's write: half of each value, in one blend */
-const Blend = ({ a, b }: { a: string; b: string }) => <span class="w"><Tex tex="\tfrac12" /> <A>{a}</A> + <Tex tex="\tfrac12" /> <B>{b}</B></span>;
+/** one head's write: both values in one blend, half of each unless the split is uneven (wa, wb) */
+const Blend = ({ a, b, wa = '\\tfrac12', wb = '\\tfrac12' }: { a: string; b: string; wa?: string; wb?: string }) =>
+  <span class="w"><Tex tex={wa} /> <A>{a}</A> + <Tex tex={wb} /> <B>{b}</B></span>;
 /** two heads' writes: each value in its own slot */
 const Slots = ({ a, b }: { a: string; b: string }) => <>
   <span class="w"><i>f's head</i> <A>{a}</A></span><span class="w"><i>c's head</i> <B>{b}</B></span>
@@ -61,21 +63,23 @@ const CSS = `
 /**
  * A grid of the two inputs: the input, then per-row cells that fade in by step.
  *   0 both inputs (the values swapped): the sum is 4 for both, the difference 6 vs 4
- *   1 task 3's head writes half of each into the last stream: the same for both, so the mlp must answer both the same
- *   2 the one-head model retrained on the difference: 42%
+ *   1 an even split (task 3's head: 47 / 47) writes half of each into the last stream: the same for both, so the mlp must
+ *     answer both the same
+ *   2 the one-head model retrained on the difference: 42%. this seed doesn't blend at all: it only looks at the second value
  */
 export function Order() {
   const { root, step, d } = useIsland<T4>('task4');
   if (!d) return <div ref={root} />;
-  const one = d.accuracy.find(([m]) => m === ONE)![1], s = d.split.sum[0];
+  const one = d.accuracy.find(([m]) => m === ONE)![1], s = d.split.sum[0], z = d.split.one_head[0];
   const caps: ComponentChildren[] = [
     <><b>first minus second</b>. swap the two values: the sum doesn't change, the difference does</>,
-    <>one head adds <b>half of each</b> ({pct(s.first)} / {pct(s.second)}): the <b>same stream</b> for both inputs, so the same answer</>,
+    <>split the attention <b>evenly</b>, like task 3's head ({pct(s.first)} / {pct(s.second)}), and the write is half of each: the <b>same stream</b> for both inputs, so the same answer</>,
+    <>retrained on the difference: <b>{one.toFixed(0)}%</b>. this run doesn't even blend: {pct(z.second)} on the second value, so the first never arrives</>,
   ];
   return (
     <div class="t4" ref={root}>
       <div class="grid">
-        <div class="h" /><div class={`h fade ${step >= 1 ? 'on' : ''}`}>task 3's head adds to the last stream</div>
+        <div class="h" /><div class={`h fade ${step >= 1 ? 'on' : ''}`}>an even split adds to the last stream</div>
         <div class="h">sum</div><div class="h">difference</div>
         {INPUTS.map(({ text, a, b }) => <>
           <Seq text={text} />
@@ -90,12 +94,68 @@ export function Order() {
         <Bars width={220} max={100} values={[d.sum, one]} labels={['task 3 model, on the sum', 'retrained on the difference']}
           color={(_, i) => (i === 0 ? 'var(--answer)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
       </div>
-      <div class="cap">{caps[Math.min(step, 1)]}</div>
+      <div class="cap">{caps[Math.min(step, 2)]}</div>
       <style>{CSS + `
         .t4 .grid { display: grid; grid-template-columns: auto auto auto auto; gap: .45em 2.2em; align-items: center; justify-content: start; font-size: 1.05em; }
         .t4 .grid .h { font-size: .5em; color: var(--muted); }
         .t4 .grid .n { font-family: var(--mono); color: var(--fg); text-align: center; } .t4 .grid .n.bad { color: var(--bad); }
         .t4 .grid .same { font-size: .5em; text-align: center; color: var(--muted); } .t4 .grid .same.bad { color: var(--bad); }
+      `}</style>
+    </div>
+  );
+}
+
+/** seeds tried in ~/code/ml/interp (readme.md, task 4): one head per layer found the lean on 4 of 9 (89–97%), two heads hit 100% on 6 of 6 */
+const SEEDS = { lean: 4, one: 9, range: '89–97%', two: 6 };
+/**
+ * One head can, if it leans: an uneven split keeps the order. seed 0's head (split.one_head) vs seed 1's (split.lucky).
+ *   0 a lopsided blend: swap the values and the stream changes
+ *   1 the two trained one-head models: where layer 2 looks, and test accuracy
+ *   2 possible but fragile: how many seeds find it, vs two heads
+ */
+export function Lean() {
+  const { root, step, d } = useIsland<T4>('task4');
+  if (!d) return <div ref={root} />;
+  const acc = (m: string) => d.accuracy.find(([k]) => k === m)![1];
+  const z = d.split.one_head[0], l = d.split.lucky[0], w = (v: number) => v.toFixed(2);
+  const runs = [
+    { name: 'seed 0', s: z, what: 'only the second value', acc: acc(ONE) },
+    { name: 'seed 1', s: l, what: 'leans on the second', acc: acc(LUCKY) },
+  ];
+  const caps: ComponentChildren[] = [
+    <>the split doesn't have to be even. lean on one value, <b>{w(l.first)}</b> / <b>{w(l.second)}</b>, and swapping the values <b>changes the stream</b>: the mlp can tell the inputs apart</>,
+    <>same shape, two training runs. seed 0 never blends and stalls at <b>{acc(ONE).toFixed(0)}%</b>. seed 1 finds the lean, and the mlp untangles it: <b>{acc(LUCKY).toFixed(0)}%</b></>,
+    <>possible, but fragile: the mlp has to pull two digits out of one lopsided sum. one head found it on <b>{SEEDS.lean} of {SEEDS.one}</b> seeds <span class="nw">({SEEDS.range})</span>. two heads: 100% on <b>{SEEDS.two} of {SEEDS.two}</b></>,
+  ];
+  return (
+    <div class="t4 ln" ref={root}>
+      <div class="grid">
+        <div class="h" /><div class="h">a lopsided split adds</div><div class="h">difference</div>
+        {INPUTS.map(({ text, a, b }) => <>
+          <Seq text={text} /><Blend a={a} b={b} wa={w(l.first)} wb={w(l.second)} /><div class="n">{mod(+a - +b)}</div>
+        </>)}
+        <div /><div class="same good">different</div><div class="same">different</div>
+      </div>
+      <div class={`fade ${step >= 1 ? 'on' : ''} runs`}>
+        <div class="h">2 layers, 1 head each, plus mlp</div><div class="h">layer 2 looks at: first value</div><div class="h">second value</div><div class="h" /><div class="h">test accuracy</div>
+        {runs.map((r) => <>
+          <div class="nm">{r.name}</div><div class="v a">{pct(r.s.first)}</div><div class="v b">{pct(r.s.second)}</div><div class="what">{r.what}</div>
+          <div class={`v ${r.acc > 80 ? 'good' : 'bad'}`}>{r.acc.toFixed(0)}%</div>
+        </>)}
+      </div>
+      <div class="cap">{caps[Math.min(step, 2)]}</div>
+      <style>{CSS + `
+        .t4.ln .grid { display: grid; grid-template-columns: auto auto auto; gap: .45em 2.2em; align-items: center; justify-content: start; font-size: 1.05em; }
+        .t4.ln .grid .h { font-size: .5em; color: var(--muted); }
+        .t4.ln .grid .n { font-family: var(--mono); color: var(--fg); text-align: center; }
+        .t4.ln .grid .same { font-size: .5em; text-align: center; color: var(--muted); } .t4.ln .grid .same.good { color: var(--answer); }
+        .t4.ln .runs { display: grid; grid-template-columns: auto auto auto auto auto; gap: .4em 2em; align-items: baseline; justify-content: start; font-size: .8em; margin-top: .4em; }
+        .t4.ln .runs .h { font-size: .6em; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: .3em; }
+        .t4.ln .runs .nm { font-family: var(--mono); color: var(--fg); }
+        .t4.ln .runs .v { font-family: var(--mono); font-weight: 700; text-align: right; }
+        .t4.ln .runs .v.good { color: var(--answer); } .t4.ln .runs .v.bad { color: var(--bad); }
+        .t4.ln .runs .what { font-size: .8em; }
+        .t4.ln .cap .nw { white-space: nowrap; }
       `}</style>
     </div>
   );
@@ -147,32 +207,32 @@ function Attn({ rows }: { rows: Row[] }) {
 /**
  *   0 two heads in layer 2, each its own lookup: one finds f's value, the other c's
  *   1 what lands in the last stream, for both inputs: one blend vs two separate writes
- *   2 the proof: 42% → 100%, nothing else changed
+ *   2 one head: 42% or 97%, depending on the seed. two heads: 100% on every seed
  */
 export function TwoHeads() {
   const { root, step, d } = useIsland<T4>('task4');
   if (!d) return <div ref={root} />;
   const acc = (m: string) => d.accuracy.find(([k]) => k === m)![1];
-  const one = acc(ONE), two = acc(TWO), at = d.example.two_heads.attn;
+  const one = acc(ONE), lucky = acc(LUCKY), two = acc(TWO), at = d.example.two_heads.attn;
   const caps: ComponentChildren[] = [
     <>a <b>second head</b>, its own lookup: one finds f's value, the other c's</>,
     <>each head writes its <b>own entry</b>: swap the values and the stream changes</>,
-    <>only change, a second head: <b>{one.toFixed(0)}% → {two.toFixed(0)}%</b>. that's multi-head attention</>,
+    <>one head: <b>{one.toFixed(0)}%</b> or <b>{lucky.toFixed(0)}%</b>, depending on the seed. two heads: <b>{two.toFixed(0)}%</b> on every seed. that's multi-head attention: lookups that don't have to share one blend</>,
   ];
   return (
     <div class="t4" ref={root}>
       <Attn rows={[{ label: "f's head", attn: at[1], cls: 'a' }, { label: "c's head", attn: at[0], cls: 'b' }]} />
       <div class="r2">
       <div class={`fade ${step >= 1 ? 'on' : ''} writes`}>
-        <div class="h" /><div class="h">one head adds</div><div class="h">two heads add</div>
+        <div class="h" /><div class="h">an even split adds</div><div class="h">two heads add</div>
         {INPUTS.map(({ text, a, b }) => <>
           <code class="src">{text}</code><div><Blend a={a} b={b} /></div><div class="slots"><Slots a={a} b={b} /></div>
         </>)}
         <div /><div class="same">the same</div><div class="same good">different</div>
       </div>
       <div class={`fade ${step >= 2 ? 'on' : ''} acc`}>
-        <Bars width={220} max={100} values={[one, two]} labels={['1 head per layer', '2 heads per layer']}
-          color={(_, i) => (i === 0 ? 'var(--bad)' : 'var(--answer)')} fmtV={(v) => `${v.toFixed(0)}%`} />
+        <Bars width={220} max={100} values={[one, lucky, two]} labels={['1 head, seed 0', '1 head, seed 1', '2 heads, every seed']}
+          color={(v) => (v >= 99.5 ? 'var(--answer)' : v >= 80 ? 'var(--muted)' : 'var(--bad)')} fmtV={(v) => `${v.toFixed(0)}%`} />
       </div>
       </div>
       <div class="cap">{caps[Math.min(step, 2)]}</div>

@@ -203,29 +203,37 @@
 # 32-t4-order
 
 - difference = first minus second. swap the two values: the sum stays the same, the difference doesn't
-- step 1: task 3's head writes ½·5 + ½·9, which is the **same stream for both orders**. it can't tell which came first
-- step 2: retrained on the difference: 42%. a blend can't tell a − b from b − a, so the best it could do is ~60% (always right when the digits are equal or 5 apart, a coin flip otherwise)
+- step 1: an **even** split, like task 3's head (47 / 47), writes ½·5 + ½·9: the **same stream for both orders**. V is linear, so tagging the values doesn't save it: ½V(5 + f) + ½V(9 + c) = ½V(9 + f) + ½V(5 + c). with an even split the best is ~60% (always right when the digits are equal or 5 apart, a coin flip otherwise)
+- step 2: retrained on the difference: 42%. careful: this run doesn't blend at all, it puts 98% on the second value and never fetches the first. the even split is the argument, not what this model does
 
-# 33-t4-heads
+# 33-t4-lean
+
+- the honest version: one head **can** do it. nothing forces an even split
+- step 0: lean on one value, 0.30 / 0.66, and swapping the values changes the stream. the mlp can read the order back out
+- how the head leans: the last stream holds its own c and the f layer 1 copied in, in different directions, so W_Q can weight "match my own letter" and "match the copied letter" differently. a steady score gap of ln(0.66 / 0.30) ≈ 0.8 is the whole trick
+- step 1: same shape, two seeds. seed 0 grabs only the second value: 42%. seed 1 leans: 97%
+- step 2: fragile. 4 of 9 seeds found it (89–97%); the rest stall. at the start the split is ~even and leaning gains nothing until the mlp can read it, and the mlp can't learn to read a lean that isn't there yet. two heads: 100% on 6 of 6
+
+# 34-t4-heads
 
 - step 0: two heads in layer 2: one finds f's value, the other c's. each write stays separate
 - step 1: swap the values, and now the stream changes, because "the 5 from f's head" ≠ "the 5 from c's head"
-- step 2: the only change is a second head: 42% → 100%. **that's what multi-head attention is for**: separate lookups whose writes don't blur together
+- step 2: one head is 42% or 97% depending on the seed; two heads are 100% every time. **that's what multi-head attention is for**: separate lookups whose writes don't have to share one blend. it doesn't make the task possible, it makes it easy
 
-# 34-gpt2-roles
+# 35-gpt2-roles
 
 - every piece we built exists in gpt-2, just 12 × 12 of them
 - head = one lookup; parallel heads = lookups that stay apart; layers = a lookup reading an earlier write; mlp = per-position compute
 - gpt-2 detail: its heads work in 64 dims, so one more matrix (W_O) maps the 12 × 64 back up to 768. only needed if someone asks or builds it
 - name-drop: induction heads (5.5 / 6.9) are task 2's two-step circuit
 
-# 35-gpt2-changes
+# 36-gpt2-changes
 
 - what's harder at scale: every position is graded, nobody hands out jobs, neurons do many unrelated things (more features than dimensions), knockouts are blunt (backup heads)
 - end on the last row: **the circuits are still there**, and the tools are the ones we used: knock out, probe, read QK and V
 - if they want to build gpt-2 next: what's missing is layernorm, gelu, biases, bpe tokens, tied embeddings. small pieces around the same structure
 
-# 36-evo-goals
+# 37-evo-goals
 
 - bridge from 35: the circuits are still there, and so is the block. what changed since 2019 is almost all about cost, so sort it by what it buys
 - the "coming up" lists are a map of the next slides, not something to explain here
@@ -236,15 +244,15 @@
 - stable training: runs take months on thousands of gpus; a loss spike can waste days
 - not a ladder: models pick an answer for each goal and mix them. a map, not something to memorize
 
-# 37-evo-cost
+# 38-evo-cost
 
 - back-of-envelope for llama 3 8b's shapes (32 layers, d 4096, 32 query / 8 kv heads of 128, mlp 14336, bf16), embeddings left out
-- left, reading the prompt: compute-bound, so count flops. this is the forward pass, 2 flops per weight; training adds the backward pass for 6, so ×3 (slide 36). the mlp is most of it until the context gets long; attention over the context grows with length
+- left, reading the prompt: compute-bound, so count flops. this is the forward pass, 2 flops per weight; training adds the backward pass for 6, so ×3 (slide 37). the mlp is most of it until the context gets long; attention over the context grows with length
 - right, generating with 64 users at once: memory-bound, so count bytes. weights are read once per step and shared by all 64; each user's kv cache is read in full. past a few thousand tokens the kv cache is almost all of it
 - that's where every change on the next slides aims: mlp → swiglu, moe (goal 1). kv cache → gqa, mla, windows, sparse, linear (goal 2)
 - at batch 1 it flips: the 16 GB of weights dominate until very long context. that's where moe's "read only a few experts" helps
 
-# 38-evo-mlp
+# 39-evo-mlp
 
 - task 3 used relu; gpt-2 uses gelu; most models now use swiglu
 - step 1, silu: z × σ(z). σ is a soft switch from 0 to 1, so silu is "z, let through by how positive it is". smooth relu that dips slightly below 0. gelu is almost the same curve
@@ -254,16 +262,16 @@
 - gelu ≈ relu here: the smooth curve alone isn't the win, the gate is
 - then read the quote. that's the honest state of it: it works, nobody has a clean reason
 
-# 39-evo-moe
+# 40-evo-moe
 
 - step 0, the router: one small matrix gives each expert a score for this token. keep the top 2, softmax just those two (0.6 / 0.4), and the write is that mix of two mlps. each expert is an ordinary mlp, like task 3's. the other 6 don't run for this token
 - step 1: the router is per position, like any mlp, so **every token picks its own experts**. the scores and picks here are made up, just to show the shape
 - step 2, easy to get backwards: moe has **more** total params and **fewer** used per token. total = what it can store; used per token = what each token costs to train and run
 - the k column: mixtral picks 2 of 8; gpt-oss 4 of 128; deepseek-v3 8 of 256, plus 1 shared expert every token uses
-- step 3, the catch: every expert still has to sit in gpu memory. ties back to slide 37: at batch 1 the weights dominate, and moe only reads the experts it picked
+- step 3, the catch: every expert still has to sit in gpu memory. ties back to slide 38: at batch 1 the weights dominate, and moe only reads the experts it picked
 - likely question: do experts specialize by topic? mostly not cleanly; they split by token-level patterns (punctuation, code syntax, …), and training keeps the load spread so no expert gets all the traffic (an extra loss term, or in deepseek-v3 a per-expert bias on the router)
 
-# 40-evo-kv
+# 41-evo-kv
 
 - each new token's query reads every past token's K and V: the kv cache, the big bar on the cost slide
 - mha: every head has its own K, V. gqa: groups of query heads share one (llama 3 8b: 32 query heads, 8 kv heads). mqa: all share one, quality drops
@@ -273,14 +281,14 @@
 - mla (deepseek): cache one compressed vector per token; every head's K, V are rebuilt from it. 576 numbers instead of 32,768, at about mha's quality
 - the picture is the sharing pattern on 8 query heads; the bars put every scheme on deepseek-v3's shape (128 heads × 128 dims) so they're comparable, at the same ratios: gqa in groups of 4 like llama 3 8b's 32 : 8, so 32 kv heads. the sum is under each bar
 
-# 41-evo-window
+# 42-evo-window
 
 - same attention as all lecture, different mask
 - sliding window: only the last w tokens; the cache is a fixed buffer. stacked layers still pass info back about layers × w
 - learned sparse (deepseek v3.2's dsa): a tiny cheap scorer ranks all past tokens, real attention runs on the top k = 2048. the sparse picture is made up, just "a few per row"
 - most models mix window layers with some full ones (next slides): gemma 3 has 5 window layers (w = 1024) per full one, gpt-oss alternates
 
-# 42-evo-state
+# 43-evo-state
 
 - drop the softmax and attention can run as a loop over one d_k × d_v matrix S: write v kᵀ in, read S q out
 - step 1: the kv cache grows with every token; S stays the same size (llama 3 8b shapes: S is 32 heads × 128 × 128 per layer, bigger than the cache only for the first ~256 tokens)
@@ -288,7 +296,7 @@
 - just adding blurs old entries, so the update got smarter: mamba-2 fades S each step, deltanet overwrites what's stored at k, gated deltanet (qwen3-next) and kda (kimi linear) do both
 - weak at exact recall from far back, so always mixed with some full attention. future exploration, don't go deeper
 
-# 43-evo-small
+# 44-evo-small
 
 - rmsnorm: divide by the rms and rescale; no mean subtraction, no bias. cheaper, trains as well
 - qk-norm: normalize q and k before the dot product so attention scores can't grow without bound, a common source of loss spikes
@@ -296,14 +304,14 @@
 - rope: rotate q and k by their position m, so the score depends on the distance between them. replaces gpt-2's learned table of 1024 positions and stretches to longer context
 - why rope counts as better per flop: a learned table only knows positions it was trained on, so reaching n tokens means training at length n, and long sequences are the expensive ones. rope only sees distances: train mostly short, then stretch to long context with a little extra training
 
-# 44-evo-hybrids
+# 45-evo-hybrids
 
-- each row is a model's first 12 layers: the tall block is which past tokens attention reads, the thin bar under it is that layer's mlp (dense or moe). right column: what the attention layers cache (slide 40)
+- each row is a model's first 12 layers: the tall block is which past tokens attention reads, the thin bar under it is that layer's mlp (dense or moe). right column: what the attention layers cache (slide 41)
 - gemma: window + full. gpt-oss: window + full, moe. deepseek: sparse everywhere, mla, moe after 3 dense layers. qwen3-next and kimi: 3 linear layers per full one, moe (kimi's first layer dense)
 - kimi linear's full (mla) layers use no positions at all; the linear layers carry order
 - these are 2024–25 models; the lineup changes fast, the three goals don't
 
-# 45-evo-recap
+# 46-evo-recap
 
 - left: gpt-2. right: a typical 2025 block. each change labeled with the goal it serves
 - unchanged: the residual stream, QK picking where to look, V copying what. everything from today still applies
