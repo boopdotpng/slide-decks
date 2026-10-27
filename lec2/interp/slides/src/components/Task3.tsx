@@ -5,7 +5,7 @@ import { AM_CSS, AttnEq, AttnMatrix, CH, Input, places, STREAM_CSS, Streams, Val
 import './roles';
 
 /**
- * Task 3, two-key sum (a2f5c9d3fc → (5 + 9) mod 10 = 4): task 2's two heads fetch both values, an MLP after layer 2 adds
+ * Task 3, two-lookup sum (a2f5c9d3fc → (5 + 9) mod 10 = 4): task 2's two heads fetch both values, an MLP after layer 2 adds
  * them. Everything trained comes from public/data/task3w.json (export_task3.py). The head slides reuse task 2's views
  * (AttnMatrix, ValueRead), so every task reads the same way. Colors: roles.css (layer 1 --attn, layer 2 --l2, the mlp --mlp,
  * f's lookup --key-a, c's --key-b).
@@ -45,12 +45,12 @@ const INTRO_CAPS: ComponentChildren[] = [
  *   3 attention only: 27% (1 head per layer), 30% (2 heads)   4 plus an mlp: 98%
  */
 
-/** a2f5c9d3 fc as four key · value pills and the two queries; colour does the lookup (f's pair and query --key-a, c's --key-b)
+/** a2f5c9d3 fc as four letter · digit pills and the two looked-up letters; colour does the lookup (f's pair and query --key-a, c's --key-b)
  *   0 the input   1 each query lights its pair   2 add: 5 + 9 = 14 → 4 */
 function PairSum({ step }: { step: number }) {
   const PAIRS = [['a', '2', ''], ['f', '5', 'a'], ['c', '9', 'b'], ['d', '3', '']];
   const lit = step >= 1;
-  const say = [<>four <b>key · value</b> pairs, then two <b>queries</b></>,
+  const say = [<>four <b>letter · digit</b> pairs, then two <b>letters</b> to look up</>,
     <><b class="a">f</b> → <b class="a">5</b>, <b class="b">c</b> → <b class="b">9</b></>,
     <><b class="a">5</b> + <b class="b">9</b> = 14 → <b class="g">4</b> <span class="m">(mod 10)</span></>];
   return (

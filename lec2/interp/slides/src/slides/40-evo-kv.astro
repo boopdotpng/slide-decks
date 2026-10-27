@@ -1,10 +1,10 @@
 ---
 import Goal from '../components/Goal.astro';
-// 8 query heads drawn (the picture is the sharing pattern); the cache numbers all use deepseek-v3's 128 query heads
-// of 128 dims, per token per layer, with the sum written out under each bar
+// 8 query heads drawn (the picture is the sharing pattern, at the bars' ratios); the cache numbers all use deepseek-v3's
+// 128 query heads of 128 dims, per token per layer, with the sum written out under each bar. gqa in groups of 4, like llama 3 8b's 32 : 8
 const ROWS = [
   { name: 'mha', who: 'gpt-2', kv: 8, what: 'one K, V per head', cache: 2 * 128 * 128, calc: 'K, V × 128 heads × 128' },
-  { name: 'gqa', who: 'llama 3, qwen, gemma', kv: 2, what: 'groups share one', cache: 2 * 8 * 128, calc: 'K, V × 8 kv heads × 128' },
+  { name: 'gqa', who: 'llama 3, qwen, gemma', kv: 2, what: 'groups of 4 share one', cache: 2 * 32 * 128, calc: 'K, V × 32 kv heads × 128' },
   { name: 'mqa', who: 'palm', kv: 1, what: 'all heads read the same K, V', cache: 2 * 128, calc: 'K, V × 1 head × 128' },
   { name: 'mla', who: 'deepseek, kimi', kv: 0, what: 'one compressed vector', cache: 512 + 64, calc: '512 latent + 64 for rope' },
 ];
@@ -16,7 +16,7 @@ const MAX = ROWS[0].cache;
   <p class="sub">numbers stored per past token, per layer</p>
 </header>
 <div class="kv">
-  <div class="h" /><div class="h key"><span><i class="q" />query head</span><span><i class="k kk" />K, V head (cached)</span></div><div class="h" /><div class="h">cache size, all at deepseek-v3's 128 heads</div>
+  <div class="h" /><div class="h key"><span><i class="q" />query head</span><span><i class="k kk" />K, V head (cached)</span></div><div class="h" /><div class="h">cache size, all at 128 query heads of 128</div>
   {ROWS.map((r, i) => (
     <div class:list={['row', { step: i > 0 }]}>
       <div class="nm">{r.name}<span>{r.who}</span></div>

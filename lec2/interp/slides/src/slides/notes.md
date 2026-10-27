@@ -14,7 +14,7 @@
 
 - the core picture for the whole talk: **one stream per position, and every layer only adds to it**
 - step 1: attention at one position pulls from some earlier streams. which ones isn't fixed: it's learned, and it depends on the input
-- step 2: all positions do this at once, one matmul. each reads only earlier streams (the mask, slide 15)
+- step 2: all positions do this at once, one matmul. each reads only its own and earlier streams (the mask, slide 15)
 - step 3: the mlp is the opposite: **each position on its own**, no reading across
 - say it plainly: **attention moves information between positions, the mlp computes on what's already there**
 - step 4: only the last stream gets turned into 36 scores
@@ -239,7 +239,7 @@
 # 37-evo-cost
 
 - back-of-envelope for llama 3 8b's shapes (32 layers, d 4096, 32 query / 8 kv heads of 128, mlp 14336, bf16), embeddings left out
-- left, training and reading the prompt: compute-bound, so count flops. the mlp is most of it until the context gets long; attention over the context grows with length
+- left, reading the prompt: compute-bound, so count flops. this is the forward pass, 2 flops per weight; training adds the backward pass for 6, so ×3 (slide 36). the mlp is most of it until the context gets long; attention over the context grows with length
 - right, generating with 64 users at once: memory-bound, so count bytes. weights are read once per step and shared by all 64; each user's kv cache is read in full. past a few thousand tokens the kv cache is almost all of it
 - that's where every change on the next slides aims: mlp → swiglu, moe (goal 1). kv cache → gqa, mla, windows, sparse, linear (goal 2)
 - at batch 1 it flips: the 16 GB of weights dominate until very long context. that's where moe's "read only a few experts" helps
@@ -271,7 +271,7 @@
 - mqa in detail: each head keeps its own W_Q (so its own attention pattern) and its own slice of W_O, but there's one K and one V per token for all of them. 32 heads can look for 32 different things, but they all search the same keys and copy the same values. task 4's two heads would still ask different questions, but couldn't have keys / values tuned to their own jobs: that's the quality loss
 - gqa is the middle: llama 3 8b's 8 kv heads each serve 4 query heads, most of mha's quality at a quarter of the cache
 - mla (deepseek): cache one compressed vector per token; every head's K, V are rebuilt from it. 576 numbers instead of 32,768, at about mha's quality
-- the picture is the sharing pattern (8 query heads, gqa in groups of 4 like llama 3 8b's 32 : 8). the bars put every scheme on deepseek-v3's shape (128 heads × 128 dims) so they're comparable; gqa there is 8 kv heads, groups of 16. the sum is under each bar
+- the picture is the sharing pattern on 8 query heads; the bars put every scheme on deepseek-v3's shape (128 heads × 128 dims) so they're comparable, at the same ratios: gqa in groups of 4 like llama 3 8b's 32 : 8, so 32 kv heads. the sum is under each bar
 
 # 41-evo-window
 
@@ -298,9 +298,9 @@
 
 # 44-evo-hybrids
 
-- each row is a model's first 12 layers, colored by attention type, and whether its mlp is dense or moe
-- gemma: window + full. gpt-oss: window + full, moe. deepseek: mla + sparse everywhere, moe. qwen3-next and kimi: 3 linear layers per full / mla one, moe
-- kimi linear's mla layers use no positions at all; the linear layers carry order
+- each row is a model's first 12 layers: the tall block is which past tokens attention reads, the thin bar under it is that layer's mlp (dense or moe). right column: what the attention layers cache (slide 40)
+- gemma: window + full. gpt-oss: window + full, moe. deepseek: sparse everywhere, mla, moe after 3 dense layers. qwen3-next and kimi: 3 linear layers per full one, moe (kimi's first layer dense)
+- kimi linear's full (mla) layers use no positions at all; the linear layers carry order
 - these are 2024–25 models; the lineup changes fast, the three goals don't
 
 # 45-evo-recap

@@ -38,7 +38,7 @@ const READS: [number, number][][] = [
 const CAPS = [
   <>one vector per position: its <b>residual stream</b>. stacked, one row each: <Tex tex="X" />, <Tex tex="9 \times 32" /></>,
   <>attention at f: pulls from a few earlier streams (which ones is learned), <b>adds</b> a vector into its own</>,
-  <>every position does the same, at once: one matmul on all of <Tex tex="X" />, each reads only earlier streams</>,
+  <>every position does the same, at once: one matmul on all of <Tex tex="X" />, each reads only its own and earlier streams</>,
   <>mlp: each position reads its own stream, <b>adds</b> back into it</>,
   <>unembed reads only the last stream → 36 scores</>,
   <>nothing overwrites: <Tex tex="x \leftarrow x + f(x)" /></>,

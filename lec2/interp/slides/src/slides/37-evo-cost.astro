@@ -13,7 +13,7 @@ const flops = CTX.map(n => [2 * MLP_W, 2 * ATTN_W, 4 * L * HQ * DH * n / 2].map(
 // weights are read once per step and shared by the batch; every sequence reads its whole kv cache
 const reads = CTX.map(n => [MLP_W * BYTES / BATCH, ATTN_W * BYTES / BATCH, 2 * L * HKV * DH * n * BYTES].map(b => b / 1e9));
 const PANELS = [
-  { title: 'training / reading the prompt', unit: 'billions of flops (multiplies + adds) per token', rows: flops,
+  { title: 'reading the prompt (training: ×3)', unit: 'billions of flops per token, forward pass: 2 per weight', rows: flops,
     parts: ['mlp', 'attention weights', 'attention over the context'], fix: ['swiglu, moe', '', 'windows, sparse, linear'] },
   { title: 'generating, 64 users at once', unit: 'GB read from gpu memory per new token', rows: reads,
     parts: ['mlp weights', 'attention weights', 'kv cache'], fix: ['moe', '', 'gqa, mla, windows, sparse, linear'] },

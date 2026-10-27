@@ -103,7 +103,7 @@ const tokChips = (on = true, hl: number[] = []): Chip[] =>
 
 // ── task 2 = task 1, twice ───────────────────────────────────────────────────
 const TWICE_CAPS: ComponentChildren[] = [
-  <>four key → value pairs, then a key: output that key's value. <b>a2f5c9d3 f → 5</b></>,
+  <>four letter → digit pairs, then a letter: output its digit. <b>a2f5c9d3 f → 5</b></>,
   <><span class="l1c">step 1, find by place:</span> every digit copies the letter just before it. the 5's stream now says <b>"5, after f"</b></>,
   <><span class="l2c">step 2, find by content:</span> the f at the end looks for the stream with <b>f</b> written in it, and copies its digit</>,
   <>each step is task 1's head. <b>step 2 can only find "after f" because step 1 wrote it</b></>,

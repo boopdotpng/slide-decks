@@ -1,47 +1,59 @@
 ---
 import Goal from '../components/Goal.astro';
-// the first 12 layers (all of gpt-2) of each model, by attention type. f full, w sliding window, s mla + learned sparse, l linear
-// (gated deltanet / kda), m mla
+// the first 12 layers (all of gpt-2) of each model: top strip, which past tokens attention reads (f full, w sliding window,
+// s learned sparse, l linear: gated deltanet / kda); bottom strip, each layer's mlp (d dense, e moe). kv: what the
+// attention layers cache. dense layers before the moe ones: deepseek first_k_dense_replace 3, kimi linear 1 (hf configs)
 const TYPES = {
-  f: ['full', 'var(--series-1)'], w: ['sliding window', 'var(--teal)'], s: ['mla + sparse', 'var(--series-2)'],
-  m: ['mla', 'var(--yellow)'], l: ['linear (deltanet, kda)', 'var(--good)'],
+  f: ['full', 'var(--series-1)'], w: ['sliding window', 'var(--teal)'], s: ['learned sparse', 'var(--series-2)'],
+  l: ['linear (deltanet, kda)', 'var(--good)'],
 } as const;
+const MLPS = { d: ['dense mlp', 'var(--line-2)'], e: ['moe', 'var(--yellow)'] } as const;
 type T = keyof typeof TYPES;
-const rep = (p: string) => p.repeat(12).slice(0, 12).split('') as T[];
-const MODELS: [string, T[], string][] = [
-  ['gpt-2', rep('f'), 'dense'],
-  ['llama 3', rep('f'), 'dense'],
-  ['gemma 3', rep('wwwwwf'), 'dense'],
-  ['gpt-oss', rep('wf'), 'moe'],
-  ['deepseek v3.2', rep('s'), 'moe'],
-  ['qwen3-next', rep('lllf'), 'moe'],
-  ['kimi linear', rep('lllm'), 'moe'],
+type P = keyof typeof MLPS;
+const rep = <K extends string>(p: string) => p.repeat(12).slice(0, 12).split('') as K[];
+const MODELS: [string, T[], P[], string][] = [
+  ['gpt-2', rep('f'), rep('d'), 'mha'],
+  ['llama 3', rep('f'), rep('d'), 'gqa'],
+  ['gemma 3', rep('wwwwwf'), rep('d'), 'gqa'],
+  ['gpt-oss', rep('wf'), rep('e'), 'gqa'],
+  ['deepseek v3.2', rep('s'), rep('ddd' + 'e'.repeat(9)), 'mla'],
+  ['qwen3-next', rep('lllf'), rep('e'), 'gqa'],
+  ['kimi linear', rep('lllf'), rep('d' + 'e'.repeat(11)), 'mla'],
 ];
 ---
 <header>
   <Goal band={[1, 2]} />
   <h2>real models mix the answers</h2>
-  <p class="sub">first 12 layers, by attention type</p>
+  <p class="sub">first 12 layers: which tokens attention reads, and the mlp under it</p>
 </header>
 <div class="hy">
-  {MODELS.map(([m, layers, mlp], i) => (
+  <div class="h" /><div class="h">attention · mlp, layer by layer</div><div class="h">kv cache</div>
+  {MODELS.map(([m, layers, mlps, kv], i) => (
     <div class:list={['row', { step: i > 1 }]}>
       <div class="m">{m}</div>
-      <div class="ls">{layers.map(t => <i style={`background: ${TYPES[t][1]}`} />)}</div>
-      <div class:list={['mlp', mlp]}>{mlp}</div>
+      <div class="ls">{layers.map((t, j) => <span><i style={`background: ${TYPES[t][1]}`} /><b style={`background: ${MLPS[mlps[j]][1]}`} /></span>)}</div>
+      <div class="kvn">{kv}</div>
     </div>
   ))}
 </div>
-<div class="lg">{Object.values(TYPES).map(([n, c]) => <span><i style={`background: ${c}`} />{n}</span>)}</div>
+<div class="lg">
+  {Object.values(TYPES).map(([n, c]) => <span><i style={`background: ${c}`} />{n}</span>)}
+  <span class="sep" />
+  {Object.values(MLPS).map(([n, c]) => <span><i class="thin" style={`background: ${c}`} />{n}</span>)}
+</div>
 <style>
   .hy { display: grid; grid-template-columns: auto 1fr auto; gap: .45em 1.2em; font-size: .62em; align-items: center; }
+  .hy .h { font-size: .7em; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: .3em; }
   .hy .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; }
   .m { font-family: var(--mono); white-space: nowrap; }
   .ls { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; }
+  .ls span { display: flex; flex-direction: column; gap: 2px; }
   .ls i { display: block; height: 1.25em; border-radius: 3px; }
-  .mlp { font-family: var(--mono); font-size: .85em; padding: .1em .6em; border-radius: 99px; border: 1.5px solid var(--line-2); color: var(--muted); }
-  .mlp.moe { border-color: var(--good); color: var(--good); }
+  .ls b { display: block; height: .35em; border-radius: 2px; }
+  .kvn { font-family: var(--mono); color: var(--muted); }
   .lg { display: flex; gap: 1.4em; justify-content: center; font-size: .5em; color: var(--muted); margin-top: 1.2em; }
   .lg span { display: flex; align-items: center; gap: .4em; }
   .lg i { width: .9em; height: .9em; border-radius: 2px; }
+  .lg i.thin { height: .35em; }
+  .lg .sep { width: 1px; align-self: stretch; background: var(--border); }
 </style>

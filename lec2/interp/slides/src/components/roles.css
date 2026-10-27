@@ -6,7 +6,7 @@
   --attn: var(--accent);    /* attention, and layer 1's head and what it writes */
   --l2: var(--purple);      /* layer 2's head and what it writes */
   --mlp: var(--teal);       /* the mlp */
-  --key-a: var(--accent);   /* two-key tasks: the first lookup (f, its value, its head) */
+  --key-a: var(--accent);   /* two-lookup tasks: the first lookup (f, its value, its head) */
   --key-b: var(--pink);     /* the second lookup (c, its value, its head) */
   --focus: var(--yellow);   /* "look here": outlined cells, callouts, the gradient */
 }

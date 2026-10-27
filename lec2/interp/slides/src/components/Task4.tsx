@@ -4,7 +4,7 @@ import { Bars, Mat, Tex, sequential, useIsland } from './viz';
 import './roles';
 
 /**
- * Task 4, two-key difference (a2f5c9d3 fc → (5 − 9) mod 10 = 6), told as an argument: swap the two values and the
+ * Task 4, two-lookup difference (a2f5c9d3 fc → (5 − 9) mod 10 = 6), told as an argument: swap the two values and the
  * difference changes, but one head's write (half of each value) doesn't, so the mlp can't tell the inputs apart. A second
  * head gives each value its own write. Numbers from public/data/task4.json (export_task4.py, the csvs in
  * ~/code/ml/interp/data). The first value (f's) in --key-a, the second (c's) in --key-b (roles.css), in both inputs.
