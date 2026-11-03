@@ -1,0 +1,34 @@
+---
+---
+<header>
+  <div class="section">the dataset</div>
+  <h2>the whole dataset is four tensors</h2>
+  <p class="sub">the library downloads it for you (about 11 MB)</p>
+</header>
+<div class="t4">
+  <table class="shapes">
+    <tr><th>tensor</th><th>shape</th><th>holds</th></tr>
+    <tr><td><code>xtrain</code></td><td class="mono">(60000, <span class="ch">1</span>, 28, 28)</td><td>training images, bytes 0–255</td></tr>
+    <tr><td><code>ytrain</code></td><td class="mono">(60000,)</td><td>their labels, 0–9</td></tr>
+    <tr><td><code>xtest</code></td><td class="mono">(10000, <span class="ch">1</span>, 28, 28)</td><td>test images</td></tr>
+    <tr><td><code>ytest</code></td><td class="mono">(10000,)</td><td>test labels</td></tr>
+    <tr class="key"><td colspan="3"><span class="ch">1</span> is the color channel: mnist is grayscale, so one. a color photo would have 3 (red, green, blue)</td></tr>
+  </table>
+</div>
+<div class="cols small norm">
+  <p class="step"><b class="accent">/ 255</b>: bytes become floats from 0 to 1</p>
+  <p class="step"><b class="accent">− mean</b>: shift so the average pixel is 0 (the mean is about 0.13). small numbers centered on 0 train better</p>
+  <p class="step"><b class="accent">the test set gets the same</b> <code>mean</code>: it has to look like what the model trained on</p>
+</div>
+<style>
+  .t4 { display: flex; gap: 48px; align-items: center; }
+  .t4 :global(pre) { flex: none; }
+  .shapes { font-size: .6em; }
+  .shapes td:nth-child(2) { white-space: nowrap; }
+  .shapes td { padding: .3em 1.4em .3em 0; border-bottom: 1px solid var(--border); }
+  .mono { font-family: var(--mono); }
+  .ch { color: var(--hot); font-weight: 700; }
+  .shapes .key td { border-bottom: none; color: var(--muted); font-size: .9em; padding-top: .5em; }
+  .norm { gap: 40px; margin-top: .8em; }
+  .norm p { margin: 0; }
+</style>

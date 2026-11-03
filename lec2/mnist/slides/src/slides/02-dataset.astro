@@ -1,0 +1,23 @@
+---
+import { DigitGrid } from '../components/mnist.tsx';
+---
+<header>
+  <div class="section">the dataset</div>
+  <h2>mnist: 70,000 handwritten digits</h2>
+</header>
+<div class="ds">
+  <div data-steps="1"><DigitGrid client:load /></div>
+  <div class="facts">
+    <p><b>28 × 28</b> pixels, grayscale</p>
+    <p>each image has a <b>label</b>: the digit it shows, 0 to 9</p>
+    <p class="step"><b>60,000</b> to train on<br><b>10,000</b> held back to test</p>
+    <p class="step muted small">written by us census bureau employees and high school students; collected by NIST, cleaned up by LeCun et al. in 1998. the "hello world" of neural networks</p>
+  </div>
+</div>
+<p class="caption">real images from the training set, one column per label</p>
+<style>
+  .ds { display: flex; gap: 64px; align-items: center; }
+  .facts { font-size: .72em; display: flex; flex-direction: column; gap: .7em; max-width: 520px; }
+  .facts p { margin: 0; }
+  .facts .small { font-size: .8em; }
+</style>

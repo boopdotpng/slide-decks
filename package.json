@@ -3,10 +3,6 @@
   "private": true,
   "workspaces": [
     "engine",
-    "lec1/gpt-2-arch/slides",
-    "lec1/risc-v/slides",
-    "lec2/interp/slides",
-    "lec2/os/slides",
-    "lec2/training-lab/slides"
+    "lec*/*/slides"
   ]
 }

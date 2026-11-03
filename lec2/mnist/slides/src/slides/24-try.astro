@@ -1,0 +1,22 @@
+---
+---
+<header>
+  <div class="section">your turn</div>
+  <h2>change one thing, guess, run, write it down</h2>
+  <p class="sub">before each run, write down what you think the test accuracy will be. then run it. were you right?</p>
+</header>
+<div class="tries">
+  <div><code>lr=0.05</code> → <code>0.5</code>, then <code>0.001</code><span>too big a step? too small?</span></div>
+  <div><code>STEPS = 5000</code> → <code>200</code><span>how few steps still give 90%?</span></div>
+  <div><code>128</code> hidden → <code>16</code>, then <code>1024</code><span>change it in <code>l1</code> and <code>l2</code></span></div>
+  <div>delete <code>.relu()</code><span>two matmuls with nothing between them</span></div>
+  <div><code>BS = 256</code> → <code>8</code><span>noisier steps. better or worse?</span></div>
+  <div>skip the <code>− mean</code><span>does centering the pixels matter?</span></div>
+  <div class="stretch">stretch: add a third weight matrix, so there are two hidden layers<span>what shapes must <code>l1</code>, <code>l2</code>, <code>l3</code> have?</span></div>
+</div>
+<style>
+  .tries { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 48px; font-size: .64em; width: 100%; }
+  .tries > div { border-bottom: 1px solid var(--border); padding-bottom: .4em; }
+  .tries span { display: block; color: var(--muted); font-size: .82em; margin-top: .15em; }
+  .tries .stretch { grid-column: 1 / -1; color: var(--accent); }
+</style>

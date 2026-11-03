@@ -1,0 +1,37 @@
+---
+import Code from 'slides/Code';
+const mac = `xcode-select --install`;
+const wsl = `sudo apt update
+sudo apt install -y clang git`;
+const uv = `curl -LsSf https://astral.sh/uv/install.sh | sh`;
+---
+<header>
+  <div class="section">your machine · 1 of 3</div>
+  <h2>install the tools</h2>
+  <p class="sub">open a terminal: <b>Terminal</b> on a mac, <b>Ubuntu</b> (wsl) on windows. click a box's copy button, paste, press enter</p>
+</header>
+<div class="s11">
+  <div class="os">
+    <h3>mac</h3>
+    <Code lang="sh" code={mac} copy />
+    <p>a window pops up: click <b>install</b>. gives you <code>clang</code> (a c compiler) and <code>git</code>. if it says they're already installed, you're done</p>
+  </div>
+  <div class="os">
+    <h3>windows (wsl) and linux</h3>
+    <Code lang="sh" code={wsl} copy />
+    <p>it asks for the password you made for ubuntu. typing it shows nothing; that's normal</p>
+  </div>
+  <div class="both">
+    <h3>both: uv, which installs python and python packages</h3>
+    <Code lang="sh" code={uv} copy />
+    <p>then <b>close the terminal and open a new one</b>, so it finds <code>uv</code>. check: <code>uv --version</code></p>
+  </div>
+</div>
+<style>
+  .s11 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 56px; font-size: .62em; width: 100%; }
+  .s11 h3 { color: var(--accent); margin: 0 0 .3em; font-size: 1.05em; }
+  .s11 p { margin: .45em 0 0; color: var(--muted); }
+  .s11 p b, .s11 p code { color: var(--fg); }
+  .s11 .both { grid-column: 1 / -1; }
+  .s11 :global(pre.code) { font-size: 1em; }
+</style>

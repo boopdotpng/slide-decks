@@ -1,0 +1,11 @@
+---
+import { Lowering } from '../components/mnist.tsx';
+import kernel from '../../public/data/kernel.json';
+import { part } from '../lab';
+const py = part('def model', 'def cross').trim();
+---
+<header>
+  <div class="section">why a library</div>
+  <h2>you write array math; it becomes gpu code</h2>
+</header>
+<div data-steps="4"><Lowering client:load py={py} kernel={kernel} /></div>

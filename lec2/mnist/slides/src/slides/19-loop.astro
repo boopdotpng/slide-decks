@@ -1,0 +1,22 @@
+---
+---
+<header>
+  <div class="section">what you'll build</div>
+  <h2>training: predict, measure, nudge, repeat</h2>
+</header>
+<div class="cyc">
+  <div class="b"><b>predict</b><span>scores for a batch</span></div>
+  <div class="p step"><i>→</i><div class="b"><b>measure</b><span>the loss</span></div></div>
+  <div class="p step"><i>→</i><div class="b"><b>gradients</b><span><code>loss.backward()</code></span></div></div>
+  <div class="p step"><i>→</i><div class="b"><b>update</b><span>w ← w − lr · gradient</span></div></div>
+</div>
+<p class="step rep">↺ × 5,000 batches</p>
+<style>
+  .cyc { display: flex; align-items: center; gap: 22px; font-size: .62em; }
+  .cyc .b { display: flex; flex-direction: column; gap: 6px; background: var(--surface); border-radius: 12px; padding: 18px 26px; min-width: 250px; }
+  .cyc b { font-size: 1.2em; color: var(--accent); }
+  .cyc span { color: var(--muted); }
+  .cyc .p { display: flex; align-items: center; gap: 22px; }
+  .cyc i { font-style: normal; color: var(--faint); font-size: 1.4em; }
+  .rep { font-size: .7em; color: var(--good); margin-top: 1em; }
+</style>

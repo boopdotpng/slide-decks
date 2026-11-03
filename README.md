@@ -12,6 +12,7 @@ the root `package.json` is a bun workspace of the engine and every deck.
 | `lec1/rnn` | char rnn on tiny shakespeare, pytorch (no slides; the rnn slides are in `gpt-2-arch`) |
 | `lec2/os` | how an os executes programs, plus `rv`, the risc-v emulator lec 1 runs assembly on |
 | `lec2/interp` | transformers from the residual stream up, on tiny models from ~/code/ml/interp (`export.py` writes the slide data) |
+| `lec2/mnist` | train mnist for beginners (replaces the training lab): a two-layer model in tinygrad, the loss, the loop, setup, exercises (`export*.py` write the slide data) |
 | `lec2/training-lab` | the training lab intro: attention on a gpu, the backward pass, tensors, how tinygrad runs them, then local setup (`export_step.py`, `export_kernels.py` write the slide data) |
 
 ```sh

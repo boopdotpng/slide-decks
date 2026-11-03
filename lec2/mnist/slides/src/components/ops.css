@@ -1,0 +1,34 @@
+/* the tensor-operation slides (ops.tsx): cells, the code line, the chain */
+.ops { display: flex; flex-direction: column; gap: 26px; align-items: flex-start; }
+.ops .line { display: flex; align-items: baseline; gap: 28px; }
+.ops .cl { font-size: 34px; padding: .15em .5em; }
+.ops .sh { font: 600 30px var(--mono); color: var(--accent); }
+.ops .cells { position: relative; }
+.ops .cell { position: absolute; left: 0; top: 0; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center;
+  font: 600 22px var(--mono); border-radius: 7px; background: var(--surface); color: var(--fg); border: 2px solid transparent;
+  transition: transform .7s cubic-bezier(.3,.7,.2,1), opacity .4s, background .4s, color .4s, border-color .4s; }
+.ops .cell.hide { opacity: 0; }
+.ops .t-a { background: color-mix(in srgb, var(--accent) 26%, transparent); }
+.ops .t-b { background: color-mix(in srgb, var(--hot) 28%, transparent); }
+.ops .t-c { background: color-mix(in srgb, var(--purple) 28%, transparent); }
+.ops .t-r { background: color-mix(in srgb, var(--good) 26%, transparent); }
+.ops .t-g { background: transparent; border: 2px dashed var(--hot); color: var(--muted); }
+.ops .t-d { background: transparent; border: 2px dashed var(--line); }
+.ops .t-hl { border-color: var(--good); }
+.ops .t-op { background: transparent; font-size: 34px; color: var(--muted); }
+.ops .note { font-size: 24px; color: var(--muted); min-height: 1.4em; }
+.ops .note code { font-size: .95em; }
+.ops .m { color: var(--hot); }
+.ops.mm .note { font-family: var(--mono); font-size: 22px; }
+.chain { display: flex; flex-direction: column; gap: 48px; }
+.chain .code { font-size: 34px; padding: .3em .6em; background: var(--code); }
+.chain .code span { color: var(--faint); transition: color .3s; }
+.chain .code span.done { color: var(--fg); }
+.chain .code span.on { color: var(--accent); }
+.chain .shapes { display: flex; gap: 14px; flex-wrap: wrap; }
+.chain .sh { display: flex; flex-direction: column; gap: 4px; padding: 10px 16px; border-radius: 10px; background: var(--surface); transition: opacity .3s, background .3s; }
+.chain .sh b { font: 600 24px var(--mono); }
+.chain .sh span { font-size: 18px; color: var(--muted); }
+.chain .sh.on { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.chain .sh.later { opacity: 0; }
+  

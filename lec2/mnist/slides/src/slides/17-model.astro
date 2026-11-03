@@ -1,0 +1,31 @@
+---
+---
+<header>
+  <div class="section">what you'll build</div>
+  <h2>the model: two matrix multiplies</h2>
+</header>
+<div class="net">
+  <div class="v"><span class="n">784</span><span>pixels</span></div>
+  <div class="pair step"><span class="ar">→</span><div class="op"><span>× <code>l1.T</code></span><span class="muted">l1: 128 × 784</span></div></div>
+  <div class="pair step"><span class="ar">→</span><div class="v"><span class="n">128</span><span>hidden</span></div></div>
+  <div class="pair step"><span class="ar">→</span><div class="op"><span><code>relu</code></span><span class="muted">negatives → 0</span></div></div>
+  <div class="pair step"><span class="ar">→</span><div class="op"><span>× <code>l2.T</code></span><span class="muted">l2: 10 × 128</span></div></div>
+  <div class="pair step"><span class="ar">→</span><div class="v out"><span class="n">10</span><span>scores, one per digit</span></div></div>
+</div>
+<div class="cols small why">
+  <p class="step"><b class="accent">the weights</b> <code>l1</code> and <code>l2</code> are the only things that change while training: 128 × 784 + 10 × 128 = <b>101,632 numbers</b>, random at the start</p>
+  <p class="step"><b class="accent">relu</b> is <code>max(0, x)</code>. without it, two matmuls in a row are the same as one; with it the model can learn curves, not just straight lines</p>
+</div>
+<style>
+  .net { display: flex; align-items: center; gap: 18px; font-size: .62em; margin-bottom: .6em; }
+  .net .pair { display: flex; align-items: center; gap: 18px; }
+  .net .v, .net .op { display: flex; flex-direction: column; align-items: center; }
+  .net .v { background: var(--surface); border-radius: 10px; padding: .4em .8em; min-width: 5.5em; }
+  .net .v .n { font: 700 1.6em var(--mono); color: var(--accent); }
+  .net .v.out .n { color: var(--good); }
+  .net .op { font-size: .9em; }
+  .net .op .muted { font-size: .75em; }
+  .net .ar { color: var(--faint); font-size: 1.2em; }
+  .why { gap: 48px; margin-top: .4em; }
+  .why p { margin: 0; }
+</style>

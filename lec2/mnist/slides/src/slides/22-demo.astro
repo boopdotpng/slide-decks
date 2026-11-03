@@ -1,0 +1,20 @@
+---
+---
+<header>
+  <div class="section">live</div>
+  <h2>build mnist.py</h2>
+  <p class="sub">one piece at a time, checking each one</p>
+</header>
+<ol class="cp">
+  <li><span>load the data</span><code>(60000, 1, 28, 28)</code></li>
+  <li><span>random weights, predict</span><code>~10% right</code></li>
+  <li><span>the loss</span><code>≈ 2.30</code></li>
+  <li><span>the training loop</span><code>loss goes down</code></li>
+  <li><span>test images</span><code>~98% right</code></li>
+</ol>
+<style>
+  .cp { font-size: .72em; display: flex; flex-direction: column; gap: .5em; padding-left: 1.2em; margin: 0; }
+  .cp li { padding-left: .3em; }
+  .cp li span { display: inline-block; width: 12em; }
+  .cp code { color: var(--good); }
+</style>

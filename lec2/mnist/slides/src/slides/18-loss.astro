@@ -1,0 +1,13 @@
+---
+import Math from 'slides/Math';
+import { Probs } from '../components/mnist.tsx';
+---
+<header>
+  <div class="section">what you'll build</div>
+  <h2>scores → probabilities → one number to make small</h2>
+  <p class="sub">loss = <Math tex={String.raw`-\log p_{\text{correct}}`} /></p>
+</header>
+<div data-steps="1"><Probs client:load /></div>
+<style>
+  .ce { margin-top: .6em; font-size: .52em; }
+</style>

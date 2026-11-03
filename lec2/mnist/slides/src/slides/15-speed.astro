@@ -1,0 +1,40 @@
+---
+import speed from '../../public/data/speed.json';
+const [cpu, gpu] = speed.runs;
+const max = Math.max(cpu.ms, gpu.ms);
+const s = (ms: number) => (ms * speed.steps / 1000).toFixed(1);
+const name = (d: string) => (d === 'METAL' ? 'gpu (Metal)' : d === 'CPU' ? 'cpu' : d);
+---
+<header>
+  <div class="section">why a library</div>
+  <h2>same code, cpu or gpu</h2>
+  <p class="sub">one training step of this model: a batch of {speed.batch}, forward, loss, backward, update</p>
+</header>
+<div class="sp">
+  {[cpu, gpu].map((r, i) => (
+    <div class={`r ${i ? 'step g' : ''}`}>
+      <span class="n">{name(r.device)}</span>
+      <div class="tr"><div class="f" style={`width: ${(r.ms / max) * 100}%`} /></div>
+      <span class="v"><b>{r.ms.toFixed(2)} ms</b> per step <span class="muted">· {s(r.ms)} s for {speed.steps.toLocaleString()} steps</span></span>
+    </div>
+  ))}
+  <p class="step big"><b>{(cpu.ms / gpu.ms).toFixed(1)}×</b> faster on the gpu, and <code>mnist.py</code> didn't change: the library picked the device</p>
+  <p class="step muted small">
+    you don't write or tune the kernels either. <code>BEAM=2</code> tells tinygrad to try a few versions of each one and keep the fastest.
+    try it: <code>BEAM=2 python mnist.py</code>, or <code>DEV=CPU python mnist.py</code> for the cpu
+  </p>
+</div>
+<p class="caption">measured on an {speed.machine}, BEAM={speed.beam}: median of 200 steps after warm-up (export_speed.py). training steps only, not loading data</p>
+<style>
+  .sp { display: flex; flex-direction: column; gap: 22px; width: 100%; }
+  .sp .r { display: grid; grid-template-columns: 220px 1fr 560px; align-items: center; gap: 24px; font-size: .62em; }
+  .sp .n { font-weight: 700; text-align: right; }
+  .sp .tr { height: 44px; background: var(--surface); border-radius: 6px; overflow: hidden; }
+  .sp .f { height: 100%; background: var(--line-2); }
+  .sp .g .f { background: var(--good); }
+  .sp .g .n, .sp .g b { color: var(--good); }
+  .sp .v b { font-family: var(--mono); }
+  .sp p { margin: 0; }
+  .sp .big { font-size: .72em; margin-top: 18px; } .sp .big b { color: var(--good); font-family: var(--mono); }
+  .sp .small { font-size: .55em; max-width: 1200px; }
+</style>
