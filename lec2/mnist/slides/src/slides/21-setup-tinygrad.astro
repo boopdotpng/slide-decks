@@ -1,24 +1,20 @@
 ---
 import Code from 'slides/Code';
-const cmds = `mkdir mnist
-cd mnist
-uv venv --python 3.14
-git clone https://github.com/tinygrad/tinygrad.git
-uv pip install -e ./tinygrad -C editable_mode=compat
+const cmds = `cd labs/02-mnist-train
+sh setup.sh
 source .venv/bin/activate`;
-const check = `ls -a
-python -c "from tinygrad import Tensor; print((Tensor([1, 2, 3]) * 2).tolist())"`;
+const check = `python check_setup.py --data`;
 const WHAT = [
-  ['mkdir, cd', 'a folder for this lab. run everything from in here'],
-  ['venv', 'a python 3.14 just for this folder, in .venv (uv downloads it)'],
-  ['clone', "tinygrad's code, in tinygrad, next to .venv"],
-  ['pip install -e', 'install tinygrad from that folder. -e: edits to its code take effect. compat: so mnist.py, next to the folder, finds it'],
-  ['activate', "python now means .venv's python. the prompt shows (mnist)"],
+  ['cd', 'the lab folder, in your fork of blackhole. run everything from in here'],
+  ['setup.sh · venv', 'a python 3.14 just for this folder, in .venv (uv downloads it)'],
+  ['setup.sh · clone', "tinygrad's code, in tinygrad, next to .venv"],
+  ['setup.sh · pip install -e', 'install tinygrad from that folder. -e: edits to its code take effect. -C editable_mode=compat: so mnist.py, next to the folder, finds it'],
+  ['activate', "python now means .venv's python. the prompt shows (02-mnist-train)"],
 ];
 ---
 <header>
   <div class="section">your machine · 2 of 3</div>
-  <h2>get tinygrad</h2>
+  <h2>set up the lab</h2>
 </header>
 <div class="s12">
   <Code lang="sh" code={cmds} copy />
@@ -27,7 +23,7 @@ const WHAT = [
 <div class="s12b">
   <h3>check it works</h3>
   <Code lang="sh" code={check} copy />
-  <p><code>ls -a</code> shows <code class="ok">.venv</code> and <code class="ok">tinygrad</code> side by side; python prints <code class="ok">[2, 4, 6]</code>. new terminal later? <code>cd mnist</code>, then <code>source .venv/bin/activate</code> again</p>
+  <p>every line says <code class="ok">ok</code>; <code>--data</code> also downloads mnist (about 11 MB). a FAIL line says how to fix it. new terminal later? <code>cd labs/02-mnist-train</code>, then <code>source .venv/bin/activate</code> again</p>
 </div>
 <style>
   .s12 { display: grid; grid-template-columns: auto 1fr; gap: 40px; font-size: .6em; width: 100%; align-items: center; }
@@ -40,4 +36,5 @@ const WHAT = [
   .s12b :global(pre.code) { font-size: .95em; }
   .s12b p { margin: .4em 0 0; color: var(--muted); }
   .s12b .ok { color: var(--good); }
+  .s12b p code { white-space: nowrap; }
 </style>

@@ -3,6 +3,8 @@ import Code from 'slides/Code';
 const mac = `xcode-select --install`;
 const wsl = `sudo apt update
 sudo apt install -y clang git`;
+const gpu = `brew install llvm@21
+echo "export LLVM_PATH=$(brew --prefix llvm@21)/lib/libLLVM.dylib" >> ~/.zshrc`;
 const uv = `curl -LsSf https://astral.sh/uv/install.sh | sh`;
 ---
 <header>
@@ -21,6 +23,11 @@ const uv = `curl -LsSf https://astral.sh/uv/install.sh | sh`;
     <Code lang="sh" code={wsl} copy />
     <p>it asks for the password you made for ubuntu. typing it shows nothing; that's normal</p>
   </div>
+  <div class="gpu">
+    <h3>mac, for the gpu (Metal): llvm from homebrew (brew.sh)</h3>
+    <Code lang="sh" code={gpu} copy />
+    <p>without it, everything still runs on the cpu, just slower</p>
+  </div>
   <div class="both">
     <h3>both: uv, which installs python and python packages</h3>
     <Code lang="sh" code={uv} copy />
@@ -32,6 +39,6 @@ const uv = `curl -LsSf https://astral.sh/uv/install.sh | sh`;
   .s11 h3 { color: var(--accent); margin: 0 0 .3em; font-size: 1.05em; }
   .s11 p { margin: .45em 0 0; color: var(--muted); }
   .s11 p b, .s11 p code { color: var(--fg); }
-  .s11 .both { grid-column: 1 / -1; }
+  .s11 .both, .s11 .gpu { grid-column: 1 / -1; }
   .s11 :global(pre.code) { font-size: 1em; }
 </style>
