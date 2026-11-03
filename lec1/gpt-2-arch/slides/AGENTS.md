@@ -26,6 +26,7 @@ bun run slides rm <slide>                                # deletes it and its no
 ## conventions
 
 - Islands render purely from `step` (no accumulated state), so ←, the picker, reload at `#5.2` and print all work. Put per-step content in one table at the top of the file (see `TemplateIsland.tsx`, `demos/`).
+- Touch screens turn the page on any tap (deck.ts); an island with its own tap / click controls puts them inside `data-no-advance` (links, buttons and inputs already are).
 - Wrap an island in `<div data-steps="N">` with N = its last step index. Use `client:load`.
 - Formulas: `components/Math.astro` (KaTeX, build time) in slides, `Tex` / `SvgTex` / `SvgHtml` from `viz` in islands. Any formula (subscripts, greek, softmax, matmuls) goes through KaTeX, not plain text. Reuse `components/viz` before writing new marks or animations; if a new animation looks reusable, add it there (props-driven, styles in `styles/viz.css`) rather than inline in a deck-specific island.
 - Content slides start with `<header>` (`.section` kicker, `h2`, `p.sub`): it pins them to the top and centers the rest below; `class="fill"` on the content gives it all the room.

@@ -72,7 +72,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
 /* the canvas: at least 1600×900, scaled by --k (set in index.astro) to fill the window. A slide that fits at 1600×900
    fits in every window; bigger screens just get a bigger --k */
 #stage { position: fixed; top: 0; left: 0; width: var(--stage-w, 100vw); height: var(--stage-h, 100vh);
-  transform: scale(var(--k, 1)); transform-origin: 0 0; }
+  transform: translateY(var(--stage-y, 0px)) scale(var(--k, 1)); transform-origin: 0 0; }
 /* container-type: so cqw / cqh mean % of the slide */
 .slide { display: none; position: absolute; inset: 0; padding: var(--pad-y) var(--pad-x);
   flex-direction: column; justify-content: center; container-type: size; }
@@ -132,14 +132,41 @@ th { color: var(--muted); font-weight: normal; }
 .full { position: absolute; inset: var(--inset-y) var(--inset-x); display: flex; align-items: center; justify-content: center; }
 .full img, .full svg { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-/* nav ui: hidden until the mouse moves */
+/* nav ui: hidden until the mouse moves (body.ui, deck.ts) */
 #nav { position: fixed; bottom: 16px; right: 20px; display: flex; gap: 8px; align-items: center;
   font-size: 16px; color: var(--muted); opacity: 0; transition: opacity .3s; }
-body.mouse #nav, #nav:hover { opacity: 1; }
+body.ui #nav, #nav:hover { opacity: 1; }
 #nav button { font: inherit; background: none; color: inherit; border: 1px solid var(--muted);
   border-radius: 6px; padding: 4px 12px; cursor: pointer; }
-#counter { min-width: 4em; text-align: center; cursor: pointer; }
+#nav #counter { min-width: 4em; text-align: center; border-color: transparent; padding: 4px 0;
+  font-variant-numeric: tabular-nums; }
+#nav [hidden] { display: none; }
 #theme { min-width: 4.6em; }
+
+/* touch screens (body.touch, deck.ts): tap the slide for next, swipe for next / back. The nav is always there
+   (dimmed until touched) with finger-sized buttons; the counter is the go-to button; no presenter window */
+.mode-main { touch-action: pinch-zoom; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+.mode-main:has(#picker.open) { touch-action: auto; } /* the grid (an iframe) pans freely */
+.touch #stage { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.touch #nav { opacity: .45; gap: 6px; padding: 4px; border-radius: 12px; font-size: 15px;
+  right: max(10px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--panel) 80%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.touch.ui #nav { opacity: 1; }
+.touch #nav button { min-height: 40px; min-width: 44px; padding: 0 10px; touch-action: manipulation; }
+.touch #nav #counter { min-width: 4.5em; border-color: var(--line-2); }
+.touch #notes-btn, .touch .viz-tip { display: none; }
+/* a phone held sideways (html.gutter, index.astro): the nav is a column in its own strip at the right edge, beside the
+   slide instead of over it */
+html.gutter .touch #nav { flex-direction: column; justify-content: center; top: 0; bottom: 0; right: 0; width: 76px;
+  padding: 8px 6px; border-radius: 0; opacity: .7; font-size: 13px; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+html.gutter .touch.ui #nav { opacity: 1; }
+html.gutter .touch #nav button { width: 100%; min-width: 0; padding: 0 2px; }
+html.gutter .touch #nav #counter { min-width: 0; }
+#rotate { display: none; }
+@media (orientation: portrait) {
+  .mode-main.touch #rotate { display: block; position: fixed; top: max(14px, env(safe-area-inset-top)); left: 0; right: 0;
+    text-align: center; font-size: 14px; color: var(--faint); pointer-events: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .slide.active { animation: none; }
@@ -168,10 +195,24 @@ pre.code { padding: .6em .4em; }
 #picker.open { display: flex; }
 #picker .box { position: absolute; inset: 3vh 3vw; display: flex; flex-direction: column; overflow: hidden;
   background: var(--panel); border: 1px solid var(--border); border-radius: 12px; font-size: 16px; }
-#picker .typed { padding: 12px 20px; color: var(--muted); border-bottom: 1px solid var(--border);
-  font-variant-numeric: tabular-nums; }
+#picker .bar { display: flex; align-items: center; gap: 12px; padding: 8px 12px 8px 20px; border-bottom: 1px solid var(--border); }
+#picker .typed { flex: 1; min-width: 0; color: var(--muted); font-variant-numeric: tabular-nums; }
 #picker .typed b { color: var(--fg); font-weight: 600; }
 #picker .typed span { float: right; font-size: 14px; }
+#picker .hint-touch, #picker .goto { display: none; }
+#picker button.close { font: inherit; background: none; color: var(--muted); border: 0; border-radius: 6px;
+  min-width: 36px; min-height: 36px; cursor: pointer; }
+#picker button.close:hover { color: var(--fg); background: var(--raised); }
+/* touch: a number box instead of typing digits blind (16px so ios doesn't zoom in on focus) */
+.touch #picker .hint-keys { display: none; }
+.touch #picker .hint-touch { display: inline; }
+.touch #picker .goto { display: block; }
+#picker .goto input { width: 7em; font: 16px var(--sans); color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; outline: none; }
+#picker .goto input:focus { border-color: var(--accent); }
+.touch #picker .box { inset: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+  max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); }
+.touch #picker button.close { min-width: 44px; min-height: 44px; font-size: 18px; }
 #picker .grid { position: relative; flex: 1; min-height: 0; }
 #picker .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); }
 #picker iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
