@@ -1,6 +1,40 @@
 ---
+import '../components/lab.css';
+// the draft's numbered references, resolved. 01-12 and 15 keep the draft's numbers; 13, 14 and 16 were added for the setup
+// slides and this deck's own scripts. [01] and [12] had no link in the draft PDF: they point to the earlier lecture and to
+// tinygrad's 0.14.0 source, which is what those slides cite
+const SRC: [string, string, string, string][] = [
+  ['01', 'One head at a time (lecture 2), slides and recorded runs', 'https://boopdotpng.github.io/slide-decks/lec2-interp/', 'slides 2, 3, 4, 5, 6, 9'],
+  ['02', 'NVIDIA CUDA Programming Guide: writing CUDA kernels', 'https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html', 'slide 3'],
+  ['03', 'Dao et al. 2022, FlashAttention: fast and memory-efficient exact attention with IO-awareness', 'https://arxiv.org/abs/2205.14135', 'slide 3'],
+  ['04', 'PyTorch tutorial: tensors', 'https://docs.pytorch.org/tutorials/beginner/basics/tensorqs_tutorial.html', 'slide 5'],
+  ['05', 'PyTorch tutorial: automatic differentiation with torch.autograd', 'https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html', 'slide 4'],
+  ['06', 'PyTorch 2.9: scaled_dot_product_attention', 'https://docs.pytorch.org/docs/2.9/generated/torch.nn.functional.scaled_dot_product_attention.html', 'slides 3, 6'],
+  ['07', 'tinygrad docs: tensor ops', 'https://docs.tinygrad.org/tensor/ops/', 'slides 5, 6'],
+  ['08', 'tinygrad docs: movement ops (transpose, …)', 'https://docs.tinygrad.org/tensor/movement/', 'slide 6'],
+  ['09', 'tinygrad docs: developer overview (lazy graph, scheduling, codegen)', 'https://docs.tinygrad.org/developer/developer/', 'slide 7'],
+  ['10', 'PyTorch tutorial: introduction to torch.compile', 'https://docs.pytorch.org/tutorials/intermediate/torch_compile_tutorial.html', 'slide 7'],
+  ['11', 'tinygrad docs: quickstart (training, Context, optimizers)', 'https://docs.tinygrad.org/quickstart/', 'slides 4, 8'],
+  ['12', 'tinygrad v0.14.0 source: tensor.py (sparse_categorical_crossentropy, backward)', 'https://github.com/tinygrad/tinygrad/blob/v0.14.0/tinygrad/tensor.py', 'slide 8'],
+  ['13', 'transformer-training-lab README', 'https://github.com/rvfvn/transformer-training-lab/blob/main/README.md', 'slides 10–13'],
+  ['14', 'transformer-training-lab: setup helper, diagnostic, configs', 'https://github.com/rvfvn/transformer-training-lab', 'slides 9–13'],
+  ['15', 'tinygrad docs: runtime (devices and backends)', 'https://docs.tinygrad.org/runtime/', 'slide 7'],
+  ['16', 'this deck: export_step.py, export_kernels.py (tinygrad 0.14.0, CPU)', 'https://github.com/boopdotpng/slide-decks/tree/main/lec2/training-lab', 'slides 4, 7, 8'],
+];
 ---
 <header>
+  <div class="section">references</div>
   <h2>sources</h2>
-  <p class="sub"></p>
 </header>
+<div class="s14">
+  {SRC.map(([n, t, u, w]) => (
+    <div class="r"><span class="n">[{n}]</span><a href={u}>{t}</a><span class="w">{w}</span></div>
+  ))}
+</div>
+<style>
+  .s14 { display: grid; grid-template-columns: 1fr 1fr; gap: .25em 1.4em; font-size: .5em; width: 100%; }
+  .s14 .r { display: grid; grid-template-columns: 2.6em 1fr; column-gap: .3em; padding: .3em 0; border-bottom: 1px solid var(--border); }
+  .s14 .n { font-family: var(--mono); color: var(--muted); grid-row: span 2; }
+  .s14 a { color: var(--fg); text-decoration-color: var(--line-2); }
+  .s14 .w { color: var(--muted); font-size: .85em; }
+</style>

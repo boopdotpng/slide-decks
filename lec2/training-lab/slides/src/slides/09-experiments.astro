@@ -1,6 +1,58 @@
 ---
+import '../components/lab.css';
+import '../components/roles.css';
+const ROWS = [
+  ['0', 'hidden digit', '0', '–', false, false],
+  ['1', 'hidden digit', '1', '1', false, false],
+  ['2', 'dictionary lookup', '2', '1', true, false],
+  ['3', 'two-lookup sum', '2', '1', true, true],
+  ['4', 'two-lookup difference', '2', '2', true, true],
+] as const;
 ---
 <header>
-  <h2>experiments</h2>
-  <p class="sub"></p>
+  <div class="section">the lab</div>
+  <h2>five experiments, shared components</h2>
 </header>
+<div class="ex9">
+  <div class="card tbl">
+    <div class="h"><span>task</span><span>layers</span><span>heads / layer</span><span>positions</span><span>mlp</span></div>
+    {ROWS.map(([t, name, layers, heads, pos, mlp]) => (
+      <div class="r">
+        <span class="t"><b>{t}</b> {name}</span>
+        <span><span class={`pill ${layers === '0' ? 'no' : ''}`}>{layers}</span></span>
+        <span>{heads === '–' ? <span class="muted">–</span> : <span class="pill">{heads}</span>}</span>
+        <span><span class={`pill ${pos ? '' : 'no'}`}>{pos ? 'yes' : 'no'}</span></span>
+        <span><span class={`pill ${mlp ? 'mlp' : 'no'}`}>{mlp ? 'after layer 2' : 'no'}</span></span>
+      </div>
+    ))}
+  </div>
+  <div class="cols2">
+    <div class="card bar-a step">
+      <h3 class="a">shared parameters</h3>
+      <p>every run starts with <b>fresh weights</b> and a fresh optimizer</p>
+      <p class="mono"><span class="pill">vocabulary 36</span> <span class="pill">residual width 32</span> <span class="pill">head width 32</span></p>
+    </div>
+    <div class="card bar-h step">
+      <h3 class="h">key observations</h3>
+      <p><b>task 0 should fail</b>: with no attention, the last position can't reach the digit</p>
+      <p>one head can sometimes solve the ordered subtraction; two heads made it more reliable across the reported seeds{' '}
+        <span class="muted">(one head worked on 4 of 9 seeds; two heads on 6 of 6)</span></p>
+    </div>
+  </div>
+</div>
+<div class="src">sources: <a href="https://boopdotpng.github.io/slide-decks/lec2-interp/">[01]</a>
+  <a href="https://github.com/rvfvn/transformer-training-lab/tree/main/configs">[14]</a></div>
+<style>
+  .ex9 { display: flex; flex-direction: column; gap: .5em; font-size: .7em; width: 100%; }
+  .tbl { padding: .4em 1em; }
+  .tbl .h, .tbl .r { display: grid; grid-template-columns: 2.2fr 1fr 1.2fr 1.1fr 1.3fr; align-items: center; gap: .6em; }
+  .tbl .h { font-size: .6em; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: .3em 0; border-bottom: 1px solid var(--border); }
+  .tbl .r { padding: .42em 0; border-bottom: 1px solid var(--border); }
+  .tbl .r:last-child { border-bottom: none; }
+  .tbl .t b { color: var(--accent); font-family: var(--mono); margin-right: .3em; }
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: .8em; }
+  .cols2 h3.a { color: var(--accent); } .cols2 h3.h { color: var(--hot); }
+  .cols2 p { font-size: .9em; }
+  .cols2 .muted { font-size: .85em; }
+  .cols2 .pill { font-size: .75em; }
+</style>

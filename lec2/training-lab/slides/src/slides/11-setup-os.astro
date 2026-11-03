@@ -1,6 +1,41 @@
 ---
+import '../components/lab.css';
 ---
 <header>
-  <h2>setup os</h2>
-  <p class="sub"></p>
+  <div class="section">lab setup · 2 of 4</div>
+  <h2>run the setup helper</h2>
+  <p class="sub">from the project folder. one command, then read what it prints</p>
 </header>
+<div class="os11">
+  <div class="card bar-n os"><div class="kick">mac · Terminal</div>
+<pre class="sh">bash setup-mac.sh</pre>
+    <p class="muted">uses <code>.venv/bin/python</code> if it exists, otherwise <code>python3.12</code></p>
+  </div>
+  <div class="card bar-a os"><div class="kick">windows · PowerShell</div>
+<pre class="sh">.\setup-windows.bat</pre>
+    <p class="muted">uses <code>.venv\Scripts\python.exe</code> if it exists, otherwise <code>py -3.12</code></p>
+  </div>
+  <div class="card steps">
+    <h3>what the helper does, in order (it prints each step)</h3>
+    <ol>
+      <li class="step"><b>validate the five configuration templates</b> <span>runs <code>check_configs.py</code></span></li>
+      <li class="step"><b>check the CPU compiler</b> <span>finds <code>clang</code> and runs <code>clang --version</code></span></li>
+      <li class="step"><b>create or reuse <code>.venv</code></b> <span>a Python 3.12 environment for this project only. an unrelated <code>.venv</code> is left untouched</span></li>
+      <li class="step"><b>install the exact package version</b> <span><code>pip install -r requirements.txt</code> into <code>.venv</code></span></li>
+      <li class="step"><b>run the diagnostic</b> <span><code>check_environment.py</code>: computation, gradients, attention, an optimizer update → <code>SETUP OK</code></span></li>
+    </ol>
+    <p class="step fail">if it ends with <code>SETUP FAILED</code>: fix the prerequisite it names, then rerun the <b>same command</b>. no existing environment is deleted</p>
+  </div>
+</div>
+<div class="src">sources: <a href="https://github.com/rvfvn/transformer-training-lab/blob/main/README.md">[13]</a> <a href="https://github.com/rvfvn/transformer-training-lab/blob/main/scripts/setup_environment.py">[14]</a></div>
+<style>
+  .os11 { display: grid; grid-template-columns: 1fr 1fr; gap: .6em .8em; font-size: .66em; width: 100%; }
+  .os11 .os pre.sh { font-size: 1.05em; margin: .4em 0; }
+  .os11 .os p { font-size: .85em; }
+  .os11 .steps { grid-column: 1 / -1; }
+  .os11 .steps h3 { color: var(--muted); font-weight: 600; font-size: .75em; }
+  .os11 ol { margin: .2em 0; display: flex; flex-direction: column; gap: .2em; }
+  .os11 li span { color: var(--muted); font-size: .9em; margin-left: .4em; }
+  .os11 .fail { font-size: .85em; color: var(--muted); border-left: 4px solid var(--bad); padding-left: .6em; margin-top: .5em; }
+  .os11 .fail b { color: var(--fg); }
+</style>
