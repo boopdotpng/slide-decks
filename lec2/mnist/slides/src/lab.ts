@@ -1,5 +1,5 @@
-/** The lab's whole script, exactly as students run it (labs/mnist-lab/mnist.py). Slides 4-10 show parts of it,
- *  slide 15 all of it with a copy button. Keep the two in sync: export.py trains this same loop. */
+/** The lab's whole script, exactly as students run it (labs/mnist-lab/mnist.py), built live in class. Keep the two
+ *  in sync: export.py trains this same loop. */
 export const SCRIPT = `from tinygrad import Context, Tensor, nn
 from tinygrad.engine.jit import TinyJit
 from tinygrad.helpers import trange

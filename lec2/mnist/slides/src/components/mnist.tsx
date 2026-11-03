@@ -44,7 +44,7 @@ export function Digit({ m, i = 0, size = 56, class: cls = '' }: { m: B; i?: numb
 
 const DIGIT_CSS = `.digit { image-rendering: pixelated; border-radius: 3px; outline: 1px solid var(--border); display: block; }`;
 
-// ── slide 2: a grid of real training images, one column per label ────────────
+// ── dataset: a grid of real training images, one column per label ────────────
 export function DigitGrid() {
   const { root, step, d } = useIsland('mnist');
   if (!d) return <div ref={root} />;
@@ -63,7 +63,7 @@ export function DigitGrid() {
   );
 }
 
-// ── slide 3: one image is 784 numbers ────────────────────────────────────────
+// ── pixels: one image is 784 numbers ────────────────────────────────────────
 // 0 the picture   1 its pixel values   2 flattened into one row of 784
 export function Pixels() {
   const { root, step, d } = useIsland('mnist');
@@ -107,7 +107,7 @@ export function Pixels() {
   );
 }
 
-// ── slide 6: ten scores → probabilities → one number to minimize ────────────
+// ── loss: ten scores → probabilities → one number to minimize ────────────
 // 0 before training   1 after training
 function ProbBars({ p, label, w = 420 }: { p: number[]; label: number; w?: number }) {
   return (
@@ -163,7 +163,7 @@ export function Probs() {
   );
 }
 
-// ── slide 8: the loss going down, and held-out accuracy ──────────────────────
+// ── (unused since the results slide was cut) the loss going down, and held-out accuracy ──────────────────────
 // 0 the loss   1 + test accuracy
 export function Curve() {
   const { root, step, d } = useIsland('mnist');
@@ -284,13 +284,13 @@ export function Arrays() {
 // 0 the python   1 the computation as a graph   2 compiled into gpu code   3 for whichever hardware   4 and backwards
 const TARGETS: [string, string][] = [['nvidia gpu', 'CUDA'], ['amd gpu', 'HIP'], ['apple gpu', 'Metal'], ['any cpu', 'C, built by clang']];
 function Graph({ back }: { back: boolean }) {
-  // left to right: x → ×l1 → relu → ×l2 → loss, weights and labels feeding in from above
+  // left to right: x → @ w → − y → square → mean, w and y feeding in from above (a linear fit, not the lab's model)
   const N = [
-    { x: 10, w: 120, t: 'x', s: '(256, 784)', k: 'data' }, { x: 190, w: 120, t: '× l1', s: '(256, 128)', k: 'op' },
-    { x: 370, w: 120, t: 'relu', s: '(256, 128)', k: 'op' }, { x: 550, w: 120, t: '× l2', s: '(256, 10)', k: 'op' },
-    { x: 730, w: 120, t: 'loss', s: '()', k: 'op' },
+    { x: 10, w: 120, t: 'x', s: '(256, 512)', k: 'data' }, { x: 190, w: 120, t: '@ w', s: '(256, 64)', k: 'op' },
+    { x: 370, w: 120, t: '− y', s: '(256, 64)', k: 'op' }, { x: 550, w: 120, t: 'square', s: '(256, 64)', k: 'op' },
+    { x: 730, w: 120, t: 'mean', s: '()', k: 'op' },
   ];
-  const IN = [{ x: 190, t: 'l1' }, { x: 550, t: 'l2' }, { x: 730, t: 'y' }];
+  const IN = [{ x: 190, t: 'w' }, { x: 370, t: 'y' }];
   const Y = 120, H = 60, c = back ? 'var(--hot)' : 'var(--line-2)';
   return (
     <svg viewBox="0 0 860 220" class="graph">
@@ -331,7 +331,7 @@ export function Lowering({ py, kernel }: { py: string; kernel: { device: string;
         <p class={`back fade ${step >= 4 ? 'on' : ''}`}>the same graph, walked backwards, gives every gradient: that's what <code>backward()</code> does</p>
       </div>
       <div class={`right fade ${step >= 2 ? 'on' : ''}`}>
-        <p class="kick">real {kernel.device === 'METAL' ? 'Metal' : kernel.device} code generated for the first layer: {kernel.lines.length} lines. you never write this</p>
+        <p class="kick">real {kernel.device === 'METAL' ? 'Metal' : kernel.device} code generated for this line: one kernel, {kernel.lines.length} lines. you never write this</p>
         <pre class="kern">{excerpt(kernel.lines).join('\n')}</pre>
       </div>
       <style>{`

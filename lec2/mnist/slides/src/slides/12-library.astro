@@ -1,8 +1,7 @@
 ---
 import { Lowering } from '../components/mnist.tsx';
 import kernel from '../../public/data/kernel.json';
-import { part } from '../lab';
-const py = part('def model', 'def cross').trim();
+const py = 'def loss(x, w, y): return (x @ w - y).square().mean()';
 ---
 <header>
   <div class="section">why a library</div>
