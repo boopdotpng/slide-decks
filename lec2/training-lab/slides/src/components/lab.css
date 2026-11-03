@@ -1,0 +1,31 @@
+/* shared look for this deck's slides: the revised draft's light cards, in the palette's vars (both themes).
+   imported by roles.ts (islands) and by the static slides */
+.card { background: var(--sunken); border: 1px solid var(--border); border-radius: 14px; padding: .55em .8em; position: relative; }
+.card.bar-a { border-top: 5px solid var(--accent); }
+.card.bar-h { border-top: 5px solid var(--hot); }
+.card.bar-u { border-top: 5px solid var(--update); }
+.card.bar-l { border-top: 5px solid var(--loss); }
+.card.bar-g { border-top: 5px solid var(--grad); }
+.card.bar-n { border-top: 5px solid var(--fg); }
+.card h3 { font-size: .78em; margin: 0 0 .25em; }
+.card p { margin: .15em 0; }
+.kick { display: inline-block; font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 6px; padding: .2em .6em; }
+.pill { display: inline-block; font-family: var(--mono); font-size: .8em; padding: .05em .5em; border-radius: 7px; white-space: nowrap;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); }
+.pill.no { border-color: var(--border); background: var(--surface); color: var(--muted); }
+.pill.mlp { border-color: color-mix(in srgb, var(--mlp) 40%, transparent); background: color-mix(in srgb, var(--mlp) 10%, transparent); color: var(--mlp); }
+.pill.hot { border-color: color-mix(in srgb, var(--hot) 40%, transparent); background: color-mix(in srgb, var(--hot) 10%, transparent); color: var(--hot); }
+/* "sources: [02] [03]" at the bottom-left of a slide; the numbers are the index on the last slide */
+.src { position: absolute; left: var(--pad-x); bottom: 12px; font-size: 15px; color: var(--muted); z-index: 1; }
+.src a { color: var(--muted); margin-left: .35em; }
+.src .lab { margin-left: .8em; font-style: italic; }
+/* labels that say what kind of picture this is */
+.tag-ill { font-size: 14px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px dashed var(--line-2); border-radius: 5px; padding: .1em .45em; white-space: nowrap; }
+.tag-rec { font-size: 14px; letter-spacing: .08em; text-transform: uppercase; color: var(--good); border: 1px solid color-mix(in srgb, var(--good) 45%, transparent); border-radius: 5px; padding: .1em .45em; white-space: nowrap; }
+pre.sh { font-family: var(--mono); background: var(--code); border: 1px solid var(--border); border-radius: 10px; padding: .45em .8em; margin: .25em 0; font-size: .62em; line-height: 1.45; white-space: pre; }
+pre.sh .p { color: var(--muted); user-select: none; }
+pre.sh .c { color: var(--tok-com); font-style: italic; }
+pre.sh .ok { color: var(--good); font-weight: 700; }
+/* leave room for the sources line under a .fill island */
+.slide:has(> .src) > .fill { margin-bottom: 20px; }
