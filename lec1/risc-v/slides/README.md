@@ -39,6 +39,13 @@ islands, `public/` assets and `deck.config.ts` are never touched, so keep deck-s
 | t | theme: auto (follows the browser / os) → light → dark, also the button in the corner. Remembered across decks and windows; dark until you pick |
 | home / end | first / last |
 
+On a phone or tablet (or any touch screen): tap anywhere on the slide for next, swipe left / right for next / back.
+The nav stays on screen, dimmed until you touch it, with finger-sized buttons; tap the counter for the slide grid,
+which has a "go to #" box. The notes button is hidden (the presenter window is a desktop popup). Held upright, the
+slide is centered at up to 4:3 instead of stretching down the whole screen (landscape is the way to watch: held sideways, a phone puts the nav in its own column beside the slide). iPhones have no fullscreen button
+(safari doesn't allow it): share → add to home screen opens the deck full screen. Taps on links, buttons, inputs and
+anything inside `data-no-advance` don't turn the page, so an island that takes taps should wrap its controls in that.
+
 The URL keeps your place: `#7.3` is slide 7, step 3. `#07-loss.3` works too (the file name, without the extension).
 The counter's tooltip, the grid (hover a thumbnail) and the presenter show the current slide's file.
 `bun run build && bun run record` exports `deck.mp4` (1920×1080): it records every slide at once, one tab per slide

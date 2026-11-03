@@ -15,6 +15,11 @@
  * Keys: → / space next, ← back, g slide grid (arrows / click, or type a number, then enter),
  * f fullscreen, p presenter window, t theme (auto → light → dark), home / end.
  *
+ * Touch (phones, tablets, touch screens): tap anywhere on the slide for next, swipe left / right for
+ * next / back. The nav stays on screen (dimmed between touches), the counter opens the slide grid,
+ * which has a "go to" number box, and the notes button is hidden. Taps on links, buttons, inputs or
+ * anything inside [data-no-advance] are left alone, so an island can take its own taps.
+ *
  * The URL picks a mode:
  *   (none)      the deck
  *   ?presenter  notes, next-step preview (deck/presenter.ts). Kept in sync
@@ -115,9 +120,15 @@ export function initDeck() {
   addEventListener('deck:theme', showTheme);
   addEventListener('storage', showTheme); // a pref change that keeps the same look (dark -> auto) fires no deck:theme
 
+  // safari on ipad only has the webkit-prefixed api; iphones have none (the button is hidden there, see below)
+  type FsDoc = Document & { webkitFullscreenEnabled?: boolean; webkitFullscreenElement?: Element; webkitExitFullscreen?: () => void };
+  type FsEl = HTMLElement & { webkitRequestFullscreen?: () => void };
+  const fsDoc = document as FsDoc, fsRoot = document.documentElement as FsEl;
+  const canFullscreen = !!(fsDoc.fullscreenEnabled || fsDoc.webkitFullscreenEnabled);
   function fullscreen() {
-    if (document.fullscreenElement) document.exitFullscreen();
-    else document.documentElement.requestFullscreen();
+    if (!canFullscreen) return;
+    if (fsDoc.fullscreenElement || fsDoc.webkitFullscreenElement) (fsDoc.exitFullscreen ?? fsDoc.webkitExitFullscreen)?.call(fsDoc);
+    else (fsRoot.requestFullscreen ?? fsRoot.webkitRequestFullscreen)?.call(fsRoot);
   }
 
   if (channel) channel.onmessage = (e) => {
@@ -139,9 +150,15 @@ export function initDeck() {
   // first g and kept. Keys stay here; the iframe just draws the grid (see overview() below).
   const picker = document.createElement('div');
   picker.id = 'picker';
-  picker.innerHTML = `<div class="box"><div class="typed"></div><div class="grid"><span class="loading">loading…</span></div></div>`;
+  picker.innerHTML = `<div class="box">
+    <div class="bar"><div class="typed"></div>
+      <form class="goto"><input type="number" inputmode="numeric" enterkeyhint="go" min="1" placeholder="go to #" aria-label="go to slide"></form>
+      <button type="button" class="close" aria-label="close">✕</button></div>
+    <div class="grid"><span class="loading">loading…</span></div></div>`;
   document.body.append(picker);
   const typed = picker.querySelector<HTMLElement>('.typed')!;
+  const gotoForm = picker.querySelector<HTMLFormElement>('.goto')!;
+  const gotoInput = gotoForm.querySelector('input')!;
   let frame: HTMLIFrameElement | undefined;
   let grid: Overview | undefined; // set once the iframe has loaded
   let sel = 0;
@@ -151,7 +168,8 @@ export function initDeck() {
   function renderPicker() {
     grid?.select(sel, i);
     typed.innerHTML = digits ? `go to <b>${digits}</b>` :
-      `<b>${sel + 1}</b> / ${slides.length}<span>arrows or a number, then enter · esc to close</span>`;
+      `<b>${sel + 1}</b> / ${slides.length}<span class="hint-keys">arrows or a number, then enter · esc to close</span>` +
+      `<span class="hint-touch">tap a slide</span>`;
   }
   function openPicker() {
     sel = i;
@@ -177,11 +195,23 @@ export function initDeck() {
   }
   function closePicker() {
     picker.classList.remove('open');
+    gotoInput.value = '';
+    gotoInput.blur();
     grid?.close();
     frame?.blur();
     window.focus();
   }
   picker.addEventListener('click', (e) => { if (e.target === picker) closePicker(); });
+  picker.querySelector<HTMLElement>('.close')!.onclick = closePicker;
+  // the go-to box (shown on touch screens, where there's no number row to type on): same clamping as typed digits
+  gotoForm.onsubmit = (e) => {
+    e.preventDefault();
+    const n = Number(gotoInput.value);
+    if (!gotoInput.value || Number.isNaN(n)) return;
+    closePicker();
+    show(Math.max(0, Math.min(slides.length - 1, n - 1)));
+  };
+  gotoInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePicker(); });
 
   function pickerKey(e: KeyboardEvent) {
     const move = (d: number) => { sel = Math.max(0, Math.min(slides.length - 1, sel + d)); digits = ''; };
@@ -226,17 +256,58 @@ export function initDeck() {
 
     document.getElementById('prev')!.onclick = prev;
     document.getElementById('next')!.onclick = next;
-    document.getElementById('fs')!.onclick = fullscreen;
+    const fsBtn = document.getElementById('fs')!;
+    fsBtn.onclick = fullscreen;
+    fsBtn.hidden = !canFullscreen;
     themeBtn.onclick = cycleTheme;
     document.getElementById('notes-btn')!.onclick = openPresenter;
     counter.onclick = openPicker;
 
-    // show nav on mouse move, hide after 2s idle
+    // the nav shows on mouse move / touch and fades after 2s idle (to hidden with a mouse, dimmed on touch).
+    // pointer events, not mousemove: ios fires a fake mousemove on every tap
     let t: number | undefined;
-    document.addEventListener('mousemove', () => {
-      document.body.classList.add('mouse');
+    const wake = () => {
+      document.body.classList.add('ui');
       clearTimeout(t);
-      t = window.setTimeout(() => document.body.classList.remove('mouse'), 2000);
+      t = window.setTimeout(() => document.body.classList.remove('ui'), 2000);
+    };
+    // body.touch: the last pointer was a finger (or a pen), so the ui is sized and shown for touch. Starts from what
+    // the device is; a touch laptop switches back and forth as you use the mouse or the screen
+    const setTouch = (on: boolean) => document.body.classList.toggle('touch', on);
+    setTouch(matchMedia('(hover: none) and (pointer: coarse)').matches);
+    document.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      if (e.movementX || e.movementY) { setTouch(false); wake(); }
+    });
+
+    // ── touch: tap anywhere for next, swipe left / right for next / back ───
+    const SWIPE = 40, TAP = 12, TAP_MS = 600;
+    let start: { x: number; y: number; t: number } | null = null;
+    let fingers = 0;
+    // taps meant for something on the slide (or the nav, or the grid) aren't page turns
+    const ownTap = (el: EventTarget | null) => !(el instanceof Element) ||
+      !!el.closest('a, button, input, select, textarea, label, summary, [contenteditable], [data-no-advance], #nav, #picker');
+    document.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' || mode !== 'main') return;
+      setTouch(true);
+      wake();
+      if (e.isPrimary) fingers = 0; // the first finger down: forget any lift we missed
+      fingers++;
+      // a second finger (pinch-zoom) cancels the gesture
+      start = fingers === 1 && !pickerOpen() && !ownTap(e.target) ? { x: e.clientX, y: e.clientY, t: e.timeStamp } : null;
+    });
+    const lift = () => { fingers = Math.max(0, fingers - 1); };
+    document.addEventListener('pointercancel', (e) => { if (e.pointerType !== 'mouse') { lift(); start = null; } });
+    document.addEventListener('pointerup', (e) => {
+      if (e.pointerType === 'mouse' || mode !== 'main') return;
+      lift();
+      const s = start;
+      start = null;
+      if (!s || fingers) return;
+      const dx = e.clientX - s.x, dy = e.clientY - s.y;
+      const zoomed = (visualViewport?.scale ?? 1) > 1.05; // pinch-zoomed in: a drag is looking around, not a swipe
+      if (!zoomed && Math.abs(dx) > SWIPE && Math.abs(dx) > 1.5 * Math.abs(dy)) dx < 0 ? next() : prev();
+      else if (Math.hypot(dx, dy) < TAP && e.timeStamp - s.t < TAP_MS) next();
     });
   }
 

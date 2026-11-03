@@ -26,6 +26,10 @@ const notes = readNotes(process.cwd(), slides.map((s) => s.name.replace(/\.\w+$/
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- added to a phone / tablet home screen, the deck opens full screen (iphones have no fullscreen button) -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <title>{title}</title>
   <!-- every slide is laid out on a W×H canvas (1600×900, the print / shot size) that's scaled to fit the window, so
        a slide looks the same at every size: as big as the screen allows, never cut off. A window that isn't 16:9
@@ -34,15 +38,26 @@ const notes = readNotes(process.cwd(), slides.map((s) => s.name.replace(/\.\w+$/
     (() => {
       // ?print lays slides out unscaled, ?overview scales them itself (deck.ts)
       if (/[?&](print|overview)\b/.test(location.search)) return;
-      const W = 1600, H = 900, r = document.documentElement.style;
+      // a tall window (a phone or tablet held upright) stops extending at 4:3 and centers the canvas instead: past
+      // that, a header slide's title and content drift apart with nothing between them
+      // a touch screen wider than 16:9 (a phone held sideways) has width to spare: the nav gets its own column at the
+      // right edge (html.gutter, deck.css) and the slide stops short of it, so the nav never covers the slide
+      const W = 1600, H = 900, MAX_H = 1200, GUTTER = 76, root = document.documentElement, r = root.style;
+      const touch = matchMedia('(hover: none) and (pointer: coarse)');
       const fit = () => {
-        const k = Math.min(innerWidth / W, innerHeight / H);
+        const gutter = touch.matches && (innerWidth - GUTTER) / innerHeight >= W / H ? GUTTER : 0;
+        root.classList.toggle('gutter', gutter > 0);
+        const w = innerWidth - gutter;
+        const k = Math.min(w / W, innerHeight / H), h = Math.min(innerHeight / k, MAX_H);
         r.setProperty('--k', k);
-        r.setProperty('--stage-w', `${innerWidth / k}px`);
-        r.setProperty('--stage-h', `${innerHeight / k}px`);
+        r.setProperty('--stage-w', `${w / k}px`);
+        r.setProperty('--stage-h', `${h}px`);
+        r.setProperty('--stage-y', `${(innerHeight - h * k) / 2}px`);
       };
       fit();
       addEventListener('resize', fit);
+      // ios can report the old size on the resize right after a rotation
+      addEventListener('orientationchange', () => setTimeout(fit, 300));
     })();
   </script>
   <!-- theme: auto (the browser's light / dark setting) / light / dark, from the nav switch (deck.ts) and remembered in
@@ -82,12 +97,13 @@ const notes = readNotes(process.cwd(), slides.map((s) => s.name.replace(/\.\w+$/
 
   <div id="nav">
     <button id="prev" title="previous (←)">←</button>
-    <span id="counter" title="go to slide (g)"></span>
+    <button id="counter" title="go to slide (g)"></button>
     <button id="next" title="next (→)">→</button>
     <button id="notes-btn" title="presenter view (p)">notes</button>
     <button id="theme" title="theme: auto / light / dark (t)"></button>
     <button id="fs" title="fullscreen (f)">⛶</button>
   </div>
+  <div id="rotate">turn sideways for a bigger slide</div>
 
   <script>
     import { initDeck } from '../deck/deck';
