@@ -22,14 +22,16 @@ cd lec2/os/slides && bun run dev            # any deck (:4321)
 
 ## new deck
 
+copy a deck and empty it, or write the five files the [engine readme](https://github.com/boopdotpng/slides#start-a-new-deck)
+lists (astro.config.mjs, package.json, tsconfig.json, src/deck.config.ts, a first slide):
+
 ```sh
-cp -r engine/demo lec3/topic/slides      # then set "name" in its package.json (e.g. "topic-slides")
-# add "lec3/topic/slides" to "workspaces" in the root package.json
-bun install && cd lec3/topic/slides && bun run dev
+mkdir -p lec3/topic && cp -r lec2/os/slides lec3/topic/slides && cd lec3/topic/slides
+rm -rf src/slides/* src/components/* public/data/* dist .astro   # then set "name" in package.json (e.g. "topic-slides")
+# add "lec3/topic/slides" to "workspaces" in the root package.json; then at the root: bun install
 ```
 
-then set the title in `src/deck.config.ts`, delete the demo slides (`src/slides/`, `src/components/demos/`),
-and write `src/slides/01-….astro`, `02-….astro`, …. the [engine readme](https://github.com/boopdotpng/slides#readme)
+then set the title in `src/deck.config.ts` and write `src/slides/01-….astro`, `02-….astro`, …. the engine readme
 covers keys, steps, islands and the `viz` kit; its `AGENTS.md` (linked at the root here) is the short version.
 ci builds every `lec*/*/slides`, so a deck missing from the workspaces fails the pages build.
 
@@ -47,4 +49,4 @@ git commit -am "engine: <what changed>"
 
 to change the engine while looking at a deck, edit `engine/` directly: it's a full checkout of boopdotpng/slides, and
 every deck's `bun run dev` picks the edit up live. commit and push inside `engine/` (on a branch, it starts detached),
-then commit the new `engine` pointer here. the engine's own demo deck is `engine/demo`.
+then commit the new `engine` pointer here.
