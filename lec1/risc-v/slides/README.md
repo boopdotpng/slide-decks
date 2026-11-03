@@ -48,8 +48,12 @@ anything inside `data-no-advance` don't turn the page, so an island that takes t
 
 The URL keeps your place: `#7.3` is slide 7, step 3. `#07-loss.3` works too (the file name, without the extension).
 The counter's tooltip, the grid (hover a thumbnail) and the presenter show the current slide's file.
-`bun run build && bun run record` exports `deck.mp4`: it presses → through every step, waiting for each step's
-animations to finish plus `--hold` ms (default 1500). Options: `--out`, `--hold`, `--from 3 --to 7`, `--width`, `--height`, `--fps`, `--crf` (14), `--scale` (2× supersampling).
+`bun run build && bun run record` exports `deck.mp4` (1920×1080): it records every slide at once, one tab per slide
+(`--jobs`, default one per cpu core), each pressing → through its steps and waiting for each step's animations to finish
+plus `--hold` ms (default 1500), then joins the clips with `--gap` seconds of black (0.5) between slides.
+`--discord` also writes `deck.discord.mp4` under 10 MB (`--max-mb 25` for another limit); `bun run record --shrink deck.mp4`
+just compresses an existing video. Other options: `--out`, `--from 3 --to 7`, `--width`, `--height`, `--fps`, `--crf` (14),
+`--preset` (medium), `--scale` (2 = supersampling). Too many jobs for the machine makes animations choppy: lower `--jobs`.
 JS-driven animations (`LatencyRace`, `auto` Walkthrough, `Terminal`) set their own `data-hold`; put `data-hold="5000"` on any
 element to make a slide linger. Needs Google Chrome and ffmpeg.
 

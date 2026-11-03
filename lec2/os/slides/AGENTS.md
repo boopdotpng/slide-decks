@@ -1,6 +1,6 @@
 # slide deck (from boopdotpng/slides)
 
-Astro + Preact. `bun dev`, `bun run build`, `bun run check`, `bun run record` (mp4 of the whole deck, see scripts/record.mjs), `bun run shot 3.2 14-stack.1` (png of a slide at a step against a running dev server, see scripts/shot.mjs). See README.md for keys and components.
+Astro + Preact. `bun dev`, `bun run build`, `bun run check`, `bun run record` (mp4 of the whole deck, slides recorded in parallel; `--discord` for a <10 MB copy; see scripts/record.mjs), `bun run shot 3.2 14-stack.1` (png of a slide at a step against a running dev server, see scripts/shot.mjs). See README.md for keys and components.
 
 ## finding and changing slides
 
