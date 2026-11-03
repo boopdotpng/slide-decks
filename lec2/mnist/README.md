@@ -18,7 +18,7 @@ the confusion matrix and the most confident mistakes.
 
 The script on slides 4-7 and 13 is `slides/src/lab.ts`, a copy of `labs/mnist-lab/mnist.py`: keep them identical.
 The setup commands were run as written on macOS (uv 0.13, Python 3.14, tinygrad master `bd683c47a`): about 98% test
-accuracy in ~5 s on METAL, ~30 s with `DEV=CPU`. The layout is `mnist/{.venv, tinygrad, mnist.py}`; the install needs
+accuracy in ~5 s on METAL, ~30 s with `DEV=CPU`. The layout is `labs/02-mnist-train/{.venv, tinygrad, mnist.py}`; the install needs
 `-C editable_mode=compat`, because setuptools' default editable hook loses to the `tinygrad/` folder next to the script
 (`cannot import name 'Context'`).
 

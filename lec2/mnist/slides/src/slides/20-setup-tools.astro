@@ -24,9 +24,9 @@ const uv = `curl -LsSf https://astral.sh/uv/install.sh | sh`;
     <p>it asks for the password you made for ubuntu. typing it shows nothing; that's normal</p>
   </div>
   <div class="gpu">
-    <h3>mac, for the gpu (Metal): llvm from homebrew (brew.sh)</h3>
+    <h3>mac, for the gpu (Metal): llvm from homebrew</h3>
     <Code lang="sh" code={gpu} copy />
-    <p>without it, everything still runs on the cpu, just slower</p>
+    <p>then <b>open a new terminal</b>. no <code>brew</code>? install homebrew from <b>brew.sh</b> first. without llvm, everything still runs on the cpu, just slower</p>
   </div>
   <div class="both">
     <h3>both: uv, which installs python and python packages</h3>
