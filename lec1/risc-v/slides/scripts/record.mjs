@@ -10,8 +10,7 @@
  * Every slide is recorded on its own, --jobs at a time (default: one per cpu
  * core), each in its own browser tab entered from the slide before it so its
  * entry animations are caught. The clips are joined with --gap seconds of black
- * (default 0.5) between slides. --serial records the whole deck in one tab
- * instead, one slide straight into the next, no gaps (slow but exact).
+ * (default 0.5) between slides.
  *
  * After each step it waits for the slide's CSS animations and transitions to
  * end (infinite ones like a blinking cursor don't count), then holds for
@@ -55,7 +54,6 @@ const { values: opt } = parseArgs({
     to: { type: 'string' },
     jobs: { type: 'string', default: String(availableParallelism()) },
     gap: { type: 'string', default: '0.5' }, // seconds of black between slides
-    serial: { type: 'boolean', default: false },
     'max-mb': { type: 'string' },
     discord: { type: 'boolean', default: false },
     shrink: { type: 'string' }, // compress this file to --max-mb and exit
@@ -108,20 +106,20 @@ try {
     return n;
   })();
   const from = Math.max(1, Number(opt.from)), to = Math.min(count, opt.to ? Number(opt.to) : count);
-  const ranges = opt.serial ? [[from, to]] : Array.from({ length: to - from + 1 }, (_, j) => [from + j, from + j]);
+  const todo = Array.from({ length: to - from + 1 }, (_, j) => from + j);
 
-  // ── record: a pool of tabs, each takes the next slide (or the one serial range) ──
+  // ── record: a pool of tabs, each takes the next slide ──
   const clips = [];
   let next = 0, done = 0;
   const t0 = Date.now();
-  const status = () => process.stdout.write(`\rrecorded ${done} / ${ranges.length}${opt.serial ? '' : ' slides'}   `);
+  const status = () => process.stdout.write(`\rrecorded ${done} / ${todo.length} slides   `);
   status();
-  await Promise.all(Array.from({ length: Math.min(JOBS, ranges.length) }, async () => {
+  await Promise.all(Array.from({ length: Math.min(JOBS, todo.length) }, async () => {
     const page = await newPage();
     page.on('pageerror', (e) => console.error('\npage error:', e.message));
-    while (next < ranges.length) {
+    while (next < todo.length) {
       const j = next++;
-      clips[j] = await recordRange(page, ...ranges[j], join(dir, `clip${j}`));
+      clips[j] = await recordSlide(page, todo[j], join(dir, `clip${j}`));
       done++;
       status();
     }
@@ -157,10 +155,10 @@ try {
 process.exit(failed ? 1 : 0);
 
 /**
- * Record slides a..b in `page`, entering slide a from the end of the slide before it. Returns the frames
- * ({ file, d } with d = seconds on screen), from the press into slide a to the end of slide b's last hold.
+ * Record slide a in `page`, entered from the end of the slide before it. Returns the frames
+ * ({ file, d } with d = seconds on screen), from the press into slide a to the end of its last step's hold.
  */
-async function recordRange(page, a, b, out) {
+async function recordSlide(page, a, out) {
   await mkdir(out, { recursive: true });
   // slide a-1 fully revealed (the step clamps), so one press shows slide a as it's entered in the talk
   await page.goto(a > 1 ? `${url}#${a - 1}.9999` : `${url}#1`, { waitUntil: 'networkidle' });
@@ -181,15 +179,13 @@ async function recordRange(page, a, b, out) {
   await page.waitForTimeout(100);
 
   const now = () => page.evaluate(() => Date.now() / 1000);
-  const hash = () => page.evaluate(() => location.hash.slice(1));
   const start = await now();
   if (a > 1) await page.keyboard.press('ArrowRight');
   let end;
   for (;;) {
-    const at = await hash();
     await settle(page, HOLD);
     end = await now();
-    if (Number(at.split('.')[0]) >= b && !(await page.evaluate(() => {
+    if (!(await page.evaluate(() => {
       // more steps left on this slide? (same count as deck.ts total())
       const s = document.querySelector('.slide.active');
       const total = s.querySelectorAll('.step').length +
@@ -197,8 +193,6 @@ async function recordRange(page, a, b, out) {
       return Number(s.dataset.step ?? 0) < total;
     }))) break;
     await page.keyboard.press('ArrowRight');
-    await page.waitForTimeout(50);
-    if ((await hash()) === at) break; // the end of the deck
   }
   await cdp.send('Page.stopScreencast');
   await cdp.detach();
@@ -207,7 +201,7 @@ async function recordRange(page, a, b, out) {
   // frames shown during [start, end]: the last one before start is what was on screen at the press
   const first = Math.max(0, frames.findLastIndex((f) => f.t <= start));
   const kept = frames.slice(first).filter((f, j) => j === 0 || f.t < end);
-  if (!kept.length) throw new Error(`slides ${a}-${b}: no frames captured`);
+  if (!kept.length) throw new Error(`slide ${a}: no frames captured`);
   // the screen at the press is still slide a-1: show the first frame of slide a from the start instead
   if (a > 1 && kept.length > 1 && kept[0].t <= start) kept.shift();
   return kept.map((f, j) => ({ file: f.file, d: (j + 1 < kept.length ? kept[j + 1].t : end) - (j ? f.t : start) }));

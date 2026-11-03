@@ -44,7 +44,6 @@ The counter's tooltip, the grid (hover a thumbnail) and the presenter show the c
 `bun run build && bun run record` exports `deck.mp4` (1920×1080): it records every slide at once, one tab per slide
 (`--jobs`, default one per cpu core), each pressing → through its steps and waiting for each step's animations to finish
 plus `--hold` ms (default 1500), then joins the clips with `--gap` seconds of black (0.5) between slides.
-`--serial` records the deck in one tab instead, one slide straight into the next (slower, no gaps).
 `--discord` also writes `deck.discord.mp4` under 10 MB (`--max-mb 25` for another limit); `bun run record --shrink deck.mp4`
 just compresses an existing video. Other options: `--out`, `--from 3 --to 7`, `--width`, `--height`, `--fps`, `--crf` (14),
 `--preset` (medium), `--scale` (2 = supersampling). Too many jobs for the machine makes animations choppy: lower `--jobs`.
