@@ -332,7 +332,7 @@ export function Lowering({ py, kernel }: { py: string; kernel: { device: string;
       </div>
       <div class={`right fade ${step >= 2 ? 'on' : ''}`}>
         <p class="kick">real {kernel.device === 'METAL' ? 'Metal' : kernel.device} code generated for this line: one kernel, {kernel.lines.length} lines. you never write this</p>
-        <pre class="kern">{excerpt(kernel.lines).join('\n')}</pre>
+        <Code lang="cpp" code={excerpt(kernel.lines).join('\n')} class="kern" />
       </div>
       <style>{`
         .lower { display: grid; grid-template-columns: 1fr 560px; gap: 40px; width: 100%; align-items: start; }
@@ -346,8 +346,8 @@ export function Lowering({ py, kernel }: { py: string; kernel: { device: string;
         .lower .tg div { display: flex; flex-direction: column; background: var(--surface); border-radius: 8px; padding: 8px 12px; font-size: 18px; }
         .lower .tg span { color: var(--muted); } .lower .tg b { color: var(--accent); font-size: 21px; }
         .lower .back { font-size: 20px; color: var(--hot); margin: 0; }
-        .lower .kern { font-size: 10.5px; line-height: 1.32; margin: 0; height: 600px; overflow: hidden; color: var(--muted);
-          -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent); mask-image: linear-gradient(to bottom, black 70%, transparent); }
+        .lower pre.kern { font-size: 13px; line-height: 1.35; margin: 0; max-height: 640px; overflow: hidden; }
+        .lower pre.kern .ln { white-space: pre-wrap; overflow-wrap: anywhere; padding-left: 3em; text-indent: -2.5em; }
       `}</style>
     </div>
   );
