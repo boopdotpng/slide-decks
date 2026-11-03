@@ -132,9 +132,11 @@ th { color: var(--muted); font-weight: normal; }
 .full { position: absolute; inset: var(--inset-y) var(--inset-x); display: flex; align-items: center; justify-content: center; }
 .full img, .full svg { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-/* nav ui: hidden until the mouse moves (body.ui, deck.ts) */
+/* nav ui: hidden until the mouse moves (body.ui, deck.ts). It sits on its own blurred panel so slide text under
+   it (a caption in the bottom-right corner) doesn't show through the buttons */
 #nav { position: fixed; bottom: 16px; right: 20px; display: flex; gap: 8px; align-items: center;
-  font-size: 16px; color: var(--muted); opacity: 0; transition: opacity .3s; }
+  font-size: 16px; color: var(--muted); opacity: 0; transition: opacity .3s; padding: 6px; border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 88%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 body.ui #nav, #nav:hover { opacity: 1; }
 #nav button { font: inherit; background: none; color: inherit; border: 1px solid var(--muted);
   border-radius: 6px; padding: 4px 12px; cursor: pointer; }

@@ -1,0 +1,15 @@
+---
+import TensorShapes from '../components/TensorShapes.tsx';
+import '../components/lab.css';
+---
+<header>
+  <div class="section">the level we write at</div>
+  <h2>tensors describe the computation</h2>
+  <p class="sub">example: 16 independent inputs, 9 positions each, 32 features per position</p>
+</header>
+<div data-steps="7" class="fill"><TensorShapes client:load /></div>
+<div class="src">sources:
+  <a href="https://docs.pytorch.org/tutorials/beginner/basics/tensorqs_tutorial.html">[04]</a>
+  <a href="https://docs.tinygrad.org/tensor/ops/">[07]</a>
+  <a href="https://boopdotpng.github.io/slide-decks/lec2-interp/">[01]</a>
+</div>

@@ -1,0 +1,15 @@
+---
+import GpuAttention from '../components/GpuAttention.tsx';
+import '../components/lab.css';
+---
+<header>
+  <div class="section">the work under the equation</div>
+  <h2>attention on a gpu</h2>
+</header>
+<div data-steps="6" class="fill"><GpuAttention client:load /></div>
+<div class="src">sources:
+  <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html">[02]</a>
+  <a href="https://arxiv.org/abs/2205.14135">[03]</a>
+  <a href="https://docs.pytorch.org/docs/2.9/generated/torch.nn.functional.scaled_dot_product_attention.html">[06]</a>
+  <a href="https://boopdotpng.github.io/slide-decks/lec2-interp/">[01]</a>
+</div>

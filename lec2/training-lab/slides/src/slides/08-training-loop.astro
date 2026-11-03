@@ -1,0 +1,15 @@
+---
+import TrainStep from '../components/TrainStep.tsx';
+import '../components/lab.css';
+---
+<header>
+  <div class="section">putting it together</div>
+  <h2>the training loop</h2>
+  <p class="sub">one update, using tinygrad 0.14.0</p>
+</header>
+<div data-steps="5" class="fill"><TrainStep client:load /></div>
+<div class="src">sources:
+  <a href="https://docs.tinygrad.org/quickstart/">[11]</a>
+  <a href="https://github.com/tinygrad/tinygrad/blob/v0.14.0/tinygrad/tensor.py">[12]</a>
+  <span class="lab">numbers: the same run as slide 4 [16]</span>
+</div>

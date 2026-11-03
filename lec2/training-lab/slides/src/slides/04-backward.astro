@@ -1,0 +1,16 @@
+---
+import Backward from '../components/Backward.tsx';
+import '../components/lab.css';
+---
+<header>
+  <div class="section">from one model to training it</div>
+  <h2>training adds a backward pass</h2>
+  <p class="sub">a whole model needs a prediction, an error measure, and derivatives through the computation</p>
+</header>
+<div data-steps="8" class="fill"><Backward client:load /></div>
+<div class="src">sources:
+  <a href="https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html">[05]</a>
+  <a href="https://docs.tinygrad.org/quickstart/">[11]</a>
+  <a href="https://boopdotpng.github.io/slide-decks/lec2-interp/">[01]</a>
+  <span class="lab">worked example: export_step.py, tinygrad 0.14.0, fresh weights, seed 0 [16]</span>
+</div>

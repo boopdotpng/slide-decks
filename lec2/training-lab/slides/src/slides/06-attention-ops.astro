@@ -1,0 +1,16 @@
+---
+import AttnOps from '../components/AttnOps.tsx';
+import '../components/lab.css';
+---
+<header>
+  <div class="section">the equation, as code</div>
+  <h2>attention in four tensor operations</h2>
+  <p class="sub">the learned projections have produced q, k and v. the causal mask is already built</p>
+</header>
+<div data-steps="4" class="fill"><AttnOps client:load /></div>
+<div class="src">sources:
+  <a href="https://docs.pytorch.org/docs/2.9/generated/torch.nn.functional.scaled_dot_product_attention.html">[06]</a>
+  <a href="https://docs.tinygrad.org/tensor/ops/">[07]</a>
+  <a href="https://docs.tinygrad.org/tensor/movement/">[08]</a>
+  <a href="https://boopdotpng.github.io/slide-decks/lec2-interp/">[01]</a>
+</div>

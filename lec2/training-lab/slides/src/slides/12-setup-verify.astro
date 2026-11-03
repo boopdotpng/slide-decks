@@ -1,0 +1,63 @@
+---
+import '../components/lab.css';
+---
+<header>
+  <div class="section">lab setup · 3 of 4</div>
+  <h2>verify the environment</h2>
+</header>
+<div class="v12">
+  <div class="col">
+    <div class="card bar-a">
+      <h3>select the interpreter</h3>
+      <p>in your editor, pick the project's <code>.venv</code> Python (VS Code: <em>Python: Select Interpreter</em>), so running and debugging use the same tinygrad the helper installed</p>
+    </div>
+    <div class="card bar-n step">
+      <h3>what the diagnostic checks</h3>
+      <div class="ck"><b>computation</b> <code>(x * x).sum()</code> of [1, 2, 3] is 14</div>
+      <div class="ck"><b>gradients</b> <code>backward()</code> gives [2, 4, 6]</div>
+      <div class="ck"><b>attention</b> <code>q @ k.transpose</code>, causal mask, softmax: right shape, rows sum to 1, no future leaks</div>
+      <div class="ck"><b>optimizer</b> one SGD step moves w from 1 to 2.6</div>
+    </div>
+    <div class="card step">
+      <h3>check again later, without installing</h3>
+<pre class="sh"><span class="c"># mac</span>
+bash setup-mac.sh --check-only
+<span class="c"># windows</span>
+.\setup-windows.bat --check-only</pre>
+    </div>
+  </div>
+  <div class="card out">
+    <div class="oh"><span class="kick">expected output</span><span class="tag-rec">from a real run · paths shortened</span></div>
+<pre class="sh"><span class="c">… configs, clang, .venv, pip install …</span>
+<span class="p">&gt;</span> .venv/bin/python check_environment.py
+Python: 3.12.3
+Interpreter: …/transformer-training-lab/.venv/bin/python
+System: <span class="c">(your OS and chip)</span>
+Virtual environment: yes
+Compiler: /usr/bin/clang
+[PASS] Tensor computation and automatic differentiation
+[PASS] Attention operations, normalization, and causal masking
+[PASS] Optimizer parameter update
+tinygrad: 0.14.0
+device: CPU
+sum of squares: 14.0
+gradient: [2.0, 4.0, 6.0]
+parameter after update: 2.600
+<span class="ok">SETUP OK</span>
+
+Setup complete. Select the .venv interpreter in your editor.</pre>
+    <p class="muted small">success ends with <b>SETUP OK</b>. versions, paths and the System line will differ on your machine</p>
+  </div>
+</div>
+<div class="src">sources: <a href="https://github.com/rvfvn/transformer-training-lab/blob/main/README.md">[13]</a> <a href="https://github.com/rvfvn/transformer-training-lab/blob/main/check_environment.py">[14]</a></div>
+<style>
+  .v12 { display: grid; grid-template-columns: 1fr 1.05fr; gap: .8em; font-size: .7em; width: 100%; align-items: start; }
+  .v12 .col { display: flex; flex-direction: column; gap: .55em; }
+  .v12 h3 { color: var(--accent); }
+  .v12 p { font-size: .92em; }
+  .v12 .ck { font-size: .88em; color: var(--muted); padding: .1em 0; }
+  .v12 .ck b { color: var(--fg); margin-right: .3em; }
+  .v12 .out pre.sh { font-size: .74em; }
+  .v12 .oh { display: flex; justify-content: space-between; align-items: center; }
+  .v12 .small b { color: var(--good); }
+</style>
