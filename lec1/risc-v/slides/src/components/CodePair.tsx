@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import Code from './Code';
-import { useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * C on the left, the risc-v clang made from it on the right. Each step

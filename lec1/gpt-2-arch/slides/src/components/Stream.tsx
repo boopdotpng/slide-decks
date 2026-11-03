@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Arrow, useIsland } from './viz';
+import { Arrow, useIsland } from 'slides/viz';
 
 /**
  * One block, as a schematic, top to bottom. The four strips (the residual stream) run straight down; attention and

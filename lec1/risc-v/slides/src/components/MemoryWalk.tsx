@@ -1,9 +1,9 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import Code from './Code';
-import { StateTable } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { StateTable } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * Loads and stores on sum.s's .data: nums (8 longs) and total, at the addresses

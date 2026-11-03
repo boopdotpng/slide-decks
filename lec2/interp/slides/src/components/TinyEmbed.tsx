@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { Heatmap, Shape, diverging, range } from './viz';
+import { useSlideStep } from 'slides/hooks';
+import { Heatmap, Shape, diverging, range } from 'slides/viz';
 import { EMB, VOCAB } from './tinyEmbed';
 import './roles';
 

@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Tok, pct, useIsland } from './viz';
+import { Tok, pct, useIsland } from 'slides/viz';
 
 /**
  * The guess after each block (the strip for " of", read out as if that block were the last).

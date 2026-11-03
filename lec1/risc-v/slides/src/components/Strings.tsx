@@ -1,9 +1,9 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import Code from './Code';
-import { Bytes, StateTable } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { Bytes, StateTable } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * "hi\n" in .rodata, greeting() handing out its address, then length() from

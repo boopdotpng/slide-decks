@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import Code from './Code';
-import { StateTable, Terminal } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { StateTable, Terminal } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * What happens at hello world's write syscall, on x86-64 + linux: rax holds

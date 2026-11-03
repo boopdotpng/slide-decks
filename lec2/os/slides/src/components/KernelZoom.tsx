@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { Arrow, COLORS, nest, ZOOM_H as H, ZOOM_W as W, ZoomStage, ZoomView, type Rect } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import { Arrow, COLORS, nest, ZOOM_H as H, ZOOM_W as W, ZoomStage, ZoomView, type Rect } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * The whole machine as one zoomable picture: kernel → processes → threads, and

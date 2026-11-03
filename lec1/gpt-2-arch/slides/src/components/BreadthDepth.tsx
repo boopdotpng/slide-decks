@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Tok, at, useIsland } from './viz';
+import { Tok, at, useIsland } from 'slides/viz';
 import { headColor } from './common';
 
 /**

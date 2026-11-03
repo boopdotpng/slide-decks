@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import CodePair from './CodePair';
-import { useSlideStep } from '../deck/hooks';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * A local array on the stack: frame.c next to clang's frame.s, plus the

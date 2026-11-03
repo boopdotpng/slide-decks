@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { COLORS, Tok, useIsland } from './viz';
+import { COLORS, Tok, useIsland } from 'slides/viz';
 
 /** text -> token chips (step 1) -> token ids (step 2) -> tokens aren't words or letters: rarer words split (step 3). */
 export default function Tokenize() {

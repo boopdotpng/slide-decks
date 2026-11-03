@@ -1,10 +1,10 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import Code from './Code';
-import { StateTable } from './viz';
+import Code from 'slides/Code';
+import { StateTable } from 'slides/viz';
 import { BASE, MEM0, MemRow, hex } from './MemoryWalk';
-import { useSlideStep } from '../deck/hooks';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * sum.s running, with the real addresses ld.lld gives it (.text at 0x11158,

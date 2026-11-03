@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
-import { highlight } from './Code';
-import { Mat, Tex, SvgHtml, diverging, sequential, useIsland, range } from './viz';
+import { highlight } from 'slides/Code';
+import { Mat, Tex, SvgHtml, diverging, sequential, useIsland, range } from 'slides/viz';
 import './roles';
 
 /** a wrapped paragraph inside the svg (SvgHtml keeps to one line) */

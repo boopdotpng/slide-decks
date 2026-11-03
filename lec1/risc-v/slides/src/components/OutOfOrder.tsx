@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import { Timeline } from './viz';
-import { highlight } from './Code';
-import { useSlideStep } from '../deck/hooks';
+import { Timeline } from 'slides/viz';
+import { highlight } from 'slides/Code';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * The sum loop, one and a bit iterations, on a cycle timeline. Step 0 runs them

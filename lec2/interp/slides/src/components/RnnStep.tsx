@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { Bars, Strip, useData } from './viz';
+import { useSlideStep } from 'slides/hooks';
+import { Bars, Strip, useData } from 'slides/viz';
 import { Ch, CH_CSS } from './RnnCommon';
 
 /**

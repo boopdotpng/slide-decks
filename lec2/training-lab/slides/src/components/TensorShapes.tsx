@@ -1,6 +1,6 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
-import { Tex, diverging, useIsland, range } from './viz';
+import { Tex, diverging, useIsland, range } from 'slides/viz';
 import { VOCAB } from './tinyEmbed';
 import './roles';
 

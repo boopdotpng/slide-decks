@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Strip, useIsland } from './viz';
+import { Strip, useIsland } from 'slides/viz';
 import { Ch, CH_CSS } from './RnnCommon';
 
 /**

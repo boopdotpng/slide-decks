@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { at, diverging, sequential, useIsland } from './viz';
+import { at, diverging, sequential, useIsland } from 'slides/viz';
 
 /**
  * Position as a clock (the sinusoidal idea; gpt-2's learned table is its messier cousin).

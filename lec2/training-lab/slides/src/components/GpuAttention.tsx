@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Mat, DotRow, SvgHtml, Tex, diverging, useIsland, range } from './viz';
+import { Mat, DotRow, SvgHtml, Tex, diverging, useIsland, range } from 'slides/viz';
 import './roles';
 
 /**

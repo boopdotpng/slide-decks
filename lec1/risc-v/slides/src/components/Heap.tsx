@@ -1,10 +1,10 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import Code from './Code';
-import { StateTable } from './viz';
+import Code from 'slides/Code';
+import { StateTable } from 'slides/viz';
 import { AddressSpace, type Marker, type RegionKey } from './AddressSpace';
-import { useSlideStep } from '../deck/hooks';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * squares(4) from c/heap.c, against clang's asm (src/asm/heap.s) and the memory

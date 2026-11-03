@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Heatmap, Tok, at, diverging, fmt, useIsland } from './viz';
+import { Heatmap, Tok, at, diverging, fmt, useIsland } from 'slides/viz';
 import { LENS } from './common';
 
 /**

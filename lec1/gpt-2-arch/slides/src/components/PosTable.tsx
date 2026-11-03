@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { ByteHeat, at, useIsland } from './viz';
+import { ByteHeat, at, useIsland } from 'slides/viz';
 
 /**
  * The position table: 1024 rows (one per position), 768 numbers each, learned. Drawn every 2nd row.

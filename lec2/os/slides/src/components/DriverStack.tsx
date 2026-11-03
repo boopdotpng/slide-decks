@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import Code from './Code';
-import { Arrow, Box, COLORS, Reveal } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { Arrow, Box, COLORS, Reveal } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * Everything between your code and the card, and the driver in the middle:

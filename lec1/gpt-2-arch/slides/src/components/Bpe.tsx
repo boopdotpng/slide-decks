@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Chip, at, useIsland } from './viz';
+import { Chip, at, useIsland } from 'slides/viz';
 
 /**
  * Side quest: byte-pair encoding, with gpt-2's real merge list (tokenizer.json, 50,000 merges in the order they were

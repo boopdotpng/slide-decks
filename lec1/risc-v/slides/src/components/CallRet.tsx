@@ -1,9 +1,9 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { highlight } from './Code';
-import { StateTable } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import { highlight } from 'slides/Code';
+import { StateTable } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * call and ret are just jumps that use ra. Code laid out in memory with

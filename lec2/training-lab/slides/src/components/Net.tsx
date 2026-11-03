@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { range, diverging, useData } from './viz';
+import { range, diverging, useData } from 'slides/viz';
 import { EMB, VOCAB } from './tinyEmbed';
 import './roles';
 

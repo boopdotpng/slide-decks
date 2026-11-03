@@ -2,7 +2,8 @@
 #   <site>/<lec>-<topic>/   plus an index at the root
 # <site> is https://<user>.github.io/<repo> or the custom domain set in the repo's pages settings
 # (slides.anuraagw.me); configure-pages hands back the matching base path, so nothing here changes.
-# a new deck is picked up as soon as lecN/<topic>/slides exists with a bun.lock.
+# every deck uses the engine in the engine/ submodule (boopdotpng/slides) through the bun workspace at the root;
+# a new deck is picked up as soon as lecN/<topic>/slides exists and is listed in the root package.json workspaces.
 name: pages
 
 on:
@@ -24,7 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile   # one install for the engine and every deck
       - id: pages
         uses: actions/configure-pages@v5
       - name: build decks
@@ -34,7 +38,7 @@ jobs:
           for d in lec*/*/slides; do
             name=$(dirname "$d" | tr / -)
             echo "::group::$name"
-            (cd "$d" && bun install --frozen-lockfile && bunx astro build --base "$BASE/$name" --outDir "$GITHUB_WORKSPACE/_site/$name")
+            (cd "$d" && bunx astro build --base "$BASE/$name" --outDir "$GITHUB_WORKSPACE/_site/$name")
             echo "::endgroup::"
           done
           bun .github/index.mjs _site   # the landing page, grouped by lecture

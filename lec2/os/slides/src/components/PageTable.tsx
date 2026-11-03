@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import { COLORS } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import { COLORS } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * hello's page table as on x86-64, drawn flat (really a 4-level tree; the

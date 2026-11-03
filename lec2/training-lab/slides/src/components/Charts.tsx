@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useRef, useState } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { Tex, fmt, tip } from './viz';
+import { useSlideStep } from 'slides/hooks';
+import { Tex, fmt, tip } from 'slides/viz';
 import './roles';
 
 /**

@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import { Arrow, Box, COLORS, Reveal } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import { Arrow, Box, COLORS, Reveal } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * Two copies of hello world both use msg at 0x10120 (the address `rv` really

@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { Heatmap, Tex, diverging, range, sequential, tip, useData } from './viz';
+import { useSlideStep } from 'slides/hooks';
+import { Heatmap, Tex, diverging, range, sequential, tip, useData } from 'slides/viz';
 import './roles';
 import { BarChart, CHART_CSS, DIGIT, LETTER, LineChart } from './Charts';
 

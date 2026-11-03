@@ -1,9 +1,9 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { highlight } from './Code';
-import { BitFields, COLORS, type Field } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import { highlight } from 'slides/Code';
+import { BitFields, COLORS, type Field } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * Why `la t0, nums` is two instructions: an I-type immediate is only 12 bits,

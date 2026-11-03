@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { useIsland } from './viz';
+import { useIsland } from 'slides/viz';
 import { LENS } from './common';
 
 /**

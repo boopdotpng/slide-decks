@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
 import { useRef } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { Mat, Tex, diverging, sequential, useData, range } from './viz';
+import { useSlideStep } from 'slides/hooks';
+import { Mat, Tex, diverging, sequential, useData, range } from 'slides/viz';
 import { LineChart, CHART_CSS } from './Charts';
 import './roles';
 

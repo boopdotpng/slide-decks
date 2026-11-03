@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Chip, Strip, at, pct, useIsland } from './viz';
+import { Chip, Strip, at, pct, useIsland } from 'slides/viz';
 
 /**
  * Why position has to be added. Real numbers, with the position table left out on purpose.

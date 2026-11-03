@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Bars, Strip, Tok, at, useIsland } from './viz';
+import { Bars, Strip, Tok, at, useIsland } from 'slides/viz';
 
 /**
  * The mlp, on " of" in the block whose mlp pushes hardest toward " America" (block 9). Each token alone.

@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { Heatmap, diverging, range, useData } from './viz';
+import { useSlideStep } from 'slides/hooks';
+import { Heatmap, diverging, range, useData } from 'slides/viz';
 import { Ch, CH_CSS } from './RnnCommon';
 
 /**

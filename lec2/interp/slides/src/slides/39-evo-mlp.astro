@@ -1,6 +1,6 @@
 ---
 import Goal from '../components/Goal.astro';
-import Tex from '../components/Math.astro';
+import Tex from 'slides/Math';
 // relu, silu = z·σ(z), and σ itself, on z ∈ [-4, 4]
 const sig = (z: number) => 1 / (1 + Math.exp(-z));
 const W = 520, H = 340, X0 = -4, X1 = 4, Y0 = -1, Y1 = 4;

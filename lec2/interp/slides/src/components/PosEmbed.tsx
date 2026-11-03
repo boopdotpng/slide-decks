@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { HeatCanvas, Shape, Strip, Tok, sequential, useData } from './viz';
+import { useSlideStep } from 'slides/hooks';
+import { HeatCanvas, Shape, Strip, Tok, sequential, useData } from 'slides/viz';
 
 /**
  * embed_positions: one learned vector per position (1024 x 768). Steps:

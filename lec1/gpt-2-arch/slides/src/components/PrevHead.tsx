@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Heatmap, Tok, at, pct, sequential, useIsland } from './viz';
+import { Heatmap, Tok, at, pct, sequential, useIsland } from 'slides/viz';
 
 /**
  * Why position had to be in the strip: a head that only uses position.

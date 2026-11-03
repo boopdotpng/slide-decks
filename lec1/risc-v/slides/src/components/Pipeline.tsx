@@ -1,9 +1,9 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { highlight } from './Code';
-import { COLORS } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import { highlight } from 'slides/Code';
+import { COLORS } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * One lap of sum.s's loop on a 5-stage pipeline: instructions × cycles, one cell

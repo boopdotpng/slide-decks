@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { COLORS } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import { COLORS } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * Our 8 loads (and the store) against 64-byte cache lines, at nums' real

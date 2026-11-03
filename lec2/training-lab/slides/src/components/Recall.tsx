@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
 import { useRef } from 'preact/hooks';
-import { useSlideStep } from '../deck/hooks';
-import { useData, diverging, range, Tex } from './viz';
+import { useSlideStep } from 'slides/hooks';
+import { useData, diverging, range, Tex } from 'slides/viz';
 import { VOCAB } from './tinyEmbed';
 import './roles';
 

@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Chip, Heatmap, Strip, Tok, at, fmt, pct, sequential, useIsland } from './viz';
+import { Chip, Heatmap, Strip, Tok, at, fmt, pct, sequential, useIsland } from 'slides/viz';
 import { LENS } from './common';
 
 /**

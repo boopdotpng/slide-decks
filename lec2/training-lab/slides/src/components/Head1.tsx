@@ -1,6 +1,6 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
-import { DotRow, Mat, SvgHtml, SvgTex, Tex, diverging, sequential, useIsland } from './viz';
+import { DotRow, Mat, SvgHtml, SvgTex, Tex, diverging, sequential, useIsland } from 'slides/viz';
 import './roles';
 
 /**

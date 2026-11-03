@@ -1,29 +1,24 @@
 {
   "name": "os-slides",
-  "version": "0.0.1",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "bun scripts/slides.mjs check && bun scripts/colors.mjs && astro check",
-    "record": "bun scripts/record.mjs",
-    "sync": "bun scripts/sync.mjs",
-    "shot": "bun scripts/shot.mjs",
-    "slides": "bun scripts/slides.mjs"
+    "check": "slides check && slides-colors && astro check",
+    "record": "slides-record",
+    "shot": "slides-shot",
+    "slides": "slides"
   },
   "dependencies": {
-    "@astrojs/mdx": "^8.0.1",
-    "@astrojs/preact": "^6.0.5",
+    "slides": "workspace:*",
     "astro": "^7.3.2",
-    "preact": "^10.29.2",
-    "marked": "^18.1.1",
-    "katex": "^0.19.0"
+    "preact": "^10.29.2"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.11",
-    "typescript": "^6",
-    "playwright-core": "^1",
-    "@types/node": "^26.6.5"
+    "@types/node": "^26.6.5",
+    "typescript": "^6"
   }
 }

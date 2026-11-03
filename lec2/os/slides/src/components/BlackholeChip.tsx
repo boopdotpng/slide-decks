@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { COLORS } from './viz';
+import { COLORS } from 'slides/viz';
 
 /**
  * The blackhole chip as the host reaches it, simplified: the 120 worker cores

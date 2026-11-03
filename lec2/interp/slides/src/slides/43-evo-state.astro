@@ -1,6 +1,6 @@
 ---
 import Goal from '../components/Goal.astro';
-import Tex from '../components/Math.astro';
+import Tex from 'slides/Math';
 // numbers stored per layer for one sequence, llama 3 8b shapes: a kv cache holds 2 × 8 kv heads × 128 per token;
 // a linear-attention state is one 128 × 128 matrix per head, 32 heads, whatever the length
 const KV_PER_TOK = 2 * 8 * 128, STATE = 32 * 128 * 128, NMAX = 32768;

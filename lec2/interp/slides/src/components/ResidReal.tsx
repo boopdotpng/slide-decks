@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { useSlideStep } from '../deck/hooks';
-import { Bars, Strip, useData } from './viz';
+import { useSlideStep } from 'slides/hooks';
+import { Bars, Strip, useData } from 'slides/viz';
 
 /**
  * The real residual stream of the 2-layer lookup model on a2f5c9d3f (public/data/resid.json, from export.py).

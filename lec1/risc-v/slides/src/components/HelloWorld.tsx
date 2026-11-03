@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Bytes, Walkthrough } from './viz';
+import { Bytes, Walkthrough } from 'slides/viz';
 
 /**
  * examples/01_hello.s, one real instruction per step. Addresses and machine

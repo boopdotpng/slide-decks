@@ -1,6 +1,6 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
-import { Bars, Mat, Tex, sequential, useIsland } from './viz';
+import { Bars, Mat, Tex, sequential, useIsland } from 'slides/viz';
 import './roles';
 
 /**

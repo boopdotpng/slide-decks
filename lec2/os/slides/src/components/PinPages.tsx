@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import Code from './Code';
-import { Arrow, Box, COLORS, Reveal } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { Arrow, Box, COLORS, Reveal } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * PIN_PAGES with NOC_DMA, as blackhole-py's Sysmem uses it (256 MiB of host

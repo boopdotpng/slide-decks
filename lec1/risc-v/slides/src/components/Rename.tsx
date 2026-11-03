@@ -1,9 +1,9 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { highlight } from './Code';
-import { COLORS } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import { highlight } from 'slides/Code';
+import { COLORS } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * Register renaming on two iterations of the sum loop. Both write a3 and a0, so

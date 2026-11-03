@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Bars, Strip, Tok, at, pct, useIsland } from './viz';
+import { Bars, Strip, Tok, at, pct, useIsland } from 'slides/viz';
 
 /**
  * The problem attention solves. Each strip starts out knowing only its own token.

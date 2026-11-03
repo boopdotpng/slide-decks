@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { Arrow, COLORS } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import { Arrow, COLORS } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * A core, roughly: front end on top, back end below. Steps send our loop's

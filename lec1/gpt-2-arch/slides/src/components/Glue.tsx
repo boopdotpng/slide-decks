@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { ByteHeat, Strip, Tok, at, useIsland } from './viz';
+import { ByteHeat, Strip, Tok, at, useIsland } from 'slides/viz';
 import { LENS, headColor } from './common';
 
 /**

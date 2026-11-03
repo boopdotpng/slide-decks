@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useEffect, useRef } from 'preact/hooks';
 import * as THREE from 'three';
-import { deckScale, useSlideActive, useSlideStep, useTheme } from '../deck/hooks';
-import { Tok, diverging, resolve, sequential, useData } from './viz';
+import { deckScale, useSlideActive, useSlideStep, useTheme } from 'slides/hooks';
+import { Tok, diverging, resolve, sequential, useData } from 'slides/viz';
 import { headColor } from './common';
 
 /**

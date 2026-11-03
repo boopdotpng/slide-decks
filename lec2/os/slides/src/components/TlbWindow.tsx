@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import Code from './Code';
+import Code from 'slides/Code';
 import { BlackholeChip, type Core, type Target } from './BlackholeChip';
-import { useSlideStep } from '../deck/hooks';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * A 2 MiB tlb window, the way blackhole-py's pcie.py uses one (TLBWindow):

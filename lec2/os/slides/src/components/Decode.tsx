@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import Code, { highlight } from './Code';
-import { BitFields, Bytes, COLORS, hex } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import Code, { highlight } from 'slides/Code';
+import { BitFields, Bytes, COLORS, hex } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * One instruction, from bytes in memory to "x5 = x6 + x7". Steps 0–6:

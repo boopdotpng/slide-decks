@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import Code from './Code';
-import { useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * A typical x86 pc's physical address map (qemu q35, BIOS boot), simplified,

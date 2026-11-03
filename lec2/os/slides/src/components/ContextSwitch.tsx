@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import Code from './Code';
-import { COLORS, StateTable } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { COLORS, StateTable } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * A timer interrupt switches one core from hello's thread to the shell's: it

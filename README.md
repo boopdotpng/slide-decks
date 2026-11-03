@@ -1,6 +1,9 @@
 # slide decks
 
-lecture decks, each an astro project made from the template at **[boopdotpng/slides](https://github.com/boopdotpng/slides)**.
+lecture decks on the deck engine **[boopdotpng/slides](https://github.com/boopdotpng/slides)**, which lives here once, as the git
+submodule `engine/`. each deck (`lec*/*/slides`) holds only its own files: `astro.config.mjs` (`integrations: [slides()]`),
+`src/deck.config.ts`, `src/slides/`, its islands in `src/components/`, `public/` (data, images), `package.json`, `tsconfig.json`.
+the root `package.json` is a bun workspace of the engine and every deck.
 
 | dir | what |
 |---|---|
@@ -11,28 +14,37 @@ lecture decks, each an astro project made from the template at **[boopdotpng/sli
 | `lec2/interp` | transformers from the residual stream up, on tiny models from ~/code/ml/interp (`export.py` writes the slide data) |
 | `lec2/training-lab` | the training lab intro: attention on a gpu, the backward pass, tensors, how tinygrad runs them, then local setup (`export_step.py`, `export_kernels.py` write the slide data) |
 
-in any deck: `cd slides && bun install && bun run dev` (:4321).
+```sh
+git clone --recurse-submodules git@github.com:boopdotpng/slide-decks.git   # or, in a clone: git submodule update --init
+bun install                                 # once, at the root: the engine and every deck
+cd lec2/os/slides && bun run dev            # any deck (:4321)
+```
 
 ## new deck
 
 ```sh
-bunx degit boopdotpng/slides lec3/topic/slides   # or "use this template" on github for a standalone repo
-cd lec3/topic/slides && bun install && bun run dev
+cp -r engine/demo lec3/topic/slides      # then set "name" in its package.json (e.g. "topic-slides")
+# add "lec3/topic/slides" to "workspaces" in the root package.json
+bun install && cd lec3/topic/slides && bun run dev
 ```
 
 then set the title in `src/deck.config.ts`, delete the demo slides (`src/slides/`, `src/components/demos/`),
-and write `src/slides/01-….astro`, `02-….astro`, …. the [template readme](https://github.com/boopdotpng/slides#readme)
-covers keys, steps, islands and the `viz` kit; its `AGENTS.md` (copied into every deck) is the short version.
+and write `src/slides/01-….astro`, `02-….astro`, …. the [engine readme](https://github.com/boopdotpng/slides#readme)
+covers keys, steps, islands and the `viz` kit; its `AGENTS.md` (linked at the root here) is the short version.
+ci builds every `lec*/*/slides`, so a deck missing from the workspaces fails the pages build.
 
-## template changes
+## engine changes
 
-fixes to the engine, styles, `Code` / `Math` / `viz`, or `scripts/` belong in the template, not in a deck: a deck's copy
-of those files is overwritten on the next sync. edit them in a checkout of [boopdotpng/slides](https://github.com/boopdotpng/slides),
-push there, then pull them into every deck:
+fixes to the engine, styles, `Code` / `Math` / `viz` or the scripts belong in the engine, not in a deck: decks import it
+by name (`slides/Code`, `slides/Math`, `slides/viz`, `slides/hooks`) and have no copy of their own.
+
+to pick up engine commits pushed to boopdotpng/slides (master), in every deck at once:
 
 ```sh
-git clone git@github.com:boopdotpng/slides.git ~/code/web/slides   # once
-cd ~/code/web/slides && bun run sync ~/code/edu/lec*/*/slides
+git submodule update --remote engine && bun install   # bun install only matters if the engine's dependencies changed
+git commit -am "engine: <what changed>"
 ```
 
-slides, deck-specific islands, `public/` and `deck.config.ts` are never touched by sync.
+to change the engine while looking at a deck, edit `engine/` directly: it's a full checkout of boopdotpng/slides, and
+every deck's `bun run dev` picks the edit up live. commit and push inside `engine/` (on a branch, it starts detached),
+then commit the new `engine` pointer here. the engine's own demo deck is `engine/demo`.

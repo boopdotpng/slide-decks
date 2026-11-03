@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Chip, Strip, at, useIsland } from './viz';
+import { Chip, Strip, at, useIsland } from 'slides/viz';
 
 /**
  * The strip each token starts as: its word row + its position row, added cell by cell.

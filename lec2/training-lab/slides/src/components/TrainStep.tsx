@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
-import Code from './Code';
-import { Tex, useIsland, range } from './viz';
+import Code from 'slides/Code';
+import { Tex, useIsland, range } from 'slides/viz';
 import './roles';
 
 /**

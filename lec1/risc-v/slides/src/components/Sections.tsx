@@ -1,9 +1,9 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import Code from './Code';
+import Code from 'slides/Code';
 import { AddressSpace, type RegionKey } from './AddressSpace';
-import { useSlideStep } from '../deck/hooks';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * c/sections.c and clang's asm for it, one section per step, lit on the memory

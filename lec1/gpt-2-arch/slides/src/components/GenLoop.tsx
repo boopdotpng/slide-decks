@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Tok, useIsland } from './viz';
+import { Tok, useIsland } from 'slides/viz';
 
 /**
  * Generation as a loop: the sequence goes in, one token comes out and is appended. Real greedy steps.

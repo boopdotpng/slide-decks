@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { COLORS } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import { COLORS } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * The 32 risc-v integer registers as a grid: x number, abi name, optional value.

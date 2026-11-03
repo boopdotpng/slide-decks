@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef, useState } from 'preact/hooks';
-import Code from './Code';
-import { COLORS } from './viz';
-import { useFrame, useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { COLORS } from 'slides/viz';
+import { useFrame, useSlideStep } from 'slides/hooks';
 
 /**
  * An array of 64 longs (8 cache lines of 64 B) and a loop reading it. Each step

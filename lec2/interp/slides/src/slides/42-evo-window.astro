@@ -1,6 +1,6 @@
 ---
 import Goal from '../components/Goal.astro';
-import Tex from '../components/Math.astro';
+import Tex from 'slides/Math';
 // attention masks: row = query position, column = key position. n positions, window w, top-k picks k
 const N = 12, W = 4, K = 4;
 const hash = (i: number, j: number) => { const x = Math.sin(i * 12.9898 + j * 78.233) * 43758.5453; return x - Math.floor(x); };

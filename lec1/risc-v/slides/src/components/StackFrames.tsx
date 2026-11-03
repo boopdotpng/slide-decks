@@ -1,9 +1,9 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import Code from './Code';
-import { StateTable } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { StateTable } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * fact(3), recursively, with the stack drawn as memory. The asm is

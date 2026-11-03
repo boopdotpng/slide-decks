@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import Code from './Code';
-import { Box, COLORS, Reveal } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { Box, COLORS, Reveal } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * Opening the card, and what the host can see of it: its bars. Sizes are

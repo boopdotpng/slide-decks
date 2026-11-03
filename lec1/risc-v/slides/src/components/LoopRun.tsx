@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Walkthrough } from './viz';
+import { Walkthrough } from 'slides/viz';
 import asm from '../asm/loop.s?raw';
 
 /**

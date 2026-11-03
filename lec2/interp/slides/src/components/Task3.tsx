@@ -1,6 +1,6 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
-import { Bars, Mat, Tex, diverging, range, sequential, useIsland } from './viz';
+import { Bars, Mat, Tex, diverging, range, sequential, useIsland } from 'slides/viz';
 import { AM_CSS, AttnEq, AttnMatrix, CH, Input, places, STREAM_CSS, Streams, ValueRead, type Arc, type Chip } from './Task2';
 import './roles';
 

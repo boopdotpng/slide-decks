@@ -1,9 +1,9 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import Code from './Code';
-import { Arrow, Box, COLORS, Reveal } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import Code from 'slides/Code';
+import { Arrow, Box, COLORS, Reveal } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * The levels between the core and ram, and what happens to one line (0x1040).

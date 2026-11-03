@@ -29,10 +29,10 @@ for (const lec of readdirSync('.').filter((d) => /^lec\d+$/.test(d)).sort((a, b)
   }
 }
 
-// borrow the decks' code font
-const font = [...lectures.values()].flat().map((d) => join(d.dir, 'public/fonts/PaperMono.woff2')).find(existsSync);
+// the decks' code font, from the engine submodule
+const font = 'engine/src/fonts/PaperMono.woff2';
 mkdirSync(out, { recursive: true });
-if (font) copyFileSync(font, join(out, 'PaperMono.woff2'));
+if (existsSync(font)) copyFileSync(font, join(out, 'PaperMono.woff2'));
 
 const sections = [...lectures].map(([lec, decks]) => `
   <section>

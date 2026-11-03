@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useRef } from 'preact/hooks';
-import { Arrow, Box, COLORS, Reveal } from './viz';
-import { useSlideStep } from '../deck/hooks';
+import { Arrow, Box, COLORS, Reveal } from 'slides/viz';
+import { useSlideStep } from 'slides/hooks';
 
 /**
  * A process (page table + resources) holding threads (pc + registers + stack),

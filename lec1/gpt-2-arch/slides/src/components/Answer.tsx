@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import { Bars, Chip, Strip, Tok, at, pct, sequential, useIsland } from './viz';
+import { Bars, Chip, Strip, Tok, at, pct, sequential, useIsland } from 'slides/viz';
 
 /**
  * The answer. The final strip for " of" is compared with every token's embedding row (the same table as the start).

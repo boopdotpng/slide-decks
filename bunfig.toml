@@ -1,0 +1,3 @@
+# flat node_modules: astro resolves the engine's integrations (@astrojs/preact, @astrojs/mdx) from each deck
+[install]
+linker = "hoisted"

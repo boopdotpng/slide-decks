@@ -1,6 +1,6 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
-import { COLORS } from './viz';
+import { COLORS } from 'slides/viz';
 
 /**
  * A program's memory, high addresses at the top: stack (grows down), free
