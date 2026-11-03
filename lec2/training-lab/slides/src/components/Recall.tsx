@@ -50,7 +50,7 @@ function arcsFor(t: number, d: Record<string, any>): { arcs: Arc[]; result: Comp
   if (t === 0) {
     const t0 = d.task0; if (!t0) return null;
     const row = t0.table.find((r: any) => r.last_letter === 'a');
-    return { arcs: [], ok: false, result: <>after training, for last token <b>a</b>: every digit ≈ 10% (P(7) = {pct(row.p_digit_7)}). loss stalls at <b>{t0.loss.at(-1).loss.toFixed(2)}</b> ≈ ln 10: an even guess over digits</> };
+    return { arcs: [], ok: false, result: <>after training, for last token <b>a</b>: every digit ≈ 10% (P(7) = {pct(row.p_digit_7)}). loss stalls at <b>{t0.loss.at(-1).loss.toFixed(2)}</b> ≈ <span class="nw">ln 10</span>: an even guess over digits</> };
   }
   if (t === 1) {
     const h = d.head1; if (!h) return null;
@@ -204,7 +204,8 @@ export default function Recall() {
             <path class={`arc ${a.band} h${a.head ?? 0}`} d={arcPath(a)} style={{ strokeWidth: 1.2 + 4 * a.w, opacity: .25 + .75 * a.w }} />
           ))}
           {rec?.arcs.filter((a) => a.pct).map((a) => (
-            <text class={`apct ${a.band}`} x={x(a.from)} y={(a.band === 'l1' ? Y.l1 : Y.l2) - 30 - (a.head === 1 ? 18 : 0)}>{Math.round(a.w * 100)}%</text>
+            // beside the arc's foot, between two streams, so the arc doesn't run through it
+            <text class={`apct ${a.band}`} x={x(a.from) - 10} y={(a.band === 'l1' ? Y.l1 : Y.l2) - 10 + (a.head === 1 ? 8 : 0)}>{Math.round(a.w * 100)}%</text>
           ))}
           {ph === 2 && t === 0 && <>
             <path class="never" d={`M ${x(4)} ${EMB_END + 30} C ${x(4)} ${EMB_END + 110}, ${x(LAST)} ${EMB_END + 110}, ${x(LAST) - 6} ${Y.l1 + 30}`} />
@@ -212,8 +213,9 @@ export default function Recall() {
             <text class="nevert" x={x(4) - 12} y={EMB_END + 172}>to the last stream</text>
           </>}
           {ph >= 1 && !final && <text class="newtag" x="0" y={Y.out + 4}>outlined: new in task {t}</text>}
-          {hasArch && archT === 4 && <text class="lsub" x="0" y={Y.emb + 92}>(task 4's weights weren't exported:</text>}
-          {hasArch && archT === 4 && <text class="lsub" x="0" y={Y.emb + 110}>columns drawn empty)</text>}
+          {hasArch && archT === 4 && <text class="lsub" x="0" y={Y.emb + 92}>(task 4's weights</text>}
+          {hasArch && archT === 4 && <text class="lsub" x="0" y={Y.emb + 110}>weren't exported:</text>}
+          {hasArch && archT === 4 && <text class="lsub" x="0" y={Y.emb + 128}>columns drawn empty)</text>}
         </svg>
 
         <div class="side">
@@ -261,10 +263,10 @@ export default function Recall() {
       <style>{`
         .recall { position: relative; display: flex; flex-direction: column; gap: .3em; font-size: .62em; flex: 1; min-height: 0; }
         .recall .strip { display: flex; gap: .5em; }
-        .recall .tchip { flex: 1; padding: .3em .6em; border-radius: 9px; border: 1px solid var(--border); background: var(--sunken); color: var(--muted);
+        .recall .tchip { flex: 1; padding: .3em .6em; border-radius: 8px; color: var(--muted);
           font-size: .78em; white-space: nowrap; transition: all .3s; }
         .recall .tchip b { color: var(--fg); font-weight: 700; margin-right: .2em; }
-        .recall .tchip.cur { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--sunken)); color: var(--fg); }
+        .recall .tchip.cur { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--fg); }
         .recall .tchip.cur b { color: var(--accent); }
         .recall .tchip.todo { opacity: .45; }
         .recall .main { display: grid; grid-template-columns: 1fr 470px; gap: 1em; flex: 1; min-height: 0; transition: opacity .35s; }
@@ -295,7 +297,7 @@ export default function Recall() {
         .recall .arc.l1 { stroke: var(--attn); }
         .recall .arc.l2 { stroke: var(--l2); }
         .recall .arc.l2.h1 { stroke-dasharray: 7 5; }
-        .recall .apct { font-family: var(--mono); font-size: 17px; font-weight: 700; text-anchor: middle; }
+        .recall .apct { font-family: var(--mono); font-size: 17px; font-weight: 700; text-anchor: end; paint-order: stroke; stroke: var(--bg); stroke-width: 4px; }
         .recall .apct.l1 { fill: var(--attn); } .recall .apct.l2 { fill: var(--l2); }
         .recall .never { fill: none; stroke: var(--bad); stroke-width: 2.5; stroke-dasharray: 6 6; }
         .recall .nevert { font-size: 18px; fill: var(--bad); text-anchor: end; }
@@ -305,13 +307,13 @@ export default function Recall() {
         .recall .io .dg, .recall .cio .dg { color: var(--digit); }
         .recall .io .arr { color: var(--muted); }
         .recall .tgt { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.1; }
-        .recall .tgt .tl { font-size: 13px; color: var(--target); text-transform: uppercase; letter-spacing: .1em; }
+        .recall .tgt .tl { font-size: 13px; color: var(--target); }
         .recall .tgt code { color: var(--target); border: 2px solid var(--target); background: color-mix(in srgb, var(--target) 10%, transparent); font-size: 1em; font-weight: 700; }
         .recall .why { color: var(--muted); font-size: .9em; }
         .recall .cfg { display: flex; flex-wrap: wrap; gap: .3em; }
         .recall .cfg .pill { font-size: .72em; }
         .recall .blk { font-size: .92em; line-height: 1.35; }
-        .recall .blk .h { font-size: .72em; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: .1em; }
+        .recall .blk .h { font-size: .72em; color: var(--muted); margin-bottom: .1em; }
         .recall .blk b { color: var(--fg); }
         .recall .res { border-left: 4px solid var(--answer); padding-left: .6em; }
         .recall .res.bad { border-left-color: var(--bad); }

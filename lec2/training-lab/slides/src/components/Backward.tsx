@@ -112,7 +112,7 @@ function Graph({ step }: { step: number }) {
         );
       })}
       <text class={`gk gb ${back ? 'on' : ''}`} x={NODES.loss.x + 20} y={OPY + 70} text-anchor="end">← gradients: chain rule, edge by edge</text>
-      <text class={`gk gu ${upd ? 'on' : ''}`} x={NODES.sc.x} y={PY + 6} text-anchor="middle">every parameter: θ ← θ − update</text>
+      <text class={`gk gu ${upd ? 'on' : ''}`} x={(NODES.un.x + NODES.tgt.x) / 2} y={(PY + OPY) / 2 + 8} text-anchor="middle">every parameter: θ ← θ − update</text>
       <defs>
         <marker id="bw-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" class="ah" />
@@ -151,7 +151,8 @@ function Bars36({ v, vocab, x, y, w, h, target, pred, signed = false, fmt }: { v
           </g>
         );
       })}
-      {fmt && <text class="bv tg" x={x + (target + 1) * bw + 6} y={v[target] >= 0 ? base - Math.abs(v[target]) * scale + 14 : base + Math.abs(v[target]) * scale - 4}>{fmt(v[target])}</text>}
+      {/* the target's value goes above the chart, over its bar: beside the bar it would sit on the neighbours */}
+      {fmt && <text class="bv tg" x={x + (target + .5) * bw} y={y - 10} text-anchor="middle">{fmt(v[target])}</text>}
     </g>
   );
 }
@@ -170,7 +171,7 @@ function Panel({ step, d, t3, t1 }: { step: number; d: Step; t3: any; t1: any })
   // each stage: [caption (html), picture (svg children)]
   const S: [ComponentChildren, ComponentChildren][] = [
     [<>one update, start to finish. <b>forward</b>: run the model and score it. <b>backward</b>: derivatives of the loss. <b>optimizer</b>: change the parameters.
-      <div class="eg">worked example on every stage: <code>a2f5c9d3fc</code> → <b class="g">4</b>, a model shaped like task 3, <b>fresh weights</b> (seed 0)</div></>,
+      <div class="eg">worked example on every stage: <code>a2f5c9d3fc</code> → <b class="g">4</b>, a model shaped like <span class="nw">task 3</span>, <b>fresh weights</b> (seed 0)</div></>,
       <>{range(10).map((i) => (
         <g><rect class="tb" x={120 + i * 62} y={70} width="50" height="50" rx="8" /><text class={`tk ${dg(i)}`} x={145 + i * 62} y={105}>{chars[i]}</text></g>
       ))}<text class="arw" x={770} y={105}>→</text><rect class="tgtb" x={810} y={70} width="54" height="50" rx="8" /><text class="tk g" x={837} y={105}>4</text>
@@ -202,7 +203,7 @@ function Panel({ step, d, t3, t1 }: { step: number; d: Step; t3: any; t1: any })
         </>}
       </>],
     [<>a block never replaces the stream: it <b>adds</b> its write. the last position, at layer 2:
-      <div class="eg"><Tex tex="x_2 = x_1 + \text{attn}_2(x_1)" />; later <Tex tex="x_3 = x_2 + \text{mlp}(x_2)" /></div></>,
+      <div class="eg"><Tex tex="x_2 = x_1 + \text{attn}_2(x_1)" />; <span class="nw">later <Tex tex="x_3 = x_2 + \text{mlp}(x_2)" /></span></div></>,
       <>
         <Col v={d.last.x1} x={160} y={30} cw={34} ch={8} s={.8} label="x₁ (stream)" />
         <text class="op" x={232} y={166}>+</text>
@@ -266,7 +267,7 @@ function Panel({ step, d, t3, t1 }: { step: number; d: Step; t3: any; t1: any })
         <text class="nt mono g" x={860} y={340}>{[...V].filter((_, i) => d.emb_rows_grad[i]).join(' ')}</text>
       </>],
     [<>the <b>optimizer</b> is a separate step: it reads the gradients and changes the parameters. Adam, learning rate <Tex tex="0.001" /> (the lab's configs).
-      <div class="eg">same example, after this one step: loss <b>{d.loss.toFixed(2)}</b> → <b>{d.update.loss_after.toFixed(2)}</b></div></>,
+      <div class="eg">same example, after this one step: loss <span class="nw"><b>{d.loss.toFixed(2)}</b> → <b>{d.update.loss_after.toFixed(2)}</b></span></div></>,
       <>
         <text class="nt" x={20} y={34}>U's row for "4", first 8 of 32 numbers</text>
         {d.update.U_target_before.map((b, i) => {
@@ -384,11 +385,11 @@ export default function Backward() {
         .bw .lc { font-size: 15px; padding-right: 24px; } .bw .lch { color: var(--muted); margin-bottom: 4px; display: flex; gap: .6em; align-items: center; }
         .bw .chart .tk { font-size: 16px; }
         .bw .split { display: grid; grid-template-columns: 1fr 1fr; gap: .8em; flex: none; }
-        .bw .sp { font-size: .82em; padding: .35em .7em; border-radius: 10px; border: 1px solid var(--border); background: var(--sunken); color: var(--muted); transition: all .3s; }
+        .bw .sp { font-size: .82em; padding: .3em .7em; border-radius: 8px; color: var(--muted); transition: all .3s; }
         .bw .sp b { color: var(--fg); }
-        .bw .sp.ad { border-top: 4px solid var(--grad); } .bw .sp.op { border-top: 4px solid var(--update); }
-        .bw .sp.ad.on { background: color-mix(in srgb, var(--grad) 12%, var(--sunken)); color: var(--fg); }
-        .bw .sp.op.on { background: color-mix(in srgb, var(--update) 12%, var(--sunken)); color: var(--fg); }
+        .bw .sp.ad b { color: var(--grad); } .bw .sp.op b { color: var(--update); }
+        .bw .sp.ad.on { background: color-mix(in srgb, var(--grad) 14%, transparent); color: var(--fg); }
+        .bw .sp.op.on { background: color-mix(in srgb, var(--update) 14%, transparent); color: var(--fg); }
       `}</style>
     </div>
   );

@@ -96,16 +96,15 @@ export default function TrainStep() {
         .tr8 .lc, .tr8 .rc { display: flex; flex-direction: column; gap: .6em; min-height: 0; min-width: 0; }
         .tr8 .code { flex: 1; display: flex; flex-direction: column; gap: .3em; }
         .tr8 .code pre { font-size: 1.05em; margin: 0; background: none; }
-        .tr8 .wf { background: color-mix(in srgb, var(--accent) 5%, var(--sunken)); }
-        .tr8 .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5em; margin-top: .4em; }
-        .tr8 .tab { border: 1px solid var(--border); border-radius: 10px; background: var(--bg); padding: .35em .6em; transition: all .3s; opacity: .6; }
-        .tr8 .tab .n { font-size: .62em; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+                .tr8 .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5em; margin-top: .4em; }
+        .tr8 .tab { border-radius: 8px; padding: .35em .6em; transition: all .3s; opacity: .6; }
+        .tr8 .tab .n { font-size: .7em; color: var(--muted); }
         .tr8 .tab .t { font-weight: 700; color: var(--accent); font-size: .9em; }
         .tr8 .tab.done { opacity: .85; }
-        .tr8 .tab.on { opacity: 1; border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
-        .tr8 .tab.t1.on { border-color: var(--loss); box-shadow: 0 0 0 2px color-mix(in srgb, var(--loss) 35%, transparent); } .tr8 .tab.t1 .t { color: var(--loss); }
-        .tr8 .tab.t2.on { border-color: var(--grad); box-shadow: 0 0 0 2px color-mix(in srgb, var(--grad) 35%, transparent); } .tr8 .tab.t2 .t { color: var(--grad); }
-        .tr8 .tab.t3.on { border-color: var(--update); box-shadow: 0 0 0 2px color-mix(in srgb, var(--update) 35%, transparent); } .tr8 .tab.t3 .t { color: var(--update); }
+        .tr8 .tab.on { opacity: 1; background: color-mix(in srgb, var(--accent) 14%, transparent); }
+        .tr8 .tab.t1.on { background: color-mix(in srgb, var(--loss) 14%, transparent); } .tr8 .tab.t1 .t { color: var(--loss); }
+        .tr8 .tab.t2.on { background: color-mix(in srgb, var(--grad) 14%, transparent); } .tr8 .tab.t2 .t { color: var(--grad); }
+        .tr8 .tab.t3.on { background: color-mix(in srgb, var(--update) 14%, transparent); } .tr8 .tab.t3 .t { color: var(--update); }
         .tr8 .pic { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: .3em; }
         .tr8 .pic p { font-size: .9em; margin: .2em 0; }
         .tr8 .pic .mut { color: var(--muted); }

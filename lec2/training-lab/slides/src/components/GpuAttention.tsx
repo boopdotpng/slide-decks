@@ -57,7 +57,7 @@ export default function GpuAttention() {
         <DotRow a={r.q[L]} b={r.k[J]} x={600} y={46} cw={10} ch={20} color={diverging} scale={[scale(r.q), scale(r.k), scale(r.q) * scale(r.k) / 2]}
           la="q (a)" lb="k (7)" sum={<>Σ = {r.raw[L][J].toFixed(2)}</>} />
         <SvgHtml x={540} y={196} size={21} w={420}><Tex tex={`s_{a,7} = \\frac{1}{\\sqrt{32}}\\sum_{d=1}^{32} q_{a,d}\\,k_{7,d} = \\frac{${r.raw[L][J].toFixed(2)}}{5.66} = ${S[L][J].toFixed(2)}`} /></SvgHtml>
-        <SvgHtml x={540} y={262} size={19} w={420} h={60}><span>row <b>a</b> (a query position) × column <b>7</b> (a source position)</span></SvgHtml>
+        <SvgHtml x={540} y={262} size={19} w={420} h={60}><span>query row <b>a</b> × source column <b>7</b></span></SvgHtml>
         <SvgHtml x={540} y={296} size={19} w={420} h={60}><span>32 multiplies, 31 adds: one cell of <Tex tex="S" /></span></SvgHtml>
       </g>
       {/* 2: all of them */}
@@ -105,7 +105,7 @@ export default function GpuAttention() {
         <SvgHtml x={540} y={140} size={19} w={430}><span>a row with large scores: <Tex tex="(90,\ 88,\ -\infty)" /></span></SvgHtml>
         <SvgHtml x={540} y={186} size={19} w={430} h={60}><span class="badt">naive: <Tex tex="e^{90} = \infty" /> in float32 → <Tex tex="\infty/\infty" /> = NaN</span></SvgHtml>
         <SvgHtml x={540} y={236} size={19} w={430} h={60}><span>subtract the max: <Tex tex="e^{0},\ e^{-2},\ e^{-\infty}" /></span></SvgHtml>
-        <SvgHtml x={540} y={278} size={19} w={430} h={60}><span class="goodt"><Tex tex="\to (0.881,\ 0.119,\ 0)" />: same answer, no overflow</span></SvgHtml>
+        <SvgHtml x={540} y={278} size={18} w={410} h={60}><span class="goodt"><Tex tex="\to (0.881,\ 0.119,\ 0)" />: same answer, no overflow</span></SvgHtml>
         <SvgHtml x={540} y={330} size={17} w={430} h={60}><span class="mut">float32 tops out near <Tex tex="3.4\times10^{38}" />; <Tex tex="e^{89}" /> is already larger</span></SvgHtml>
       </g>
       {/* 6: FlashAttention */}
@@ -213,12 +213,11 @@ export default function GpuAttention() {
         .gpu .kv text { font-family: var(--mono); font-size: 15px; fill: var(--fg); text-anchor: middle; }
         .gpu .badt { color: var(--bad); } .gpu .goodt { color: var(--good); } .gpu .mut { color: var(--muted); }
         .gpu .cards { display: flex; flex-direction: column; gap: .5em; }
-        .gpu .cc { display: flex; gap: .7em; align-items: flex-start; padding: .55em .7em; border-radius: 12px; border: 1px solid var(--border); background: var(--sunken);
-          transition: opacity .3s, border-color .3s, background .3s; flex: none; }
+        .gpu .cc { display: flex; gap: .7em; align-items: flex-start; padding: .45em .7em; border-radius: 8px;
+          transition: opacity .3s, background .3s; flex: none; }
         .gpu .cc.later { opacity: .45; }
-        .gpu .cc.cur { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--sunken)); }
-        .gpu .cc .n { font-family: var(--mono); font-weight: 700; font-size: .85em; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent);
-          border-radius: 7px; padding: .15em .4em; }
+        .gpu .cc.cur { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+        .gpu .cc .n { font-family: var(--mono); font-weight: 700; font-size: .85em; color: var(--accent); padding-top: .15em; }
         .gpu .cc .t { font-weight: 700; font-size: 1.05em; color: var(--fg); }
         .gpu .cc .q { color: var(--muted); font-size: .9em; }
         .gpu .cc .more { font-size: .88em; line-height: 1.35; max-height: 0; overflow: hidden; opacity: 0; transition: opacity .35s; }

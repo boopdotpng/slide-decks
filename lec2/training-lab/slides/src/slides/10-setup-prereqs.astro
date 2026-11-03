@@ -14,7 +14,7 @@ import '../components/lab.css';
       <span class="os"><em>mac</em> <code>xcode-select --install</code> if it's missing</span>
       <span class="os"><em>windows</em> install <a href="https://github.com/llvm/llvm-project/releases">LLVM</a>, add its <code>bin</code> folder to PATH, reopen the terminal</span></div>
     <div class="it"><b>an editor</b><span>VS Code or similar</span></div>
-    <div class="it"><b>CPU as the first device</b><span>tinygrad turns tensor code into C, and clang compiles it (slide 7)</span></div>
+    <div class="it"><b>CPU as the first device</b><span>tinygrad turns tensor code into C, and clang compiles it <span class="nw">(slide 7)</span></span></div>
     <div class="it"><b>tinygrad 0.14.0</b><span>pinned by <code>requirements.txt</code>: <code>tinygrad==0.14.0</code>. setup installs it for you</span></div>
   </div>
   <div class="card bar-n step proj">
@@ -28,12 +28,14 @@ cd transformer-training-lab</pre>
 </div>
 <div class="src">sources: <a href="https://github.com/rvfvn/transformer-training-lab/blob/main/README.md">[13]</a> <a href="https://github.com/rvfvn/transformer-training-lab">[14]</a></div>
 <style>
-  .pre10 { display: grid; grid-template-columns: 1.15fr 1fr; gap: .8em; font-size: .6em; width: 100%; align-items: start; }
-  .need { display: flex; flex-direction: column; gap: .45em; }
+  .pre10 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 1.2em; font-size: .66em; width: 100%; align-items: start; }
+  .need { display: flex; flex-direction: column; gap: .35em; }
   .need h3, .proj h3 { color: var(--accent); }
   .it { display: block; padding-bottom: .3em; border-bottom: 1px solid var(--border); }
   .it > b { margin-right: .4em; }
   .it > span { display: block; }
+  /* the first line of each item sits beside its title, like slide 12's checks */
+  .it > b + span { display: inline; }
   .it:last-child { border-bottom: none; }
   .it span { color: var(--muted); font-size: .9em; }
   .it .os em { font-style: normal; font-weight: 700; color: var(--fg); margin-right: .3em; }

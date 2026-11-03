@@ -150,15 +150,12 @@ export default function Execution() {
         .ex { flex: 1; min-height: 0; }
         .ex .xin { display: grid; grid-template-columns: 340px 1fr; gap: .7em; height: 100%; font-size: .6em; }
         .ex .pipe { display: flex; flex-direction: column; gap: .45em; padding: .5em .6em; }
-        .ex .ps { display: flex; gap: .6em; align-items: center; padding: .45em .6em; border-radius: 10px; border: 1px solid var(--border);
-          background: color-mix(in srgb, var(--accent) 5%, var(--sunken)); opacity: .55; transition: all .3s; }
-        .ex .ps.late { background: color-mix(in srgb, var(--hot) 5%, var(--sunken)); }
+        .ex .ps { display: flex; gap: .6em; align-items: center; padding: .4em .6em; border-radius: 8px; opacity: .55; transition: all .3s; }
         .ex .ps.done { opacity: .85; }
-        .ex .ps.on { opacity: 1; border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
-        .ex .ps.late.on { border-color: var(--hot); box-shadow: 0 0 0 2px color-mix(in srgb, var(--hot) 35%, transparent); }
-        .ex .ps .n { flex: none; width: 1.6em; height: 1.6em; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: .85em;
-          background: var(--accent); color: var(--on-color); }
-        .ex .ps.late .n { background: var(--hot); }
+        .ex .ps.on { opacity: 1; background: color-mix(in srgb, var(--accent) 14%, transparent); }
+        .ex .ps.late.on { background: color-mix(in srgb, var(--hot) 14%, transparent); }
+        .ex .ps .n { flex: none; width: 1.2em; font-family: var(--mono); font-weight: 700; color: var(--accent); }
+        .ex .ps.late .n { color: var(--hot); }
         .ex .ps .t { font-weight: 700; color: var(--accent); font-size: .92em; }
         .ex .ps.late .t { color: var(--hot); }
         .ex .ps .s { font-size: .78em; color: var(--muted); }
@@ -169,7 +166,7 @@ export default function Execution() {
         .ex .fw.on { opacity: 1; color: var(--fg); }
         .ex .fw b { color: var(--fg); }
         .ex .call, .ex .call2 { font-size: .85em; text-align: center; opacity: .3; transition: opacity .3s; }
-        .ex .call { background: color-mix(in srgb, var(--hot) 8%, var(--sunken)); border-color: color-mix(in srgb, var(--hot) 40%, transparent); color: var(--hot); }
+        .ex .call { color: var(--hot); }
         .ex .call b { color: var(--hot); }
         .ex .call.on, .ex .call2.on { opacity: 1; }
         .ex p { margin: .4em 0; }
@@ -186,7 +183,7 @@ export default function Execution() {
         .ex .gl { font-size: 16px; fill: var(--muted); text-anchor: middle; }
         .ex .gl.b { fill: var(--accent); font-size: 18px; }
         .ex .v2 { display: flex; flex-direction: column; gap: .35em; }
-        .ex .kb { border: 2px solid var(--border); border-radius: 10px; padding: .3em .6em; background: var(--sunken); }
+        .ex .kb { border-left: 3px solid var(--border); padding: .2em .7em; }
         .ex .kb.k0 { border-color: var(--accent); } .ex .kb.k1, .ex .kb.k2, .ex .kb.k3 { border-color: color-mix(in srgb, var(--hot) 60%, transparent); }
         .ex .kh { display: flex; gap: .7em; align-items: baseline; }
         .ex .kh code { font-weight: 700; }

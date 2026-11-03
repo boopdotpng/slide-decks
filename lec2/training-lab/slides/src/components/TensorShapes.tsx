@@ -49,7 +49,7 @@ export default function TensorShapes() {
   if (step === 2) { cols = 32; cw = 11; }
   if (step === 3) { cols = 9; }
   if (step === 4) { rows = 1; cols = 36; cw = 11; }
-  if (step >= 5) { rows = 1; cols = 1; cw = 60; ch = 40; }
+  if (step >= 5) { rows = 1; cols = 1; cw = 150; ch = 70; }
   if (ten) { rows = 10; cols = 10; cw = 27; ch = 27; }
   const stack = step >= 1 && step !== 5 && step !== 6 ? NB : step >= 5 && !ten ? NB : 1;
   const W = cols * cw, Hh = rows * ch;
@@ -66,6 +66,8 @@ export default function TensorShapes() {
     if (ten) return { fill: c > r ? 'var(--panel)' : 'color-mix(in srgb, var(--accent) 22%, var(--surface))' };
     return { fill: 'var(--surface)', t: (-Math.log(p7)).toFixed(4) };
   };
+  // the loss stack (steps 5, 6) sits lower, so the slabs behind it stay under its caption
+  const fy = step === 5 || step === 6 ? 210 : FY;
   const shapeNow = ['(9,)', '(16, 9)', '(16, 9, 32)', '(16, 9, 9)', '(16, 36)', '()', '()', '(16, 10, 10)'][step] ?? '';
   return (
     <div class="ts" ref={root}><div class="tin">
@@ -89,43 +91,43 @@ export default function TensorShapes() {
           <svg viewBox="0 0 700 430">
             {/* the batch: slabs behind the front one */}
             {range(stack - 1).reverse().map((b) => (
-              <rect class="back" x={FX + (b + 1) * DX} y={FY + (b + 1) * DY} width={W} height={Hh} rx="3" />
+              <rect class="back" x={FX + (b + 1) * DX} y={fy + (b + 1) * DY} width={W} height={Hh} rx="3" />
             ))}
             {range(rows).map((r) => range(cols).map((c) => {
               const k = cell(r, c);
               return <g>
-                <rect class={`c ${k.cls ?? ''}`} x={FX + c * cw} y={FY + r * ch} width={cw - 1} height={ch - 1} style={{ fill: k.fill }} />
-                {k.t && cw >= 28 && <text class={`ct ${k.cls ?? ''}`} x={FX + c * cw + cw / 2} y={FY + r * ch + ch / 2 + 6}>{k.t}</text>}
+                <rect class={`c ${k.cls ?? ''}`} x={FX + c * cw} y={fy + r * ch} width={cw - 1} height={ch - 1} style={{ fill: k.fill }} />
+                {k.t && cw >= 28 && <text class={`ct ${k.cls ?? ''}`} x={FX + c * cw + cw / 2} y={fy + r * ch + ch / 2 + 6}>{k.t}</text>}
               </g>;
             }))}
             {/* axes */}
             <g class={`ax fade ${step <= 3 || ten ? 'on' : ''}`}>
-              <path d={`M ${FX - 18} ${FY} V ${FY + Hh}`} marker-end="url(#ts-a)" />
-              <text x={FX - 26} y={FY + Hh / 2} text-anchor="end">position</text>
-              <text x={FX - 26} y={FY + Hh / 2 + 24} text-anchor="end" class="n">T = {ten ? 10 : 9}</text>
-              {step <= 1 && chars.map((c, r) => <text class={`tl ${/\d/.test(c) ? 'dg' : ''}`} x={FX + cw + 12} y={FY + r * ch + 21}>{c}</text>)}
+              <path d={`M ${FX - 18} ${fy} V ${fy + Hh}`} marker-end="url(#ts-a)" />
+              <text x={FX - 26} y={fy + Hh / 2} text-anchor="end">position</text>
+              <text x={FX - 26} y={fy + Hh / 2 + 24} text-anchor="end" class="n">T = {ten ? 10 : 9}</text>
+              {step <= 1 && chars.map((c, r) => <text class={`tl ${/\d/.test(c) ? 'dg' : ''}`} x={FX + cw + 12} y={fy + r * ch + 21}>{c}</text>)}
             </g>
             <g class={`ax fade ${step >= 1 && step !== 5 && step !== 6 ? 'on' : ''}`}>
-              <path d={`M ${FX + W + 10} ${FY + Hh + 10} L ${FX + W + 10 + DX * 15} ${FY + Hh + 10 + DY * 15}`} marker-end="url(#ts-a)" />
-              <text x={FX + W + 22 + DX * 15} y={FY + Hh + 24 + DY * 15}>batch</text>
-              <text class="n" x={FX + W + 22 + DX * 15} y={FY + Hh + 48 + DY * 15}>B = 16</text>
+              <path d={`M ${FX + W + 10} ${fy + Hh + 10} L ${FX + W + 10 + DX * 15} ${fy + Hh + 10 + DY * 15}`} marker-end="url(#ts-a)" />
+              <text x={FX + W + 22 + DX * 15} y={fy + Hh + 24 + DY * 15}>batch</text>
+              <text class="n" x={FX + W + 22 + DX * 15} y={fy + Hh + 48 + DY * 15}>B = 16</text>
             </g>
             <g class={`ax fade ${step === 2 ? 'on' : ''}`}>
-              <path d={`M ${FX} ${FY + Hh + 14} H ${FX + W}`} marker-end="url(#ts-a)" />
-              <text x={FX + W / 2} y={FY + Hh + 40} text-anchor="middle">features  D = 32</text>
+              <path d={`M ${FX} ${fy + Hh + 14} H ${FX + W}`} marker-end="url(#ts-a)" />
+              <text x={FX + W / 2} y={fy + Hh + 40} text-anchor="middle">features  D = 32</text>
             </g>
             <g class={`ax fade ${step === 3 || ten ? 'on' : ''}`}>
-              <path d={`M ${FX} ${FY + Hh + 14} H ${FX + W}`} marker-end="url(#ts-a)" />
-              <text x={FX + W / 2} y={FY + Hh + 40} text-anchor="middle">source positions</text>
+              <path d={`M ${FX} ${fy + Hh + 14} H ${FX + W}`} marker-end="url(#ts-a)" />
+              <text x={FX + W / 2} y={fy + Hh + 40} text-anchor="middle">source positions</text>
             </g>
             <g class={`ax fade ${step === 4 ? 'on' : ''}`}>
-              <path d={`M ${FX} ${FY + Hh + 14} H ${FX + W}`} marker-end="url(#ts-a)" />
-              <text x={FX + W / 2} y={FY + Hh + 40} text-anchor="middle">36 output tokens (7 outlined)</text>
-              <text x={FX - 14} y={FY + 26} text-anchor="end">last</text>
+              <path d={`M ${FX} ${fy + Hh + 14} H ${FX + W}`} marker-end="url(#ts-a)" />
+              <text x={FX + W / 2} y={fy + Hh + 40} text-anchor="middle">36 output tokens (7 outlined)</text>
+              <text x={FX - 14} y={fy + 26} text-anchor="end">last</text>
             </g>
             <g class={`fade ${step === 5 || step === 6 ? 'on' : ''}`}>
-              <text class="ex" x={FX} y={FY - 40}>16 per-example losses → their mean</text>
-              <text class="ex m" x={FX} y={FY + 80}>front: this example's loss, −log p(7)</text>
+              <text class="ex" x={FX} y={fy + (NB - 1) * DY - 24}>16 per-example losses → their mean</text>
+              <text class="ex m" x={FX} y={fy + 110}>front: this example's loss, −log p(7)</text>
             </g>
             <text class="shape" x={4} y={36}>{shapeNow}</text>
             <defs><marker id="ts-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" class="ah" /></marker></defs>
@@ -147,7 +149,7 @@ export default function TensorShapes() {
         .ts .lcol, .ts .rcol { display: flex; flex-direction: column; gap: .6em; min-height: 0; }
         .ts .tab { padding: .4em .9em; }
         .ts .th, .ts .tr { display: grid; grid-template-columns: 1.15fr .8fr 1.6fr; gap: .6em; align-items: center; }
-        .ts .th { font-size: .62em; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: .3em .4em; border-bottom: 1px solid var(--border); }
+        .ts .th { font-size: .7em; color: var(--muted); padding: .3em .4em; border-bottom: 1px solid var(--border); }
         .ts .tr { padding: .5em .4em; border-bottom: 1px solid var(--border); border-radius: 8px; transition: background .3s, opacity .3s; }
         .ts .tr:last-child { border-bottom: none; }
         .ts .tr.on { background: color-mix(in srgb, var(--accent) 10%, transparent); }
@@ -179,7 +181,7 @@ export default function TensorShapes() {
         .ts .cap { font-size: .9em; min-height: 1.5em; }
         .ts .cap b { color: var(--fg); }
         .ts .rc { align-self: flex-start; margin-top: .3em; }
-        .ts .q { background: color-mix(in srgb, var(--accent) 6%, var(--sunken)); border-color: color-mix(in srgb, var(--accent) 35%, transparent); opacity: .35; transition: opacity .3s; }
+        .ts .q { opacity: .35; transition: opacity .3s; }
         .ts .q.on { opacity: 1; }
         .ts .qq { font-weight: 700; font-size: 1.05em; margin-top: .3em; color: var(--fg); }
         .ts .ans { margin-top: .3em; opacity: 0; transition: opacity .35s; color: var(--muted); }

@@ -82,6 +82,8 @@ export default function AttnOps() {
   const sc = (m: number[][]) => Math.max(...m.flat().map(Math.abs)) / 2;
   const mask = range(T).map((i) => range(T).map((j) => (j > i ? 1 : 0)));
   const Qp = { x: 70, y: 196, cw: 5, ch: 25 }, Kp = { x: 266, y: 34, cw: 4, ch: 25 }, Sp = { x: 266, y: 196, cw: 25, ch: 25 };
+  // before line 1, k stands upright (9 tall) over the scores' spot, so the mask sits to its right
+  const MX = Kp.x + 32 * Kp.cw + 40;
   const Vp = { x: 560, y: 196, cw: 5, ch: 25 }, Op = { x: 800, y: 196, cw: 5, ch: 25 };
   const S = step >= 3 ? r.attn : step === 2 ? scaled : r.raw;
   const sColor = step >= 3 ? (v: number) => sequential(v) : (v: number) => diverging(v, step === 2 ? 4 : 4 * SQ);
@@ -95,17 +97,17 @@ export default function AttnOps() {
         <text class="nm" x={Qp.x} y={Qp.y + T * Qp.ch + 26}>q</text>
         {/* k: drawn upright at step 0, turned over (transpose) from step 1 */}
         <Mat data={r.k} {...Kp} t={step >= 1} color={(v) => diverging(v, sc(r.k))} rowLabels={chars} labelCls={lab} hlRows={step === 1 ? [J] : []} dim={step === 1} />
-        <text class="nm" x={Kp.x - 16} y={Kp.y + 64} text-anchor="end">{step >= 1 ? 'kᵀ' : 'k'}</text>
-        <text class="sh" x={Kp.x - 16} y={Kp.y + 88} text-anchor="end">{step >= 1 ? '(32, 9)' : '(9, 32)'}</text>
+        <text class="nm" x={Kp.x - (step >= 1 ? 16 : 30)} y={Kp.y + 64} text-anchor="end">{step >= 1 ? 'kᵀ' : 'k'}</text>
+        <text class="sh" x={Kp.x - (step >= 1 ? 16 : 30)} y={Kp.y + 88} text-anchor="end">{step >= 1 ? '(32, 9)' : '(9, 32)'}</text>
         {/* scores / weights, or the mask before line 1 */}
         {step === 0 ? (
-          <Mat data={mask} {...Sp} color={(v) => (v ? 'color-mix(in srgb, var(--bad) 25%, var(--surface))' : 'var(--surface)')} text={(v) => (v ? '−∞' : '0')} textCls={(v) => (v ? 'ninf' : 'zero')} />
+          <Mat data={mask} {...Sp} x={MX} color={(v) => (v ? 'color-mix(in srgb, var(--bad) 25%, var(--surface))' : 'var(--surface)')} text={(v) => (v ? '−∞' : '0')} textCls={(v) => (v ? 'ninf' : 'zero')} />
         ) : (
           <Mat data={S} {...Sp} class="sm" color={sColor} text={sText} inv={step >= 3 ? (v) => v > .6 : undefined}
             hlCells={step === 1 || step === 2 ? [[L, J]] : []} hlRows={step === 3 || step === 4 ? [L] : []} dim={step === 4} />
         )}
-        <text class="nm" x={Sp.x} y={Sp.y + T * Sp.ch + 26}>{['mask', 'scores', 'scores', 'weights', 'weights'][step]}</text>
-        <text class="sh" x={Sp.x + 120} y={Sp.y + T * Sp.ch + 26}>(9, 9)</text>
+        <text class="nm" x={step === 0 ? MX : Sp.x} y={Sp.y + T * Sp.ch + 26}>{['mask', 'scores', 'scores', 'weights', 'weights'][step]}</text>
+        <text class="sh" x={(step === 0 ? MX : Sp.x) + 120} y={Sp.y + T * Sp.ch + 26}>(9, 9)</text>
         {step === 3 && range(T).map((i) => <text class="rs" x={Sp.x + T * Sp.cw + 10} y={Sp.y + i * Sp.ch + 18}>Σ=1</text>)}
         {step === 2 && <SvgHtml x={Sp.x} y={Sp.y - 22} size={17} w={260}><span class="mut">a·7: {r.raw[L][J].toFixed(1)} → {scaled[L][J].toFixed(2)}</span></SvgHtml>}
         {/* v and write */}
@@ -119,7 +121,7 @@ export default function AttnOps() {
           <Note x={Vp.x - 20} y={40} w={440}><span>row a: <b>{((r.attn[L][J] ?? 0) * 100).toFixed(1)}%</b> of the weight is on the 7,<br />so a's write is almost exactly the 7's value</span></Note>
         </g>
         <g class={`fd ${step === 0 ? 'on' : ''}`}>
-          <Note x={560} y={200} w={420}>the mask: row <b>i</b> may read columns <b>0 … i</b>. built once, added to every example's scores</Note>
+          <Note x={MX + T * Sp.cw + 30} y={200} w={1000 - (MX + T * Sp.cw + 30) - 10}>the mask: row <b>i</b> may read columns <b>0 … i</b>. built once, added to every example's scores</Note>
         </g>
         <g class={`fd ${step >= 1 && step <= 3 ? 'on' : ''}`}>
           <Note x={560} y={200} w={420} h={160}><span>{[null,
@@ -140,7 +142,7 @@ const CSS = <style>{`
   .ao .ln { display: flex; align-items: center; gap: .8em; padding: .25em .4em; border-radius: 8px; border: 1px solid transparent; transition: all .3s; opacity: .55; }
   .ao .ln.on { opacity: 1; background: var(--hl); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
   .ao .ln.done { opacity: .8; }
-  .ao .ln .lb { flex: none; width: 9.5em; font-size: .7em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent);
+  .ao .ln .lb { flex: none; width: 9.5em; font-size: .7em; font-weight: 700; color: var(--accent);
     background: color-mix(in srgb, var(--accent) 10%, transparent); border-radius: 6px; padding: .2em .5em; text-align: center; }
   .ao .ln code { background: none; font-size: 1.02em; white-space: pre; }
   .ao .viz { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: .3em .5em; }
@@ -156,7 +158,7 @@ const CSS = <style>{`
   .ao .mut { color: var(--muted); }
   .ao .note { font-size: 19px; line-height: 1.4; color: var(--fg); }
   .ao .mcard { display: flex; flex-direction: column; gap: .3em; flex: 1; }
-  .ao .mcard .mt { font-size: .62em; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .ao .mcard .mt { font-size: .7em; color: var(--muted); }
   .ao .mcard .katex-display { margin: .2em 0; font-size: 1em; text-align: left; }
   .ao .mcard .katex-display > .katex { text-align: left; }
   .ao .mcard .shp { color: var(--accent); font-size: .9em; }
