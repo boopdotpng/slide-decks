@@ -1,0 +1,51 @@
+---
+// what we're learning. safe to edit: any text between the tags below (titles, the lines in each box, the footnote).
+// the three boxes are plain html: .pillar (top two) and .synth (the box they meet in). no islands, no steps.
+---
+<header>
+  <div class="section">what we’re learning</div>
+  <h2>learning ml + systems to write compilers</h2>
+</header>
+<div class="learn">
+  <div class="pillars">
+    <div class="pillar ml">
+      <h3>ml foundations</h3>
+      <p class="q">how models work inside</p>
+      <ul>
+        <li>tensors: grids of numbers</li>
+        <li>gradients: how models learn</li>
+        <li>models as graphs</li>
+      </ul>
+    </div>
+    <div class="pillar sys">
+      <h3>computer systems</h3>
+      <p class="q">how the chip actually computes</p>
+      <ul>
+        <li>risc-v, memory, data movement</li>
+        <li>drivers</li>
+        <li>hand-written kernels</li>
+      </ul>
+    </div>
+  </div>
+  <div class="meet"><span>↘</span><span>↙</span></div>
+  <div class="synth">
+    <h3><span class="kick">synthesis:</span> compilers for this asic</h3>
+    <p>turn a model’s graph into kernels this chip runs</p>
+  </div>
+</div>
+<style>
+  .learn { display: flex; flex-direction: column; align-items: center; }
+  .pillars { display: flex; gap: 40px; }
+  .pillar { width: 640px; background: var(--panel); border: 2px solid var(--border); border-radius: 14px; padding: 14px 26px; }
+  .pillar.ml { border-top: 6px solid var(--accent); }
+  .pillar.sys { border-top: 6px solid var(--purple); }
+  .pillar h3 { margin: 0; font-size: 34px; }
+  .q { color: var(--muted); font-size: 22px; margin: 2px 0 8px; }
+  .pillar ul { font-size: 28px; margin: 0; }
+  .pillar li { margin: 4px 0; }
+  .meet { display: flex; gap: 420px; font-size: 48px; color: var(--faint); line-height: 1; margin: 4px 0; }
+  .synth { width: 900px; text-align: center; background: var(--tint-green); border: 3px solid var(--good); border-radius: 14px; padding: 14px 26px; }
+  .synth h3 { margin: 0 0 4px; font-size: 36px; }
+  .synth .kick { color: var(--good); }
+  .synth p { margin: 0; font-size: 24px; color: var(--muted); }
+</style>

@@ -3,6 +3,7 @@
   "private": true,
   "workspaces": [
     "engine",
-    "lec*/*/slides"
+    "lec*/*/slides",
+    "ai-day/*/slides"
   ]
 }

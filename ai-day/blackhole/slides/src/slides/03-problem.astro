@@ -1,0 +1,52 @@
+---
+// the problem (ai hides everything under model(x), on closed chips) and the answer (an ai asic that's open from the
+// driver up), on one slide. step 1 names the hidden layers of the stack.
+import Stack, { type Layer } from '../components/Stack.tsx';
+import f from '../facts.json';
+const layers: Layer[] = [
+  { t: 'your code', sub: 'model(x)', tone: 'code' },
+  { t: 'pytorch', sub: 'the library everyone uses' },
+  { t: '???', tone: 'hidden', revealAt: 1, reveal: 'graph compiler', revealSub: 'turns your model into steps' },
+  { t: '???', tone: 'hidden', revealAt: 1, reveal: 'kernel library', revealSub: 'hand-tuned code for each step' },
+  { t: '???', tone: 'hidden', revealAt: 1, reveal: 'runtime + driver', revealSub: 'talks to the hardware' },
+  { t: 'the chip', sub: 'usually one company’s gpu', tone: 'hw' },
+];
+---
+<header>
+  <div class="section">the problem</div>
+  <h2>most ai runs on closed chips. this one is open</h2>
+</header>
+<div class="prob">
+  <div class="left">
+    <div data-steps="1"><Stack client:load layers={layers} width={440} compact /></div>
+    <p class="cap"><b>one company’s gpus</b>, mostly closed software. pytorch makes ai easy, and hides everything under <code>model(x)</code></p>
+  </div>
+  <div class="right">
+    <div class="k"><b>tenstorrent blackhole: an ai asic</b><span>asic: a chip built for one job. this one multiplies huge grids of numbers, the math of ai</span></div>
+    <div class="specs">
+      <div><b>{f.card.cores}</b><span>ai cores</span></div>
+      <div><b>{f.card.memory_gb} gb</b><span>memory</span></div>
+      <div><b>${f.card.price_usd}</b><span>list price</span></div>
+      <div><b>5090-class</b><span>matrix-math speed</span></div>
+      <div class="wide"><b>open source</b><span>driver, firmware, kernels, compilers. only the circuit design is closed</span></div>
+    </div>
+    <p class="honest">weak spot: memory speed</p>
+  </div>
+</div>
+<style>
+  .prob { display: flex; gap: 64px; align-items: center; justify-content: center; }
+  .left { width: 520px; flex: none; }
+  .cap { font-size: 22px; line-height: 1.35; color: var(--muted); margin-top: 16px; }
+  .cap b { color: var(--fg); }
+  .right { width: 780px; }
+  .k { background: var(--panel); border: 2px solid var(--hot); border-radius: 12px; padding: 12px 20px; font-size: 24px; line-height: 1.3; margin-bottom: 16px; }
+  .k b { display: block; font-size: 30px; }
+  .k span { color: var(--muted); }
+  .specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .specs div { background: var(--tint-blue); border-radius: 12px; padding: 8px 14px; }
+  .specs .wide { grid-column: 1 / -1; background: var(--tint-green); }
+  .specs b { display: block; font-size: 30px; white-space: nowrap; }
+  .specs span { display: block; font-size: 19px; line-height: 1.3; color: var(--muted); }
+  .specs .wide b { display: inline; font-size: 26px; margin-right: .5em; }
+  .honest { font-size: 20px; color: var(--muted); margin-top: 14px; }
+</style>

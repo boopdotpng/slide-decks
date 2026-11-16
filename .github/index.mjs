@@ -1,7 +1,7 @@
-// writes _site/index.html: every deck in lec*/*/slides, grouped by lecture.
+// writes _site/index.html: every deck in lec*/*/slides and ai-day/*/slides, grouped by lecture (events last).
 //   bun .github/index.mjs _site
 // per deck it reads src/deck.config.ts (`title`, optional `order` to sort within a lecture)
-// and the first `<p class="muted">` of the title slide (01-*.astro) as the subtitle.
+// and the first `<p class="muted">` (or `lede`) of the title slide (01-*.astro) as the subtitle.
 import { readFileSync, readdirSync, writeFileSync, copyFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -10,7 +10,8 @@ const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, 
 const strip = (s) => s.replace(/<[^>]+>/g, '').trim();
 
 const lectures = new Map();
-for (const lec of readdirSync('.').filter((d) => /^lec\d+$/.test(d)).sort((a, b) => +a.slice(3) - +b.slice(3))) {
+const rank = (d) => (/^lec\d+$/.test(d) ? +d.slice(3) : 1e9);
+for (const lec of readdirSync('.').filter((d) => /^(lec\d+|ai-day)$/.test(d)).sort((a, b) => rank(a) - rank(b) || a.localeCompare(b))) {
   for (const topic of readdirSync(lec)) {
     const dir = join(lec, topic, 'slides');
     if (!existsSync(join(dir, 'src/deck.config.ts'))) continue;
@@ -21,7 +22,7 @@ for (const lec of readdirSync('.').filter((d) => /^lec\d+$/.test(d)).sort((a, b)
       href: `${lec}-${topic}/`,
       title: config.match(/export const title = ['"](.*)['"]/)?.[1] ?? topic,
       order: +(config.match(/export const order = (\d+)/)?.[1] ?? 99),
-      sub: strip(titleSlide.match(/<p class="muted">([\s\S]*?)<\/p>/)?.[1] ?? ''),
+      sub: strip(titleSlide.match(/<p class="(?:muted|lede)">([\s\S]*?)<\/p>/)?.[1] ?? ''),
       topic, dir, count: slides.length,
     };
     if (!lectures.has(lec)) lectures.set(lec, []);
@@ -36,7 +37,7 @@ if (existsSync(font)) copyFileSync(font, join(out, 'PaperMono.woff2'));
 
 const sections = [...lectures].map(([lec, decks]) => `
   <section>
-    <h2>lecture ${lec.slice(3)}</h2>
+    <h2>${lec.startsWith('lec') ? `lecture ${lec.slice(3)}` : lec.replace('-', ' ')}</h2>
     ${decks.sort((a, b) => a.order - b.order || a.topic.localeCompare(b.topic)).map((d) => `
     <a class="deck" href="${d.href}">
       <span class="title">${esc(d.title)}</span>
