@@ -25,17 +25,21 @@
 
 # 03-problem
 
-**say:** nearly all ai today runs on gpus from one company, through a deep, mostly closed software stack. pytorch makes ai easy, but almost nobody, students especially, sees what's under it. this card is the other way around: an asic, a chip built for one job, multiplying big grids of numbers. 120 ai cores and 28 gb of memory for $999, matrix math in the same class as an rtx 5090, and everything above the chip design is open source. it's the most open ai chip you can buy.
+**say:** nearly all ai today runs on nvidia gpus. pytorch, the library everyone uses, is open source, but almost everything under it is closed: the compiler that makes machine code, the math libraries, the runtime, the firmware, even the instruction set isn't documented. *(step)* amd is much better: its whole software stack, rocm, is open source, the instruction set is documented, and tinygrad goes further, running amd gpus with none of rocm at all, just its own compiler and a python driver. only the firmware is still locked. *(step)* this card is the other way around. every layer is open source except the circuit design, which nobody publishes. it's an asic, a chip built for one job, multiplying big grids of numbers: 120 ai cores and 28 gb of memory for $999, with matrix math in the same class as an rtx 5090. it's the most open ai chip you can buy.
 
-**step 1** names the hidden layers: graph compiler, kernel library, runtime and driver.
+**step 1** brings in amd (to the left of nvidia). **step 2** brings in tenstorrent and the card's specs.
 
 **likely questions**
-- *isn't cuda free?* free to use, but the stack under it is closed and only targets one vendor's hardware.
+- *isn't cuda free?* free to use, but the stack under it is closed and only targets nvidia hardware.
+- *nvidia's driver is open source now, right?* the linux kernel modules are (since 2022), hence the one green box. the user-space driver (libcuda), the cuda runtime, cublas / cudnn and the gpu's firmware are still closed.
+- *what about torch.compile / triton?* those are open and generate kernels, but nvidia's ptxas (closed) still turns them into machine code, and they run on the closed runtime.
+- *so why not just use amd?* amd is a great second choice and tinygrad proves it. but its firmware is signed blobs, and on the official stack you still need rocm on linux. tenstorrent opens the firmware too, and the card was built for ai from the start.
+- *what does tinygrad do on amd?* it generates amd machine code itself (tinygrad/renderer/amd) and drives the gpu from python (tinygrad/runtime/support/am), loading only amd's firmware. it's the same idea as blackhole-py, and our mac driver is a fork of tinygrad's tinygpu driver.
+- *"mostly open" firmware?* tt-system-firmware is open; a few small third-party pieces in it are binary blobs.
 - *is it faster than nvidia?* at raw matrix math it's comparable to an rtx 5090. its weak spot is memory speed (448 gb/s of gddr6), which limits how fast it can generate text.
-- *what's open source exactly?* the driver, firmware, low-level kernels, runtime and compilers. only the chip's circuit design (verilog) and a few small third-party firmware blobs aren't.
 - *what's inside a core?* 1.5 mb of its own memory (a scratchpad, no cache), a matrix engine, a vector engine and five tiny risc-v cpus: one reads data in, three drive the math (unpack, math, pack), one writes results out.
 
-**sources:** general industry framing for the problem, kept qualitative (no market-share number); cair blackhole deck appendix 1 (120 cores, 28 gb, 448 gb/s, $999); "tenstorrent blackhole architecture guide" (anuraagw.me, feb 2026): ~5090 matmul, 1.5 mb l1, 5 risc-v cores, open above the verilog.
+**sources:** amd: github.com/ROCm (llvm amdgpu, rocblas, miopen, hip, rocr), amdgpu / amdkfd in linux, amd's published rdna / cdna isa guides; tinygrad @ 7dd8c6f (renderer/amd, runtime/support/am loads psp / smu / sdma / mec firmware blobs). nvidia: open-gpu-kernel-modules (2022); cuda toolkit, cublas, cudnn, gsp firmware are closed / binary-only; sass encodings undocumented. tenstorrent: github.com/tenstorrent (tt-mlir, sfpi, tt-metal, tt-umd, tt-kmd, tt-system-firmware, tt-isa-documentation). card: cair blackhole deck appendix 1 (120 cores, 28 gb, 448 gb/s, $999); "tenstorrent blackhole architecture guide" (anuraagw.me, feb 2026): ~5090 matmul, 1.5 mb l1, 5 risc-v cores.
 
 # 04-software-catch
 
@@ -67,7 +71,18 @@
 
 **sources:** facts.json `loc` (counting script: /tmp/loc/count.py).
 
-# 06-mac
+# 06-deps
+
+**say:** and those 2.4 million lines are only tenstorrent's own code. to build the recommended pytorch path you also pull in 34 other projects' c++ libraries, 15 pinned python packages including their own build of torch-xla, and tt-mlir builds its own copy of llvm from source: another 5 million lines, pinned to one exact commit. *(step)* and it's fickle. pull the wrong llvm commit and you find out from a build error ten minutes later. every version has to line up, every time. *(step)* blackhole-py needs numpy, tokenizers, jinja2 and whatever clang is already on your machine.
+
+**likely questions**
+- *isn't every big project like this?* pretty much, which is the point: the official stack is a big-company build. to learn how the chip works, or to run it on a mac, you want something you can read in an afternoon.
+- *do you need all of these?* not all on every build: some are only for tests (googletest, benchmark) or the profiler (tracy, emsdk). the dashed ones are tenstorrent's own repos, already counted on the lines slide.
+- *why does fmt / flatbuffers / spdlog show up twice?* tt-metal and tt-umd each pull them in separately, so their versions have to agree too.
+
+**sources:** facts.json `deps`: CPMAddPackage / FetchContent / ExternalProject / submodules in each repo's cmake and .gitmodules, tt-xla python_package/requirements.txt; llvm count on a local llvm-project (llvm + mlir + lld, no tests), tt-mlir pins 4efe170 with LLVM_ENABLE_PROJECTS=mlir,lld. "build error 10 minutes later": our experience.
+
+# 07-mac
 
 **say:** blackhole-py replaces most of that stack with a python runtime and its own small firmware. on the mac there's no tt-kmd, so two pieces do its job: a small macos driver, derived from tinygrad's tinygpu driver, claims the card and maps its memory into python; about 350 lines of python do the rest (memory windows onto the chip, messages to its management core). the model code didn't change. and the egpu dock costs almost no speed: the mac uses about 81% of the p100a's memory speed, the linux desktop 78% of its p150a's.
 
@@ -78,7 +93,7 @@
 
 **sources:** blackhole-py `macos` @ 668e57b: `system_darwin.py` (356 lines, header lists the tt-kmd functions it replaces), `ttgpu-dext/README.md`; readme performance table (p150a 1b bf16 short: 6.21 ms, 161.0 tok/s, 78% dram); booth terminal (6.85 ms/token).
 
-# 07-access
+# 08-access
 
 **say:** this is the point of the egpu setup. before, running a tenstorrent card meant a linux desktop with a free pcie slot, or renting one in the cloud. now the whole setup is about $1,200: the $999 card plus a ~$200 egpu dock, on the laptop you already own. for that you get 120 ai cores and 28 gb of memory with an open stack. i don't know a cheaper way to get that much ai memory, or a more interesting chip to learn on.
 
@@ -91,13 +106,13 @@
 
 **sources:** $999 list price (facts.json); post stats from the x screenshot, 2026-11-16 (facts.json `post`, refresh before the event).
 
-# 08-learning
+# 09-learning
 
 **say:** the project is about learning both halves: how ml models work inside, and how computers and this chip actually compute. the synthesis is compilers: software that turns a model into code this chip runs.
 
 **sources:** cair blackhole project deck and interest flyer.
 
-# 09-next
+# 10-next
 
 **say:** right now every kernel in the demo is written by hand, from a python generator we built for llama. that doesn't scale past one model. so three steps: first a language for writing fast blackhole kernels, so one short program drives all five cpus in a core and both engines. then a simple compiler that turns a model's graph into kernels in that language. then plug that into tinygrad, so a researcher writes `model(x)` like on any gpu and it runs on the card. that's the `model(x)` from the problem slide, with nothing hidden underneath. the qr code is the code behind the demo.
 
