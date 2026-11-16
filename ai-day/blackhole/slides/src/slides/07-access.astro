@@ -1,4 +1,5 @@
 ---
+const base = import.meta.env.BASE_URL.replace(/\/$/, ''); // the site lives under a base path, so public/ files need it
 // why the mac port matters: who can run this chip now, what it costs, what you get, and the response when it went out.
 // the post's numbers live in facts.json (post): refresh them before the event
 import f from '../facts.json';
@@ -34,7 +35,7 @@ const p = f.post;
       <div><b>{p.name}</b> <span>{p.handle}</span></div>
     </div>
     <p class="text">{p.text}</p>
-    <img src="/img/setup.jpg" alt="" />
+    <img src={`${base}/img/setup.jpg`} alt="" />
     <div class="nums">
       <div class="big"><b>{p.views}</b><span>views</span></div>
       <div class="big"><b>{p.likes}</b><span>likes</span></div>
