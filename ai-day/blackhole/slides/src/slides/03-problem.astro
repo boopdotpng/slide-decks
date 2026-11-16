@@ -1,0 +1,28 @@
+---
+import Stack, { type Layer } from '../components/Stack.tsx';
+const layers: Layer[] = [
+  { t: 'your code', sub: 'model(x)', tone: 'code' },
+  { t: 'pytorch', sub: 'the library everyone uses' },
+  { t: '???', tone: 'hidden', revealAt: 1, reveal: 'graph compiler', revealSub: 'turns your model into steps' },
+  { t: '???', tone: 'hidden', revealAt: 1, reveal: 'kernel library', revealSub: 'hand-tuned code for each step' },
+  { t: '???', tone: 'hidden', revealAt: 1, reveal: 'runtime + driver', revealSub: 'talks to the hardware' },
+  { t: 'the chip', sub: 'usually one company’s gpu', tone: 'hw' },
+];
+---
+<header>
+  <div class="section">the problem</div>
+  <h2>almost all ai runs on chips nobody gets to look inside</h2>
+</header>
+<div class="prob">
+  <div data-steps="1"><Stack client:load layers={layers} width={520} compact /></div>
+  <ul class="pts">
+    <li>ai hardware is dominated by one company’s gpus, and most of the software that drives them is closed</li>
+    <li>tools like pytorch make ai easy to use, and hide everything underneath</li>
+    <li>very few people, students especially, ever see what happens between <code>model(x)</code> and the silicon</li>
+  </ul>
+</div>
+<style>
+  .prob { display: flex; gap: 80px; align-items: center; justify-content: center; }
+  .pts { width: 760px; font-size: .8em; line-height: 1.35; }
+  .pts li { margin: 0 0 .8em; }
+</style>

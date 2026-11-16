@@ -1,0 +1,48 @@
+{
+  "_readme": "every number on the slides comes from here. change a value once and every slide that shows it updates. each entry says where it came from.",
+  "demo": {
+    "model": "llama 3.2 1b",
+    "tok_s": 145.9,
+    "ms_per_token": 6.85,
+    "startup_s": 0.86,
+    "words_per_s": "over 100",
+    "_source": "blackhole-py macos branch, python3 llama3.py on a p100a over thunderbolt (booth terminal screenshot); ~0.75 words per token"
+  },
+  "desktop": {
+    "card": "p150a",
+    "tok_s": 161.0,
+    "ms_per_token": 6.21,
+    "_source": "blackhole-py README performance table: 1B BF16, short context, linux"
+  },
+  "card": {
+    "name": "tenstorrent blackhole p100a",
+    "cores": 120,
+    "memory_gb": 28,
+    "bandwidth_gb_s": 448,
+    "price_usd": 999,
+    "matmul_peer": "rtx 5090",
+    "core_sram_mb": 1.5,
+    "riscv_per_core": 5,
+    "vector_vs_matrix": 64,
+    "_source": "cair blackhole presentation (appendix 1); 'tenstorrent blackhole architecture guide' (anuraagw.me, feb 2026): ~5090 matmul, 1.5 MB L1, 5 risc-v cores, sfpu ~64x slower than fpu"
+  },
+  "mac": {
+    "python_lines": 350,
+    "driver": "tinygrad's tinygpu driver",
+    "_source": "system_darwin.py (356 lines) and ttgpu-dext/README.md, blackhole-py macos @ 668e57b"
+  },
+  "llama": {
+    "programs": 8,
+    "max_cores": 88,
+    "layers": 16,
+    "launches_per_token": 83,
+    "_source": "kernels/llama3-1b-p100a/manifest.json: embedding, then qkv/attention/o/gate/down for each of 16 layers, then lm and argmax"
+  },
+  "rmsnorm": {
+    "vector_only": 1471,
+    "hybrid": 1306,
+    "tuned": 996,
+    "_source": "'intro to kernel writing on blackhole' (anuraagw.me, sep 2026), 2048-element rmsnorm, cycles"
+  },
+  "repo": "github.com/boopdotpng/blackhole-py"
+}

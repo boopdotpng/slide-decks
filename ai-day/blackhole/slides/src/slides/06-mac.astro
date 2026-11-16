@@ -1,0 +1,47 @@
+---
+import Stack, { type Layer } from '../components/Stack.tsx';
+import { Bars } from 'slides/viz';
+import f from '../facts.json';
+const official: Layer[] = [
+  { t: 'your model', tone: 'dim' },
+  { t: 'tt-forge · tt-nn', tone: 'dim' },
+  { t: 'tt-metalium', tone: 'dim' },
+  { t: 'kernel library', tone: 'dim' },
+  { t: 'linux driver', tone: 'dim' },
+  { t: 'the card', tone: 'hw' },
+];
+const ours: Layer[] = [
+  { t: 'llama3.py', sub: 'the model: unchanged', tone: 'code' },
+  { t: 'blackhole-py', sub: 'a small runtime, all python', tone: 'ours' },
+  { t: `~${f.mac.python_lines} lines of python`, sub: 'doing the linux driver’s job', tone: 'ours', litAt: 1 },
+  { t: 'a small macos driver', sub: `forked from ${f.mac.driver}`, tone: 'ours', litAt: 1 },
+  { t: 'the card', sub: 'over thunderbolt', tone: 'hw' },
+];
+---
+<header>
+  <div class="section">how it runs on a mac</div>
+  <h2>we rebuilt the bottom of the stack in a few files anyone can read</h2>
+</header>
+<div class="mac">
+  <div class="stacks">
+    <Stack client:load title="official" layers={official} width={300} compact />
+    <div data-steps="1"><Stack client:load title="blackhole-py on a mac" layers={ours} width={460} compact /></div>
+  </div>
+  <div class="side">
+    <h3>speed, tokens per second</h3>
+    <div class="bigbars"><Bars values={[f.demo.tok_s, f.desktop.tok_s]} labels={['mac laptop + p100a', 'linux desktop + p150a']} max={170} width={200}
+      fmtV={(v) => v.toFixed(0)} hl={0} /></div>
+    <p class="cap">a laptop over thunderbolt gets within ~10% of a full desktop setup</p>
+    <p class="callout">the model code didn’t change at all. only how python reaches the card</p>
+  </div>
+</div>
+<style>
+  .mac { display: flex; gap: 44px; align-items: center; justify-content: center; }
+  .stacks { display: flex; gap: 36px; align-items: flex-end; }
+  .side { width: 500px; font-size: 26px; }
+  .side h3 { font-size: 26px; color: var(--muted); font-weight: 500; }
+  .bigbars { font-size: 38px; }
+  .bigbars :global(.bars) { row-gap: 14px; }
+  .cap { font-size: 22px; color: var(--muted); margin-top: 10px; }
+  .callout { margin-top: 30px; font-size: 30px; font-weight: 650; color: var(--good); line-height: 1.25; }
+</style>

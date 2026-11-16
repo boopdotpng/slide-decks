@@ -1,0 +1,40 @@
+---
+// what's next. safe to edit: the headline, the three .item boxes, and the qr caption.
+// the qr code points at the blackhole-py repo (src/qr-repo.ts holds it, made with python qrcode; regenerate it for another link).
+import { QR_PATH, QR_SIZE } from '../qr-repo';
+import f from '../facts.json';
+---
+<header>
+  <div class="section">what’s next</div>
+  <h2>next: building out more of the software stack for this chip</h2>
+</header>
+<div class="next">
+  <div class="items">
+    <div class="item"><b>a compiler for whole models</b><span>take a model as a graph of operations and lower all of it onto the chip, not one hand-written kernel at a time</span></div>
+    <div class="item"><b>more operations, more models</b><span>grow the set of building blocks the stack can run</span></div>
+    <div class="item"><b>make it faster</b><span>profile, fuse operations together, keep more of the 120 cores busy</span></div>
+  </div>
+  <div class="qr">
+    <svg viewBox={`-4 -4 ${QR_SIZE + 8} ${QR_SIZE + 8}`} width="300" height="300" shape-rendering="crispEdges">
+      <rect class="qr-bg" x="-4" y="-4" width={QR_SIZE + 8} height={QR_SIZE + 8} />
+      <path class="qr-dots" d={QR_PATH} />
+    </svg>
+    <p>the code behind the demo<br /><code>{f.repo}</code></p>
+  </div>
+</div>
+<style>
+  .next { display: flex; gap: 80px; align-items: center; justify-content: center; }
+  .items { width: 860px; display: flex; flex-direction: column; gap: 18px; }
+  .item { background: var(--panel); border-left: 6px solid var(--good); border-radius: 10px; padding: 14px 24px; }
+  .item b { display: block; font-size: 34px; }
+  .item span { display: block; font-size: 24px; line-height: 1.3; color: var(--muted); margin-top: 4px; }
+  .qr { text-align: center; width: 420px; }
+  .qr svg { border-radius: 10px; }
+  /* scanners want dark dots on a light square, in either theme */
+  .qr-bg { fill: var(--fg); }
+  .qr-dots { fill: var(--bg); }
+  :global(:root[data-theme=light]) .qr-bg { fill: var(--bg); }
+  :global(:root[data-theme=light]) .qr-dots { fill: var(--fg); }
+  .qr p { font-size: 22px; color: var(--muted); margin-top: 12px; }
+  .qr code { font-size: 17px; white-space: nowrap; }
+</style>
