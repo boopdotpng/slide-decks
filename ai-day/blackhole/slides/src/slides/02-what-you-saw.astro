@@ -3,7 +3,7 @@ import f from '../facts.json';
 ---
 <header data-title="that's llama on a $999 ai card, on a macbook">
   <div class="section">the demo</div>
-  <h2>that's llama, running on a ${f.card.price_usd} ai card plugged into a macbook</h2>
+  <h2>llama on a <em>${f.card.price_usd}</em> ai card, plugged into a macbook</h2>
 </header>
 <div class="saw">
   <div class="left">
@@ -12,18 +12,17 @@ import f from '../facts.json';
       <div class="tags step">
         <span class="tag" style="left: 4%; top: 46%">tenstorrent blackhole p100a</span>
         <span class="tag" style="left: 18%; top: 88%">thunderbolt enclosure</span>
-        <span class="tag" style="left: 56%; top: 6%">a macbook, running plain python</span>
+        <span class="tag" style="left: 56%; top: 6%">macbook, plain python</span>
       </div>
     </div>
     <div class="stats">
-      <div><b>{f.demo.model}</b><span>a small chat model</span></div>
+      <div><b>{f.demo.model}</b><span>chat model</span></div>
       <div><b>{Math.round(f.demo.tok_s)} tokens / s</b><span>{f.demo.words_per_s} words a second</span></div>
-      <div><b>{f.demo.startup_s} s</b><span>to start up</span></div>
     </div>
   </div>
   <div class="right">
     <img class="termshot" src="/img/terminal.png" alt="terminal: Llama 3.2 1B on p100a, startup 0.86 s, decode 145.9 tok/s" />
-    <p class="callout">until now, this card only worked on linux</p>
+    <p class="callout">until now, this card only ran in linux desktops and full pcs</p>
   </div>
 </div>
 <style>
@@ -40,5 +39,6 @@ import f from '../facts.json';
   .stats span { display: block; font-size: 20px; line-height: 1.3; color: var(--muted); }
   .right { flex: 1; min-width: 0; }
   .termshot { width: 100%; display: block; border-radius: 12px; border: 2px solid var(--border); }
+  h2 em { font-style: normal; color: var(--good); }
   .callout { margin-top: 22px; font-size: 32px; font-weight: 650; color: var(--good); line-height: 1.25; }
 </style>

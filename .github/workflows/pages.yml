@@ -1,9 +1,10 @@
-# builds every deck (lec*/*/slides) and publishes them to github pages:
+# builds every deck (lec*/*/slides, ai-day/*/slides) and publishes them to github pages:
 #   <site>/<lec>-<topic>/   plus an index at the root
 # <site> is https://<user>.github.io/<repo> or the custom domain set in the repo's pages settings
 # (slides.anuraagw.me); configure-pages hands back the matching base path, so nothing here changes.
 # every deck uses the engine in the engine/ submodule (boopdotpng/slides) through the bun workspace at the root;
 # a new deck is picked up as soon as lecN/<topic>/slides exists and is listed in the root package.json workspaces.
+# no actions budget right now: deploy by hand with .github/deploy.sh (pushes the built site to the gh-pages branch)
 name: pages
 
 on:
@@ -35,7 +36,7 @@ jobs:
         env:
           BASE: ${{ steps.pages.outputs.base_path }}
         run: |
-          for d in lec*/*/slides; do
+          for d in lec*/*/slides ai-day/*/slides; do
             name=$(dirname "$d" | tr / -)
             echo "::group::$name"
             (cd "$d" && bunx astro build --base "$BASE/$name" --outDir "$GITHUB_WORKSPACE/_site/$name")

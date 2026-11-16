@@ -1,0 +1,44 @@
+---
+// how big the official stack is, in lines of source (facts.json loc: counting method + script there).
+// blackhole-py is the last bar on purpose: it should be nearly invisible
+import { Bars } from 'slides/viz';
+import f from '../facts.json';
+const L = f.loc;
+const repos = ['tt-metal', 'tt-mlir', 'tt-lang', 'tt-system-firmware', 'tt-umd', 'tt-exalens', 'tt-xla', 'luwen', 'tt-kmd'] as const;
+const total = repos.reduce((s, r) => s + L[r], 0);
+const names = [...repos, 'blackhole-py'];
+const values = names.map((r) => L[r as keyof typeof L] as number);
+const k = (v: number) => v >= 1e6 ? `${(v / 1e6).toFixed(2)}m` : v >= 1e4 ? `${Math.round(v / 1e3)}k` : v.toLocaleString('en-US');
+---
+<header>
+  <div class="section">the software catch</div>
+  <h2>{(total / 1e6).toFixed(1)} million lines of code</h2>
+  <p class="sub">source only: no tests, no model demos, no vendored code</p>
+</header>
+<div class="loc">
+  <div class="bigbars">
+    <Bars values={values} labels={names} max={L['tt-metal']} width={620} fmtV={k}
+      hl={names.length - 1} color={(_, i) => (i === names.length - 1 ? 'var(--good)' : 'var(--hot)')} />
+  </div>
+  <div class="side">
+    <div class="pt"><b>+ {(L.tt_metal_tests / 1e6).toFixed(1)}m</b><span>lines of tests in tt-metal</span></div>
+    <div class="pt"><b>+ {Math.round(L.tt_metal_models / 1e3)}k</b><span>lines of model demos in tt-metal</span></div>
+    <div class="pt"><b>{L.biggest_matmul_file.toLocaleString('en-US')}</b><span>lines in one matmul file</span></div>
+    <p class="callout step">blackhole-py’s runtime + mac driver: ~{(Math.round(L['blackhole-py'] / 1e3) * 1e3).toLocaleString('en-US')} lines</p>
+    <p class="fine step">kernels come from our own python generator, not counted</p>
+  </div>
+</div>
+<style>
+  .loc { display: flex; gap: 60px; align-items: center; justify-content: center; }
+  .bigbars { font-size: 36px; font-family: var(--mono); }
+  .bigbars :global(.bars) { row-gap: 22px; }
+  .bigbars :global(.track) { height: 34px; }
+  .bigbars :global(.bl) { font-size: 26px; }
+  .bigbars :global(.bar-row.hl .bl) { color: var(--good); font-weight: 700; }
+  .side { width: 420px; display: flex; flex-direction: column; gap: 20px; }
+  .pt { background: var(--panel); border-left: 6px solid var(--hot); border-radius: 10px; padding: 8px 18px; }
+  .pt b { display: block; font-size: 44px; }
+  .pt span { display: block; font-size: 22px; color: var(--muted); }
+  .fine { font-size: 20px; color: var(--muted); margin-top: -8px; }
+  .callout { margin-top: 16px; font-size: 36px; font-weight: 700; color: var(--good); line-height: 1.2; }
+</style>

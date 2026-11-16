@@ -12,7 +12,9 @@
     "card": "p150a",
     "tok_s": 161.0,
     "ms_per_token": 6.21,
-    "_source": "blackhole-py README performance table: 1B BF16, short context, linux"
+    "_source": "blackhole-py README performance table: 1B BF16, short context, linux, p150a (8 dram channels, 512 GB/s); % DRAM = share of 512 GB/s needed to read weights + lm head + kv cache once per token",
+    "bandwidth_gb_s": 512,
+    "dram_pct": 78
   },
   "card": {
     "name": "tenstorrent blackhole p100a",
@@ -24,12 +26,13 @@
     "core_sram_mb": 1.5,
     "riscv_per_core": 5,
     "vector_vs_matrix": 64,
-    "_source": "cair blackhole presentation (appendix 1); 'tenstorrent blackhole architecture guide' (anuraagw.me, feb 2026): ~5090 matmul, 1.5 MB L1, 5 risc-v cores, sfpu ~64x slower than fpu"
+    "_source": "cair blackhole presentation (appendix 1); 'tenstorrent blackhole architecture guide' (anuraagw.me, feb 2026): ~5090 matmul, 1.5 MB L1, 5 risc-v cores, sfpu ~64x slower than fpu; p100a has 7 dram channels (blackhole-py README)"
   },
   "mac": {
     "python_lines": 350,
     "driver": "tinygrad's tinygpu driver",
-    "_source": "system_darwin.py (356 lines) and ttgpu-dext/README.md, blackhole-py macos @ 668e57b"
+    "_source": "system_darwin.py (356 lines) and ttgpu-dext/README.md, blackhole-py macos @ 668e57b; egpu dock ~$200 (per boop)",
+    "dock_usd": 200
   },
   "llama": {
     "programs": 8,
@@ -44,5 +47,37 @@
     "tuned": 996,
     "_source": "'intro to kernel writing on blackhole' (anuraagw.me, sep 2026), 2048-element rmsnorm, cycles"
   },
-  "repo": "github.com/boopdotpng/blackhole-py"
+  "repo": "github.com/boopdotpng/blackhole-py",
+  "post": {
+    "handle": "@boopdotpng",
+    "name": "boop",
+    "text": "you can run blackhole-py on macos now. all it took was writing a fork of tinygrad's tinygpu driver",
+    "replies": 4,
+    "reposts": 15,
+    "likes": 282,
+    "views": "14k",
+    "_source": "the macos announcement post on x, screenshot 2026-11-16 (~13 h after posting). numbers keep growing: update before the event"
+  },
+  "org": {
+    "repos": 163,
+    "archived": 28,
+    "_source": "gh repo list tenstorrent --limit 400, 2026-11-16"
+  },
+  "loc": {
+    "tt-metal": 1683522,
+    "tt-mlir": 379256,
+    "tt-lang": 162754,
+    "tt-system-firmware": 51529,
+    "tt-umd": 51333,
+    "tt-exalens": 43813,
+    "tt-xla": 43120,
+    "luwen": 17695,
+    "tt-kmd": 8163,
+    "blackhole-py": 2996,
+    "tt_metal_tests": 1821573,
+    "tt_metal_models": 963844,
+    "ttnn_cpp": 846111,
+    "biggest_matmul_file": 6371,
+    "_source": "non-blank lines in git-tracked source files (c/c++/python/rust/tablegen/asm/cmake/js), excluding tests, docs, third_party/vendored dirs and submodules; local clones of each repo, late oct - early nov 2026. blackhole-py = its .py/.c/.h/.cpp only, not the 75k lines of exported kernel assembly. script: /tmp/loc/count.py"
+  }
 }

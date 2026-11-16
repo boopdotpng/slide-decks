@@ -1,0 +1,166 @@
+---
+// the official software stack, as it actually is: every software repo on github.com/tenstorrent that sits between a model
+// and the card (hardware rtl, infra / terraform forks and demos left out), lowest level at the bottom. purple = their fork of an upstream project. status from each repo's readme /
+// archived flag, nov 2026 (`gh repo list tenstorrent`). struck out = deprecated, frozen or archived.
+// arrows: the main "feeds into" edges between layers (same-layer links left out so it stays readable)
+// step 1 lights up the path tenstorrent's readmes point pytorch users at (tt-xla -> tt-mlir -> tt-nn -> tt-metalium); step 2 stamps it
+import { Arrow } from 'slides/viz';
+import f from '../facts.json';
+type Chip = { n: string; dead?: string; fork?: boolean };
+const rows: { label: string; chips: Chip[] }[] = [
+  { label: 'your model', chips: [{ n: 'pytorch' }, { n: 'jax' }, { n: 'onnx' }, { n: 'tensorflow' }] },
+  { label: 'serve + install', chips: [{ n: 'tt-studio' }, { n: 'tt-inference-server' }, { n: 'vllm-tt-plugin' },
+    { n: 'tt-installer' }, { n: 'tt-cli' }, { n: 'tt-operator' }] },
+  { label: 'frontends', chips: [{ n: 'tt-forge' }, { n: 'tt-xla' }, { n: 'tt-forge-onnx' }, { n: 'tt-torch', dead: 'x' },
+    { n: 'pytorch2.0_ttnn', dead: 'x' }, { n: 'tt-buda', dead: 'x' }] },
+  { label: 'their forks', chips: [{ n: 'pytorch-xla', fork: true }, { n: 'tt-tvm', fork: true }, { n: 'llvm-torch-mlir', fork: true },
+    { n: 'vllm', fork: true, dead: 'x' }, { n: 'sfpi-binutils', fork: true }, { n: 'zephyr-fork', fork: true }, { n: 'ompi', fork: true },
+    { n: 'ttsim-qemu', fork: true }] },
+  { label: 'compilers', chips: [{ n: 'tt-mlir' }, { n: 'tt-lang' }, { n: 'sfpi', fork: true }, { n: 'sfpi-gcc', fork: true }] },
+  { label: 'ops + models', chips: [{ n: 'tt-nn' }, { n: 'tt-transformers' }, { n: 'tt-forge-models' }, { n: 'tt-blacksmith' }] },
+  { label: 'kernels', chips: [{ n: 'tt-metalium' }, { n: 'tt-llk', dead: 'x' }, { n: 'tt-llk-bh', dead: 'x' }, { n: 'tt-budabackend', dead: 'x' }] },
+  { label: 'drivers + fw', chips: [{ n: 'tt-umd' }, { n: 'luwen' }, { n: 'tt-dal' }, { n: 'tt-kmd' }, { n: 'tt-system-firmware' },
+    { n: 'tt-firmware', dead: 'x' }, { n: 'tt-flash' }, { n: 'tt-smi' }] },
+];
+const tools = ['tt-exalens', 'ttnn-visualizer', 'tt-perf-report', 'tt-npe', 'tracy', 'ttsim', 'tt-emule'];
+const edges: [string, string][] = [
+  ['pytorch', 'tt-xla'], ['pytorch', 'tt-forge-onnx'], ['pytorch', 'tt-torch'], ['pytorch', 'pytorch2.0_ttnn'], ['pytorch', 'tt-buda'],
+  ['jax', 'tt-xla'], ['onnx', 'tt-forge-onnx'], ['tensorflow', 'tt-forge-onnx'],
+  ['tt-inference-server', 'tt-transformers'], ['vllm-tt-plugin', 'tt-transformers'], ['tt-studio', 'tt-forge'],
+  ['tt-xla', 'pytorch-xla'], ['tt-forge-onnx', 'tt-tvm'], ['tt-torch', 'llvm-torch-mlir'], ['vllm-tt-plugin', 'vllm'],
+  ['tt-xla', 'tt-mlir'], ['tt-tvm', 'tt-mlir'], ['llvm-torch-mlir', 'tt-mlir'], ['tt-forge', 'tt-mlir'], ['sfpi-binutils', 'sfpi-gcc'],
+  ['pytorch2.0_ttnn', 'tt-nn'], ['tt-buda', 'tt-budabackend'],
+  ['tt-mlir', 'tt-nn'], ['tt-mlir', 'tt-metalium'], ['tt-lang', 'tt-metalium'],
+  ['tt-nn', 'tt-metalium'], ['sfpi', 'tt-metalium'], ['tt-transformers', 'tt-metalium'],
+  ['tt-metalium', 'tt-umd'], ['tt-metalium', 'tt-kmd'],
+  ['tt-umd', 'card'], ['luwen', 'card'], ['tt-dal', 'card'], ['tt-kmd', 'card'], ['tt-system-firmware', 'card'], ['tt-flash', 'card'], ['tt-smi', 'card'],
+];
+
+const X0 = 170, PITCH = 67, H = 42, GAP = 10, CH = 10;
+const width = (c: Chip) => Math.round(c.n.length * CH + 24);
+const pos: Record<string, { x: number; y: number; w: number }> = {};
+const laid = rows.map((r, i) => {
+  let x = X0;
+  const y = 10 + i * PITCH;
+  const chips = r.chips.map((c) => { const w = width(c); const p = { ...c, x, y, w }; pos[c.n] = p; x += w + GAP; return p; });
+  return { ...r, y, chips };
+});
+const cardY = 10 + rows.length * PITCH;
+const CARD_W = 1040;
+pos.card = { x: X0, y: cardY, w: CARD_W };
+const TX = 1240, TP = 47;
+const all = rows.flatMap((r) => r.chips);
+const deadN = all.filter((c) => c.dead).length;
+const forkN = all.filter((c) => c.fork).length + 1; // + tracy in the tools column
+// the recommended pytorch route (tt-xla readme), lit up on step 1
+const path = ['pytorch', 'tt-xla', 'pytorch-xla', 'tt-mlir', 'sfpi', 'tt-nn', 'tt-metalium', 'tt-umd', 'tt-kmd'];
+const pathEdges: [string, string][] = [['pytorch', 'tt-xla'], ['tt-xla', 'pytorch-xla'], ['tt-xla', 'tt-mlir'], ['tt-mlir', 'tt-nn'],
+  ['tt-nn', 'tt-metalium'], ['sfpi', 'tt-metalium'], ['tt-metalium', 'tt-umd'], ['tt-metalium', 'tt-kmd'], ['tt-umd', 'card'], ['tt-kmd', 'card']];
+const pathRepos = path.filter((n) => n !== 'pytorch' && !all.find((c) => c.n === n)?.fork).length;
+const pathForks = path.filter((n) => all.find((c) => c.n === n)?.fork).length;
+const end = (a: string, b: string) => {
+  const p = pos[a], q = pos[b];
+  return { from: [p.x + p.w / 2, p.y + H] as [number, number], to: [b === 'card' ? p.x + p.w / 2 : q.x + q.w / 2, q.y - 2] as [number, number] };
+};
+const which = pos['tt-buda'];
+const VH = cardY + 52;
+---
+<header>
+  <div class="section">the software catch</div>
+  <h2>so how do you actually program it?</h2>
+  <p class="sub">{f.org.repos} repos on github.com/tenstorrent, {f.org.archived} archived. the ones between your model and the card:</p>
+</header>
+<div class="mess fill">
+  <div class="diagram">
+    <svg viewBox={`0 0 1500 ${VH}`} width="100%">
+      <g class="edges">
+        {edges.map(([a, b]) => <Arrow {...end(a, b)} width={2} color="var(--line-2)" r={6} />)}
+      </g>
+      {laid.map((r) => (
+        <g>
+          <text x={X0 - 18} y={r.y + H / 2 + 6} text-anchor="end" class="rowlabel">{r.label}</text>
+          {r.chips.map((c) => (
+            <g class={['chip', c.dead && 'dead', c.fork && 'fork', r.label === 'your model' && 'model'].filter(Boolean).join(' ')}>
+              <rect x={c.x} y={c.y} width={c.w} height={H} rx={8} />
+              <text x={c.x + 12} y={c.y + H / 2 + 6}>{c.n}</text>
+            </g>
+          ))}
+        </g>
+      ))}
+      <text x={which.x + which.w + 18} y={which.y + H / 2 + 7} class="which">← which one do i use?</text>
+      <g class="card">
+        <rect x={X0} y={cardY} width={CARD_W} height={H + 4} rx={8} />
+        <text x={X0 + CARD_W / 2} y={cardY + H / 2 + 8} text-anchor="middle">the card</text>
+      </g>
+      <g class="tools">
+        <text x={TX} y={18} class="rowlabel" text-anchor="start">debug · profile · simulate</text>
+        {tools.map((t, i) => (
+          <g class={t === 'tracy' ? 'chip fork' : 'chip'}>
+            <rect x={TX} y={28 + i * TP} width={t.length * CH + 24} height={H} rx={8} />
+            <text x={TX + 12} y={28 + i * TP + H / 2 + 6}>{t}</text>
+          </g>
+        ))}
+      </g>
+    </svg>
+    <div class="legend">
+      <span class="kind">random footguns everywhere</span>
+      <span><b>{deadN}</b> <s>dead</s> repos</span>
+      <span><b>{forkN}</b> <i class="fk">forks</i> of upstream</span>
+    </div>
+    <div class="pts">
+      <div class="pt"><b>~40 min builds</b><span>first build, deps and all</span></div>
+      <div class="pt"><b>linux only</b><span>no mac, no windows</span></div>
+      <div class="pt ours"><b>ours: ~{(Math.round(f.loc['blackhole-py'] / 1e3) * 1e3).toLocaleString('en-US')} lines</b><span>runtime + mac driver. kernels from our own python generator, no tt-metal</span></div>
+    </div>
+    <div class="trace step">
+      <svg viewBox={`0 0 1500 ${VH}`} width="100%">
+        <rect x="0" y="0" width="1230" height={VH} class="dim" />
+        {pathEdges.map(([a, b]) => <Arrow {...end(a, b)} width={4} color="var(--good)" r={8} />)}
+        {path.map((n) => { const c = pos[n]; return (
+          <g class="lit"><rect x={c.x} y={c.y} width={c.w} height={H} rx={8} /><text x={c.x + 12} y={c.y + H / 2 + 6}>{n}</text></g>
+        ); })}
+        <g class="card"><rect x={X0} y={cardY} width={CARD_W} height={H + 4} rx={8} />
+          <text x={X0 + CARD_W / 2} y={cardY + H / 2 + 8} text-anchor="middle">the card</text></g>
+        <text x={860} y={pos['tt-mlir'].y + 10} class="pathlabel">the recommended pytorch path:</text>
+        <text x={860} y={pos['tt-mlir'].y + 56} class="pathcount">{pathRepos} repos + {pathForks} forks</text>
+        <text x={860} y={pos['tt-mlir'].y + 92} class="pathlabel">before you write a line of your own</text>
+      </svg>
+    </div>
+    <div class="stampwrap step"><div class="stamp">everything kind of works</div></div>
+  </div>
+</div>
+<style>
+  .mess { display: flex; flex-direction: column; gap: 14px; }
+  .diagram { position: relative; }
+  .rowlabel { font-size: 19px; fill: var(--muted); }
+  .chip rect { fill: var(--panel); stroke: var(--line); stroke-width: 1.5; }
+  .chip text { font-family: var(--mono); font-size: 17px; fill: var(--fg); }
+  .chip.model rect { fill: var(--tint-blue); stroke: var(--accent); }
+  .chip.dead rect { fill: none; stroke: var(--line); stroke-dasharray: 5 4; }
+  .chip.fork rect { stroke: var(--purple); stroke-width: 2; }
+  .chip.dead text { fill: var(--faint); text-decoration: line-through; }
+  .card rect { fill: var(--fill-amber); stroke: var(--hot); stroke-width: 2; }
+  .card text { font-size: 20px; font-weight: 700; fill: var(--fg); }
+  .legend { display: flex; gap: 40px; white-space: nowrap; align-items: baseline; font-size: 22px; color: var(--muted); margin: 6px 0 0 170px; }
+  .legend b { font-size: 30px; color: var(--fg); }
+  .legend s { color: var(--faint); }
+  .legend .fk { font-style: normal; color: var(--purple); border: 2px solid var(--purple); border-radius: 6px; padding: 0 6px; }
+  .legend .kind { color: var(--yellow); font-weight: 700; font-size: 24px; }
+  .which { font-size: 21px; font-weight: 700; fill: var(--yellow); }
+  .trace { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; }
+  .dim { fill: var(--bg); opacity: .78; }
+  .lit rect { fill: var(--tint-green); stroke: var(--good); stroke-width: 2.5; }
+  .lit text { font-family: var(--mono); font-size: 17px; fill: var(--fg); font-weight: 700; }
+  .pathlabel { font-size: 24px; fill: var(--muted); }
+  .pathcount { font-size: 44px; font-weight: 800; fill: var(--good); }
+  .stampwrap { position: absolute; inset: 0 0 40px 0; display: grid; place-items: center; pointer-events: none; }
+  .stamp { transform: rotate(-7deg); white-space: nowrap;
+    font-size: 56px; font-weight: 900; letter-spacing: -.01em; color: var(--bad); border: 7px solid var(--bad); border-radius: 16px;
+    padding: 6px 30px; background: color-mix(in srgb, var(--bg) 82%, transparent); }
+  .pts { position: absolute; right: 0; bottom: 14px; width: 270px; display: flex; flex-direction: column; gap: 10px; }
+  .pt { background: var(--panel); border-left: 6px solid var(--hot); border-radius: 10px; padding: 6px 16px; }
+  .pt b { display: block; font-size: 24px; }
+  .pt span { display: block; font-size: 17px; line-height: 1.3; color: var(--muted); }
+  .pt.ours { border-left-color: var(--good); }
+  .pt.ours b { color: var(--good); }
+</style>

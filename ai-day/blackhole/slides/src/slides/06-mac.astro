@@ -2,6 +2,11 @@
 import Stack, { type Layer } from '../components/Stack.tsx';
 import { Bars } from 'slides/viz';
 import f from '../facts.json';
+// decode is memory-bound, so compare how much of each card's memory bandwidth it uses, not raw tok/s
+// (the p100a has 7 dram channels to the p150a's 8). bytes read per token come from the desktop row:
+// 78% of 512 GB/s over 6.21 ms ≈ 2.48 GB (≈ llama 3.2 1b in bf16); the mac reads the same bytes in 6.85 ms.
+const gbPerToken = (f.desktop.dram_pct / 100) * f.desktop.bandwidth_gb_s * (f.desktop.ms_per_token / 1000);
+const macPct = Math.round((gbPerToken / (f.demo.ms_per_token / 1000) / f.card.bandwidth_gb_s) * 100);
 const official: Layer[] = [
   { t: 'your model', tone: 'dim' },
   { t: 'tt-forge · tt-nn', tone: 'dim' },
@@ -11,28 +16,28 @@ const official: Layer[] = [
   { t: 'the card', tone: 'hw' },
 ];
 const ours: Layer[] = [
-  { t: 'llama3.py', sub: 'the model: unchanged', tone: 'code' },
-  { t: 'blackhole-py', sub: 'a small runtime, all python', tone: 'ours' },
-  { t: `~${f.mac.python_lines} lines of python`, sub: 'doing the linux driver’s job', tone: 'ours', litAt: 1 },
-  { t: 'a small macos driver', sub: `forked from ${f.mac.driver}`, tone: 'ours', litAt: 1 },
+  { t: 'llama3.py', sub: 'unchanged', tone: 'code' },
+  { t: 'blackhole-py', sub: 'small runtime, mostly python', tone: 'ours' },
+  { t: `~${f.mac.python_lines} lines of python`, sub: 'sets up and talks to the card', tone: 'ours', litAt: 0 },
+  { t: 'a small macos driver', sub: 'connects the card to python', tone: 'ours', litAt: 0 },
   { t: 'the card', sub: 'over thunderbolt', tone: 'hw' },
 ];
 ---
 <header>
   <div class="section">how it runs on a mac</div>
-  <h2>we rebuilt the bottom of the stack in a few files anyone can read</h2>
+  <h2>we rebuilt the bottom of the stack in python</h2>
 </header>
 <div class="mac">
   <div class="stacks">
     <Stack client:load title="official" layers={official} width={300} compact />
-    <div data-steps="1"><Stack client:load title="blackhole-py on a mac" layers={ours} width={460} compact /></div>
+    <div><Stack client:load title="blackhole-py on a mac" layers={ours} width={460} compact /></div>
   </div>
   <div class="side">
-    <h3>speed, tokens per second</h3>
-    <div class="bigbars"><Bars values={[f.demo.tok_s, f.desktop.tok_s]} labels={['mac laptop + p100a', 'linux desktop + p150a']} max={170} width={200}
-      fmtV={(v) => v.toFixed(0)} hl={0} /></div>
-    <p class="cap">a laptop over thunderbolt gets within ~10% of a full desktop setup</p>
-    <p class="callout">the model code didn’t change at all. only how python reaches the card</p>
+    <h3>memory speed used</h3>
+    <div class="bigbars"><Bars values={[macPct, f.desktop.dram_pct]} labels={['mac + egpu dock', 'linux desktop']} max={100} width={200}
+      fmtV={(v) => `${v}%`} hl={0} /></div>
+    <p class="cap">same efficiency. the p100a just has 1/8 less memory bandwidth than the desktop’s p150a ({Math.round(f.desktop.tok_s)} vs {Math.round(f.demo.tok_s)} tok/s)</p>
+    <p class="callout">the egpu dock costs ~no speed, and the model code didn’t change</p>
   </div>
 </div>
 <style>
