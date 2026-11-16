@@ -1,0 +1,63 @@
+---
+// what the recommended pytorch path (tt-xla -> tt-mlir -> tt-metal -> tt-umd, as on the software-catch slide) pulls in
+// on top of tenstorrent's own code. per repo: third-party libraries from its cmake / submodules, tenstorrent's own repos
+// it pulls in (dashed, already counted on the lines slide), and tt-xla's pinned python packages. data + method: facts.json `deps`.
+// step 1: why that hurts (the llvm pin is fickle, our experience). step 2: what blackhole-py needs instead.
+import f from '../facts.json';
+const D = f.deps;
+const llvm = 'llvm-project';
+---
+<header>
+  <div class="section">the software catch</div>
+  <h2>and that’s before the dependencies</h2>
+  <p class="sub">what the recommended pytorch path pulls in, on top of tenstorrent’s own code</p>
+</header>
+<div class="deps">
+  <div class="rows">
+    {D.path.map((r) => (
+      <div class="row">
+        <div class="repo">{r.repo}</div>
+        <div class="chips">
+          {r.third.map((d) => d === llvm
+            ? <span class="c llvm">llvm + mlir + lld, from source</span>
+            : <span class="c">{d}</span>)}
+          {(r.py ?? []).map((d) => <span class="c py">{d}</span>)}
+          {r.own.map((d) => <span class="c own">{d}</span>)}
+        </div>
+      </div>
+    ))}
+    <p class="callout step">wrong llvm commit? a build error 10 minutes later. every version has to match, every time</p>
+    <div class="key">
+      <span><i class="c">lib</i> third-party c++</span>
+      <span><i class="c py">pkg</i> pinned python</span>
+      <span><i class="c own">repo</i> tenstorrent’s own</span>
+    </div>
+  </div>
+  <div class="side">
+    <div class="pt"><b>{D.third_party_unique}</b><span>different third-party c++ libraries</span></div>
+    <div class="pt"><b>+{(D.llvm_lines / 1e6).toFixed(1)}m</b><span>lines of llvm, built from source, pinned to one exact commit</span></div>
+    <div class="pt"><b>{D.path[0].py?.length}</b><span>pinned python packages, incl. their own torch-xla build</span></div>
+    <div class="pt ours step"><b>blackhole-py</b><span>{D.ours.slice(0, -1).join(', ')} + {D.ours.at(-1)}</span></div>
+  </div>
+</div>
+<style>
+  .deps { display: flex; gap: 40px; align-items: center; justify-content: center; }
+  .rows { width: 1060px; display: flex; flex-direction: column; gap: 14px; }
+  .row { display: flex; gap: 16px; align-items: flex-start; }
+  .repo { width: 120px; flex: none; text-align: right; font-family: var(--mono); font-size: 20px; font-weight: 700; padding-top: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .c { font-family: var(--mono); font-size: 16px; font-style: normal; padding: 3px 9px; border-radius: 7px; white-space: nowrap;
+    background: var(--panel); border: 1.5px solid var(--hot); }
+  .c.py { border-color: var(--accent); background: var(--tint-blue); }
+  .c.own { border: 1.5px dashed var(--line-2); color: var(--muted); background: none; }
+  .c.llvm { background: var(--fill-amber); border: 2px solid var(--hot); font-weight: 700; font-size: 18px; }
+  .key { display: flex; gap: 28px; margin: 6px 0 0 136px; font-size: 18px; color: var(--muted); }
+  .key .c { font-size: 14px; padding: 1px 7px; margin-right: 6px; }
+  .callout { margin: 8px 0 0 136px; font-size: 28px; font-weight: 700; color: var(--bad); line-height: 1.25; }
+  .side { width: 380px; display: flex; flex-direction: column; gap: 16px; }
+  .pt { background: var(--panel); border-left: 6px solid var(--hot); border-radius: 10px; padding: 8px 18px; }
+  .pt b { display: block; font-size: 42px; line-height: 1.1; }
+  .pt span { display: block; font-size: 20px; line-height: 1.3; color: var(--muted); }
+  .pt.ours { border-left-color: var(--good); }
+  .pt.ours b { color: var(--good); font-size: 32px; }
+</style>

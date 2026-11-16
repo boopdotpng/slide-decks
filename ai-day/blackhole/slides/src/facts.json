@@ -79,5 +79,121 @@
     "ttnn_cpp": 846111,
     "biggest_matmul_file": 6371,
     "_source": "non-blank lines in git-tracked source files (c/c++/python/rust/tablegen/asm/cmake/js), excluding tests, docs, third_party/vendored dirs and submodules; local clones of each repo, late oct - early nov 2026. blackhole-py = its .py/.c/.h/.cpp only, not the 75k lines of exported kernel assembly. script: /tmp/loc/count.py"
+  },
+  "deps": {
+    "path": [
+      {
+        "repo": "tt-xla",
+        "own": [
+          "tt-mlir",
+          "tt_forge_models"
+        ],
+        "third": [
+          "googletest"
+        ],
+        "py": [
+          "torch 2.11",
+          "jax 0.7.1",
+          "jaxlib 0.7.1",
+          "torch-xla (their build)",
+          "tt-lang wheel",
+          "pandas",
+          "seaborn",
+          "networkx",
+          "graphviz",
+          "nanobind",
+          "pyyaml",
+          "click",
+          "requests",
+          "websockets",
+          "loguru"
+        ]
+      },
+      {
+        "repo": "tt-mlir",
+        "own": [
+          "tt-metal",
+          "tt-logger"
+        ],
+        "third": [
+          "llvm-project",
+          "stablehlo",
+          "shardy",
+          "flatbuffers",
+          "model-explorer",
+          "googletest"
+        ]
+      },
+      {
+        "repo": "tt-metal",
+        "own": [
+          "umd",
+          "sfpi",
+          "ttexalens",
+          "tt-logger",
+          "tt_emule",
+          "tt-cluster-descriptors",
+          "tracy_profiler_wasm",
+          "mnist_dataset"
+        ],
+        "third": [
+          "boost",
+          "fmt",
+          "spdlog",
+          "nlohmann_json",
+          "yaml-cpp",
+          "protobuf",
+          "capnproto",
+          "flatbuffers",
+          "taskflow",
+          "range-v3",
+          "reflect",
+          "enchantum",
+          "xtensor",
+          "xtensor-blas",
+          "xtl",
+          "simd-everywhere",
+          "blake3",
+          "cadical",
+          "nanobind",
+          "cli11",
+          "tracy",
+          "benchmark",
+          "gtest",
+          "emsdk"
+        ]
+      },
+      {
+        "repo": "tt-umd",
+        "own": [
+          "tt-logger",
+          "tt_emule"
+        ],
+        "third": [
+          "fmt",
+          "spdlog",
+          "yaml-cpp",
+          "flatbuffers",
+          "nanobind",
+          "libuv",
+          "nanomsg",
+          "umd_asio",
+          "cxxopts",
+          "nanobench",
+          "tracy",
+          "gtest"
+        ]
+      }
+    ],
+    "third_party_unique": 34,
+    "llvm_lines": 5083760,
+    "llvm_pin": "4efe170",
+    "ours": [
+      "numpy",
+      "tokenizers",
+      "jinja2",
+      "a system clang"
+    ],
+    "_source": "CPMAddPackage / FetchContent_Declare / ExternalProject_Add / git submodules in each repo's cmake + .gitmodules, and tt-xla python_package/requirements.txt (local clones, late oct - early nov 2026). own = tenstorrent's own repos (already in loc), third = everyone else's; 34 unique third-party across the four repos (googletest = gtest). some are test / profiler only. llvm_lines: tt-mlir/env builds llvm-project with LLVM_ENABLE_PROJECTS=mlir,lld at pinned commit 4efe170; counted llvm/ + mlir/ + lld/ non-blank source lines without tests (4.10m + 0.88m + 0.10m) on a local llvm-project @ d682f1471d (2026-11-14), so approximate. ours: blackhole-py README requirements"
   }
 }
