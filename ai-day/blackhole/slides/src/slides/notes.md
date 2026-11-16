@@ -82,7 +82,7 @@
 
 **say:** this is the point of the egpu setup. before, running a tenstorrent card meant a linux desktop with a free pcie slot, or renting one in the cloud. now the whole setup is about $1,200: the $999 card plus a ~$200 egpu dock, on the laptop you already own. for that you get 120 ai cores and 28 gb of memory with an open stack. i don't know a cheaper way to get that much ai memory, or a more interesting chip to learn on.
 
-**step 1** brings in the post announcing the mac port: 14k views and 282 likes in under a day. people want this.
+**step 1** brings in the post announcing the mac port: 14k views and 291 likes in under a day. people want this.
 
 **step 2** shows the takeaway line.
 
