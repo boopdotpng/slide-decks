@@ -6,7 +6,7 @@ const rows = [
   ['splitting the work', 'ask for a grid; the hardware deals out blocks', 'you pick which tile gets which piece'],
   ['slow memory', 'the hardware switches to another warp', 'you overlap it: fetch the next block while computing this one'],
   ['near memory', 'registers, a small scratchpad, caches you don\'t control', '1.5 MB per tile, laid out by you'],
-  ['one math instruction', '32 lanes, one number each', 'a block times a block: 8×16 · 16×16 = 2,048 multiply-adds'],
+  ['the arithmetic', '32 lanes, one pixel each', 'a 32-lane vector unit for brighten; a matrix engine (8×16 · 16×16 = 2,048 multiply-adds) for ml'],
   ['threads sharing data', 'atomics, shared memory, barriers', 'send it: tile to tile over the network'],
 ];
 ---
