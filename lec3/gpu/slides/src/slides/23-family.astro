@@ -1,0 +1,39 @@
+---
+import Code from 'slides/Code';
+import r4 from '../asm/brighten.gfx1201.s?raw';
+import r3 from '../asm/brighten.gfx1100.s?raw';
+import c3 from '../asm/brighten.gfx942.s?raw';
+// product names per target: llvm's amdgpu processor table. gfx1310 is listed there under "rdna 5" with no products yet.
+const body = (s: string) => s.split('\n').slice(1).filter((l) => l.trim()).join('\n');
+const ins = (s: string) => body(s).split('\n').filter((l) => /^\s+[a-z]/.test(l));
+const same = (s: string) => ins(s).filter((l, i) => l === ins(r4)[i]).length;
+const n = ins(r4).length;
+const cols = [
+  { name: 'rx 9070 xt', gen: 'rdna 4 · gfx1201', code: r4, note: 'ours. one named wait per kind of load' },
+  { name: 'rx 7900 xtx', gen: 'rdna 3 · gfx1100', code: r3, note: `one s_waitcnt with the counter as an operand, the block number in s15. ${same(r3)} of ${n} instructions identical` },
+  { name: 'instinct mi300x', gen: 'cdna 3 · gfx942', code: c3, note: 'the datacenter line. waves are 64 wide (so exec is 64 bits: s_and_saveexec_b64), older spellings (dwordx2, ubyte)' },
+];
+---
+<header>
+  <div class="section">under the hood</div>
+  <h2>other amd gpus: the same program</h2>
+  <p class="sub">brighten, compiled for three of them. a different dialect each time, the same machine underneath</p>
+</header>
+<div class="fam">
+  {cols.map((c, k) => (
+    <div class={k ? 'step' : ''}>
+      <div class="fam-n"><b>{c.name}</b> <span class="muted">{c.gen}</span></div>
+      <Code lang="asm" code={body(c.code)} />
+      <div class="muted fam-note">{c.note}</div>
+    </div>
+  ))}
+</div>
+<p class="muted fam-foot step">everything in this talk is there on all three: lanes and waves, v and s registers, an exec mask, waves taking turns while they wait, lds and barriers. the compiler already has a target for the next generation too (gfx1310, "rdna 5"): no hardware yet</p>
+<style>
+  .fam { display: flex; gap: 1.2em; align-items: flex-start; }
+  .fam > div { flex: 1; min-width: 0; }
+  .fam-n { font-size: .62em; margin-bottom: .3em; }
+  .fam :global(pre) { font-size: .4em; margin: 0; }
+  .fam-note { font-size: .52em; margin-top: .5em; }
+  .fam-foot { font-size: .6em; margin-top: 1.2em; }
+</style>

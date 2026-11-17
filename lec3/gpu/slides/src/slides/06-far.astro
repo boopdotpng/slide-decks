@@ -1,0 +1,36 @@
+---
+import { LatencyRace } from 'slides/viz';
+import Map from '../components/Map.tsx';
+// measured by chips and cheese with their own microbenchmarks, on the generation before ours: vram and infinity cache
+// on an rx 7900 xtx (rdna3), lds on an rx 6900 xt (rdna2). nobody has published these for the rx 9070 xt yet. the add
+// is 5 cycles (rdna4, chips and cheese / hot chips 2025) at the 7900 xtx's 2.4 GHz. sizes on the right are the
+// rx 9070 xt's, from amd's rocm gpu specs table.
+---
+<Map client:load mini at="mem" />
+<header>
+  <div class="section">part 1 · the model</div>
+  <h2>memory is far away</h2>
+</header>
+<div class="far">
+  <div class="far-race">
+    <LatencyRace client:load track="there and back" count="round trips" rows={[
+      { name: 'a pixel, from gpu memory', ns: 235, label: '~235 ns' },
+      { name: 'a pixel, from the big cache', ns: 150, label: '~150 ns' },
+      { name: 'lds, the scratchpad', ns: 19.5, label: '~20 ns' },
+      { name: 'an add, register to register', ns: 2.1, label: '~2 ns' },
+    ]} />
+    <p class="muted far-src">measured on the generation before (rx 7900 xtx, rx 6900 xt) by chips and cheese. no published numbers for the 9070 xt yet</p>
+  </div>
+  <ul class="far-points small">
+    <li>fetching one pixel from gpu memory takes about as long as <b>100 adds</b>. brighten does one multiply per pixel: almost all of its time is waiting</li>
+    <li class="step">the caches on the map help, but they're far too: <b>32 KB</b> per compute unit, <b>8 MB</b> and <b>64 MB</b> for the whole chip</li>
+    <li class="step">a cpu's caches answer in ~1 ns. a gpu doesn't try to make memory fast. it does something else: next slide</li>
+  </ul>
+</div>
+<style>
+  .far { display: flex; gap: 3em; align-items: flex-start; }
+  .far-race { flex: 1.25; font-size: .8em; }
+  .far-src { font-size: .62em; margin-top: 1em; }
+  .far-points { flex: 1; }
+  .far-points li { margin: 0 0 .8em; }
+</style>

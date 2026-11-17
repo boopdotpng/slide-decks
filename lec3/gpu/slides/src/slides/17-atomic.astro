@@ -1,0 +1,10 @@
+---
+import Map from '../components/Map.tsx';
+import Atomic from '../components/Atomic.tsx';
+---
+<Map client:load mini at="mem" />
+<header>
+  <div class="section">part 3 · threads that cooperate</div>
+  <h2>fix 1: let the cache do the add</h2>
+</header>
+<div data-steps="4"><Atomic client:load /></div>

@@ -1,0 +1,30 @@
+---
+import { StepCode } from 'slides/viz';
+import src from '../../../brighten.cpp?raw';
+---
+<header>
+  <div class="section">part 2 · the code</div>
+  <h2>the whole program</h2>
+  <p class="sub">the kernel is the only part that runs on the gpu. the rest is an ordinary cpu program</p>
+</header>
+<div class="hp">
+  <StepCode client:load lang="cpp" code={src} class="hp-code"
+    hl={{ 1: [3, 4, 5, 6, 7, 8, 9], 2: [11, 12, 13], 3: [15, 16], 4: [17], 5: [19, 20], 6: [22], 7: [23] }} />
+  <ol class="hp-steps">
+    <li class="step">the <b>kernel</b>, the same as the last slide. the only part the gpu runs</li>
+    <li class="step"><code>main</code> runs on the cpu. the photo starts in ram, where the gpu <b>can't see it</b>: a kernel has no instruction that reaches ram</li>
+    <li class="step"><b>hipMalloc</b>: room in the gpu's 16 GB. the pointer is only good for handing to the gpu</li>
+    <li class="step"><b>hipMemcpy</b>: copy the photo ram → gpu memory, 12 MB</li>
+    <li class="step"><b>the launch</b>: how many blocks, how many threads in each, then the arguments. 46,875 blocks × 256 = one thread per pixel. it returns at once: the gpu works while the cpu carries on</li>
+    <li class="step">copy the answer back. this one waits for the kernel to finish first</li>
+    <li class="step">free. build it with <code>hipcc brighten.cpp</code>. in cuda it's the same program with <code>cuda</code> where it says <code>hip</code></li>
+  </ol>
+</div>
+<style>
+  .hp { display: flex; gap: 1.8em; align-items: flex-start; }
+  .hp :global(.hp-code) { flex: 1.35; margin-top: 0; }
+  .hp :global(.hp-code pre) { font-size: .46em; margin: 0; }
+  .hp-steps { flex: 1; font-size: .58em; margin: 0; padding-left: 1.2em; }
+  .hp-steps li { margin: 0 0 .65em; }
+  .hp-steps code { background: none; padding: 0; }
+</style>

@@ -1,0 +1,31 @@
+---
+// sizes: the photo of this deck (128 × 80, src/components/image.ts); the chip column: the map (slide 2)
+const rows = [
+  { name: 'thread', photo: '1 pixel', chip: 'a lane of a simd', shares: 'nothing: its own registers', n: '1' },
+  { name: 'wave', photo: '32 pixels, a quarter of a row', chip: 'a simd, for its whole life', shares: 'one instruction stream. an if: the exec mask', n: '32 threads' },
+  { name: 'block', photo: '256 pixels, 2 rows', chip: 'one wgp', shares: 'lds, and can wait for each other', n: 'up to 1024 threads' },
+  { name: 'grid', photo: 'the whole photo: 40 blocks', chip: 'the whole chip, in any order', shares: 'only gpu memory', n: 'as many blocks as you ask for' },
+];
+---
+<header>
+  <div class="section">part 1 · the model</div>
+  <h2>the whole model, on one slide</h2>
+  <p class="sub">you write what one thread does. you ask for a grid. the hardware does the rest</p>
+</header>
+<table class="md">
+  <tr><th></th><th>in the photo</th><th>on the chip</th><th>shares</th><th>how many</th></tr>
+  {rows.map((r, k) => (
+    <tr class={k ? 'step' : ''}>
+      <td class="md-n">{r.name}</td><td>{r.photo}</td><td>{r.chip}</td><td>{r.shares}</td><td class="muted">{r.n}</td>
+    </tr>
+  ))}
+</table>
+<p class="muted md-foot step">and one rule from slide 6: memory is far, so park lots of waves and let them take turns. next: the code</p>
+<style>
+  .md { font-size: .66em; width: 100%; }
+  .md td, .md th { padding: .55em 1.4em .55em 0; vertical-align: top; }
+  .md th { text-align: left; color: var(--muted); font-weight: 400; }
+  .md tr + tr td { border-top: 1px solid var(--border); }
+  .md-n { font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .md-foot { font-size: .66em; margin-top: 1.4em; }
+</style>

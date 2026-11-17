@@ -1,0 +1,31 @@
+---
+// cuda / hip / opencl columns: hip's own terminology table and programming model docs. the hardware column: this deck.
+const rows = [
+  ['thread', 'work-item', 'a lane of a wave', '1'],
+  ['warp', 'sub-group', 'a wave (wavefront)', '32 threads'],
+  ['block', 'work-group', 'a workgroup: waves on one wgp, sharing lds', 'up to 1024 threads'],
+  ['grid', 'ndrange', 'one launch: every block', 'as many as you ask for'],
+  ['__shared__ memory', '__local', 'lds', 'up to 64 KB per block'],
+  ['__syncthreads()', 'barrier()', 's_barrier_signal, s_barrier_wait', ''],
+  ['atomicAdd', 'atomic_add', 'ds_add_u32 (lds), global_atomic_add_u32 (memory)', ''],
+  ['tensor cores', '', 'wmma instructions', '16 × 16 tiles'],
+];
+---
+<header>
+  <div class="section">under the hood</div>
+  <h2>same things, three sets of names</h2>
+  <p class="sub">hip took cuda's words on purpose, so cuda code ports almost line for line. amd's hardware documents use opencl's</p>
+</header>
+<table class="nm">
+  <tr><th>cuda and hip say</th><th>opencl and amd's manuals say</th><th>what it is on the chip</th><th>on an rx 9070 xt</th></tr>
+  {rows.map((r, k) => (
+    <tr class={k ? 'step' : ''}><td><b>{r[0]}</b></td><td>{r[1]}</td><td>{r[2]}</td><td class="muted">{r[3]}</td></tr>
+  ))}
+</table>
+<p class="muted nm-foot step">nvidia's hardware has the same shape with its own names: a warp is 32 threads there too, and its "streaming multiprocessor" plays the part of the workgroup processor</p>
+<style>
+  .nm { font-size: .66em; width: 100%; }
+  .nm td, .nm th { padding: .45em 1.4em .45em 0; }
+  .nm tr + tr td { border-top: 1px solid var(--border); }
+  .nm-foot { font-size: .62em; margin-top: 1.2em; }
+</style>

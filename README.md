@@ -13,6 +13,7 @@ the root `package.json` is a bun workspace of the engine and every deck.
 | `lec2/os` | how an os executes programs, plus `rv`, the risc-v emulator lec 1 runs assembly on |
 | `lec2/interp` | transformers from the residual stream up, on tiny models from ~/code/ml/interp (`export.py` writes the slide data) |
 | `lec2/mnist` | train mnist for beginners (replaces the training lab): a two-layer model in tinygrad, the loss, the loop, setup, exercises (`export*.py` write the slide data) |
+| `lec3/gpu` | the gpu, bottom up, on an amd rx 9070 xt, around one photo: a map of the chip, then the model with no code (threads, waves, branches, waves taking turns, blocks and the grid), then `brighten`, then a histogram where threads must cooperate (a race → atomics → lds + barriers), then the real assembly (`build.sh` compiles `kernels/*.hip` with clang) |
 | `lec2/training-lab` | the training lab intro: attention on a gpu, the backward pass, tensors, how tinygrad runs them, then local setup (`export_step.py`, `export_kernels.py` write the slide data) |
 
 ```sh

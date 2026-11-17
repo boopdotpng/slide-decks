@@ -1,0 +1,44 @@
+---
+import Code from 'slides/Code';
+import { StepCode } from 'slides/viz';
+import Map from '../components/Map.tsx';
+import { body } from '../components/kernel';
+import src from '../../../kernels/brighten.hip?raw';
+import dark from '../../../kernels/shadows.hip?raw';
+---
+<Map client:load mini at="lane" />
+<header>
+  <div class="section">part 2 · the code</div>
+  <h2>the kernel: what one pixel does</h2>
+  <p class="sub">hip: c++ with a few extra words. this is the whole of brighten</p>
+</header>
+<div class="kn">
+  <div class="kn-code">
+    <StepCode client:load lang="cpp" code={body(src).replace(/\s+\/\/.*$/gm, '')} hl={{ 1: [0], 2: [1], 3: [2, 5], 4: [3, 4] }} />
+  </div>
+  <ol class="kn-steps">
+    <li class="step"><code>__global__</code>: this function runs on the gpu. you never call it once: you ask for a grid, and <b>every thread</b> runs it</li>
+    <li class="step">which pixel is mine? <b>block number × 256 + my number in the block</b>. the hardware hands every thread its two numbers. there's no loop and no <code>i++</code></li>
+    <li class="step"><code>if (i &lt; n)</code>: a photo's size needn't be a multiple of 256, so the last block can stick out past the end. those threads get switched off: the exec mask</li>
+    <li class="step">the body: what one pixel does. read it, multiply, cap at 255 (white), write it back. the same few lines as the cpu loop's body</li>
+  </ol>
+  <div class="step kn-dark">
+    <div class="muted kn-t">shadows: the branch from the wave slides is just an <code>if</code>. which lanes take it is decided per pixel, at run time</div>
+    <Code lang="cpp" code={body(dark).replace(/\s+\/\/.*$/gm, '')} />
+  </div>
+</div>
+<style>
+  .kn { display: grid; grid-template-columns: 1.3fr 1fr; gap: 0 2em; align-items: start; }
+  .kn-code { grid-column: 1; grid-row: 1; font-size: .58em; min-width: 0; }
+  .kn-steps { grid-column: 2; grid-row: 1 / span 2; }
+  .kn-dark { grid-column: 1; grid-row: 2; font-size: .58em; }
+  .kn-dark :global(pre) { margin: 0; font-size: .9em; }
+  .kn-code :global(pre), .kn-code :global(.step-code pre) { margin: 0; font-size: .9em; }
+  .kn-code :global(.step-code) { margin-top: 0; }
+  .kn-dark { margin-top: 1em; }
+  .kn-t { font-size: 1em; margin-bottom: .3em; }
+  .kn-t code { background: none; padding: 0; }
+  .kn-steps { font-size: .6em; margin: 0; padding-left: 1.2em; }
+  .kn-steps li { margin: 0 0 .7em; }
+  .kn-steps code { background: none; padding: 0; }
+</style>

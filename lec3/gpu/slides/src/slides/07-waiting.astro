@@ -1,0 +1,10 @@
+---
+import Map from '../components/Map.tsx';
+import Sched from '../components/Sched.tsx';
+---
+<Map client:load mini at="simd" />
+<header>
+  <div class="section">part 1 · the model</div>
+  <h2>while one wave waits, run another</h2>
+</header>
+<div data-steps="4"><Sched client:load /></div>

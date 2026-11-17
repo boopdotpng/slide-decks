@@ -1,0 +1,33 @@
+---
+// sizes: rx 9070 xt. registers / lds limits: amd's rdna4 instruction set guide. 16 GB: amd's rocm gpu specs table.
+const rows = [
+  { where: 'v registers', who: 'one thread', size: 'up to 256 × 32 bits', ins: 'v_…', hip: 'local variables: i, p' },
+  { where: 's registers', who: 'one wave', size: '106 × 32 bits', ins: 's_…', hip: 'the compiler decides' },
+  { where: 'lds', who: 'one block', size: 'up to 64 KB', ins: 'ds_load  ds_store', hip: '__shared__: the lds histogram' },
+  { where: 'the arguments', who: 'every thread, read only', size: 'a few bytes', ins: 's_load', hip: 'the kernel\'s parameters: n, a' },
+  { where: 'gpu memory', who: 'every thread, every kernel', size: '16 GB', ins: 'global_load  global_store', hip: 'hipMalloc: the photo, the bins' },
+  { where: 'ram', who: 'the cpu only', size: '', ins: 'none', hip: 'std::vector, malloc' },
+];
+---
+<header>
+  <div class="section">under the hood</div>
+  <h2>where a value can live</h2>
+  <p class="sub">nearest and smallest at the top. each one is shared by a bigger group than the one above</p>
+</header>
+<table class="sp">
+  <tr><th>where</th><th>who can see it</th><th>how much</th><th>reached with</th><th>in hip you write</th></tr>
+  {rows.map((r, k) => (
+    <tr class={`${k ? 'step' : ''} ${r.ins === 'none' ? 'far' : ''}`}>
+      <td><b>{r.where}</b></td><td>{r.who}</td><td>{r.size}</td><td><code>{r.ins}</code></td><td>{(([w, ex]) => <>{/^(_|hip|std)/.test(w) ? <code>{w}</code> : w}{ex && <span class="muted">: {ex}</span>}</>)(r.hip.split(': '))}</td>
+    </tr>
+  ))}
+</table>
+<p class="muted sp-foot step">the further down, the slower: part 3 was about moving the counting up one row, from gpu memory into lds. and the last row: a kernel can't reach ram at all, so the photo is <b>copied</b> in and out</p>
+<style>
+  .sp { font-size: .66em; width: 100%; }
+  .sp td, .sp th { padding: .5em 1.4em .5em 0; }
+  .sp tr + tr td { border-top: 1px solid var(--border); }
+  .sp code { background: none; padding: 0; }
+  .sp tr.far td { color: var(--bad); } .sp tr.far code { color: var(--bad); }
+  .sp-foot { font-size: .64em; margin-top: 1.2em; }
+</style>

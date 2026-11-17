@@ -1,0 +1,26 @@
+<header>
+  <h2>what we covered, and what it means for your code</h2>
+</header>
+<table class="recap">
+  <tr><td>the model</td><td>write what <b>one pixel</b> does, ask for a thread per pixel. 32 threads make a <b>wave</b> (one instruction for all of them), up to 1024 threads a <b>block</b> (one wgp, shared lds), every block a <b>grid</b></td></tr>
+  <tr><td>memory is far</td><td>gpu memory is ~100 adds away. a simd parks many waves and runs whichever is awake: use few registers, launch plenty of threads</td></tr>
+  <tr><td>branches</td><td>a wave has one pc. an <code>if</code> its threads disagree on runs both ways with lanes switched off: keep neighbouring pixels doing the same thing</td></tr>
+  <tr><td>sharing a counter</td><td><code>bins[p]++</code> from thousands of threads loses counts. <code>atomicAdd</code> is right, but every add makes the trip across the chip and queues at the shared cache</td></tr>
+  <tr><td>cooperating cheaply</td><td>count inside the block in <b>lds</b>, with <b>barriers</b> between the phases, then one far add per bin. blocks can't wait for each other: only threads in a block can</td></tr>
+  <tr><td>the program</td><td>copy in, launch, copy out. the gpu can't see ram</td></tr>
+</table>
+<div class="try step">
+  <p>try it: change a kernel, see what the gpu gets (needs only clang: <code>brew install llvm</code>)</p>
+  <pre class="code">lec3/gpu/build.sh                                 <span class="tok-com"># kernels/*.hip -> slides/src/asm/*.s</span>
+$EDITOR lec3/gpu/kernels/brighten.hip             <span class="tok-com"># try: drop the cap at 255, or add an if</span>
+cat lec3/gpu/slides/src/asm/brighten.gfx1201.s    <span class="tok-com"># the 14 instructions</span></pre>
+</div>
+<style>
+  .recap { font-size: .64em; }
+  .recap td { padding: .32em 1.6em .32em 0; vertical-align: top; }
+  .recap td:first-child { color: var(--muted); white-space: nowrap; }
+  .recap tr + tr td { border-top: 1px solid var(--border); }
+  .recap code, .try p code { background: none; padding: 0; }
+  .try { margin-top: 1em; font-size: .64em; }
+  .try pre { font-size: .75em; }
+</style>
