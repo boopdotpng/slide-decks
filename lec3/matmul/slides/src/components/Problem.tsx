@@ -16,11 +16,11 @@ const C = [[19, 22], [43, 50]];
 type St = { cell?: [number, number]; done: [number, number][]; threads?: boolean; flat?: boolean; text: ComponentChildren };
 const ALL: [number, number][] = [[0, 0], [0, 1], [1, 0], [1, 1]];
 const STEPS: St[] = [
-  { done: [], text: <>A is M × N, B is N × K. their product C is M × K. here, leetgpu's example 1: all 2 × 2</> },
-  { cell: [0, 0], done: [], text: <>one cell of C: <b>row 0 of A</b> times <b>column 0 of B</b>, multiplied pairwise and added up</> },
-  { cell: [1, 0], done: [[0, 0]], text: <>the next cell: row 1 of A, column 0 of B. N multiply-adds per cell, whatever the size</> },
-  { done: ALL, threads: true, text: <>every cell is the same recipe, and no cell needs another one. so: <b>one thread per cell of C</b></> },
-  { done: ALL, threads: true, flat: true, text: <>in memory each matrix is one line of floats, row after row (<b>row-major</b>). a row of C is K long, so <code>C[row][col]</code> is <code>C[row * K + col]</code></> },
+  { done: [], text: <>A has M rows and N columns, B has N rows and K columns, and C = A · B has M rows and K columns. here, leetgpu's example 1: everything is 2 × 2</> },
+  { cell: [0, 0], done: [], text: <>one cell of C = <b>a row of A</b> times <b>a column of B</b>: multiply the pairs, add them up</> },
+  { cell: [1, 0], done: [[0, 0]], text: <>the cell below uses the next row of A. every cell takes N multiplications</> },
+  { done: ALL, threads: true, text: <>no cell needs any other cell, so they can all be worked out at the same time: <b>one thread per cell</b></> },
+  { done: ALL, threads: true, flat: true, text: <>memory is one long line, so a matrix is stored row after row. a row of C has K numbers, so <code>C[row][col]</code> is at <code>row * K + col</code></> },
 ];
 
 const TEX: Record<string, string> = {
@@ -94,6 +94,7 @@ export default function Problem() {
         .problem .pr-line i.out { background: var(--hot); color: var(--on-color); }
         .problem .pr-line em { position: absolute; top: 100%; margin-top: .3em; font: .6em var(--mono); color: var(--muted); }
         .problem .pr-idx { font: .5em var(--mono); margin-top: 2em; white-space: nowrap; }
+        .problem code { white-space: nowrap; }
         .problem .pr-text { font-size: .8em; min-height: 2.4em; margin-top: 1.2em; text-align: center; }
       `}</style>
     </div>

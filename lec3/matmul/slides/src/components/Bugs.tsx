@@ -31,9 +31,9 @@ int col = blockIdx.y * blockDim.y + threadIdx.y;   // col on y
 sum += A[row * N + i] * B[i * K + col];`;
 
 const STEPS: { code: string; hl: number[]; text: ComponentChildren }[] = [
-  { code: PLUS, hl: [4], text: <><code>+=</code> adds to whatever C already held. leetgpu's C starts at zero, so it passes; reuse C or run it twice and it's wrong. write with <code>=</code></> },
-  { code: SWAP, hl: [1, 7], text: <>the call passes (M, N, K) but the kernel names them (N, M, K): inside, "N" holds M. every use is swapped as well, so the two mistakes cancel. for now</> },
-  { code: ROWX, hl: [0, 1], text: <>right answer, slow kernel. a warp is 32 neighbouring x's: with x as the column they read side by side, with x as the row their reads are N floats apart</> },
+  { code: PLUS, hl: [4], text: <><code>+=</code> adds onto whatever was already in C. it only passes because leetgpu's C starts out as zeros. use <code>=</code></> },
+  { code: SWAP, hl: [1, 7], text: <>the call sends (M, N, K), but the kernel calls them (N, M, K). they're swapped everywhere, so it happens to work, until someone edits it</> },
+  { code: ROWX, hl: [0, 1], text: <>right answer, but slow. threads next to each other in x should read numbers next to each other. with x as the row, each read is a whole row apart</> },
 ];
 
 const C0 = [19, 22, 43, 50];

@@ -7,20 +7,25 @@ import { TILED } from './kernels';
 
 /**
  * The tiled kernel, line by line, next to the block's two shared tiles (16 × 16 each) and one thread in them. The
- * edge step draws a block hanging off the right of the matrices: its threads past the edge load zeros.
+ * edge step draws a block hanging off the bottom-right corner: its threads past the edge load zeros. The code
+ * appears a few lines per step, and all of it only on the last step.
  */
 const T = 16, TX = 5, TY = 9; // the thread we point at
 const EDGE = 11; // the edge step: columns from here on are past the edge
 
-type Pic = 'empty' | 'shared' | 'mine' | 'ld' | 'dot' | 'next' | 'edge';
-const STEPS: { hl: number[]; pic: Pic; text: ComponentChildren }[] = [
-  { hl: [], pic: 'empty', text: <>the naive kernel plus three things: two shared tiles, a loop over tiles, two barriers</> },
-  { hl: [4, 5], pic: 'shared', text: <><code>__shared__</code>: one copy per block, on-chip, seen by all its 256 threads. 2 × 16 × 16 floats = 2 KB</> },
-  { hl: [10, 11, 12, 13], pic: 'mine', text: <>for each tile along N, every thread loads one number of each: its own (ty, tx) spot. past the edge of A or B, a 0, which adds nothing</> },
-  { hl: [14], pic: 'ld', text: <>a <b>barrier</b>: nobody goes on until all 256 loads are done. without it, a thread could read a spot no one has filled yet</> },
-  { hl: [16, 17], pic: 'dot', text: <>16 multiply-adds, all from shared memory: row ty of As times column tx of Bs</> },
-  { hl: [18], pic: 'next', text: <>a second barrier: the next trip round the loop overwrites both tiles, so wait until everyone is done reading them</> },
-  { hl: [20], pic: 'edge', text: <>no early return: every thread must reach every <code>__syncthreads()</code>. threads past the edge load zeros and just skip this write</> },
+type Pic = 'empty' | 'shared' | 'names' | 'loop' | 'mine' | 'full' | 'dot' | 'next' | 'edge';
+// show: how many lines of the code are visible (the rest stay hidden until their step); hl: the lines this step is about
+const STEPS: { show: number; hl: number[]; pic: Pic; text: ComponentChildren }[] = [
+  { show: 4, hl: [0, 2, 3], pic: 'empty', text: <>the same inputs as solution 1. <code>TILE</code> is just a name for 16</> },
+  { show: 6, hl: [4, 5], pic: 'shared', text: <>two 16 × 16 scratch tiles in <b>shared memory</b>: small, fast, and seen by all 256 threads of the block</> },
+  { show: 8, hl: [6, 7], pic: 'names', text: <>my row and column of C, worked out exactly like solution 1. tx and ty are short names for my x and y</> },
+  { show: 11, hl: [9, 10], pic: 'loop', text: <>go across A and down B <b>one tile at a time</b>. for the full-size problem: 6144 / 16 = 384 tiles</> },
+  { show: 14, hl: [11, 12, 13], pic: 'mine', text: <>each thread copies <b>one</b> number of A and one of B into the tiles, at its own spot. off the edge of the matrix, it writes 0</> },
+  { show: 15, hl: [14], pic: 'full', text: <><code>__syncthreads()</code>: wait until all 256 threads have copied their number. now the tiles are complete</> },
+  { show: 18, hl: [16, 17], pic: 'dot', text: <>the math, reading only the fast tiles: my row of As times my column of Bs</> },
+  { show: 20, hl: [18, 19], pic: 'next', text: <>wait again, so nobody loads the next tile over numbers someone is still using</> },
+  { show: 22, hl: [20, 21], pic: 'edge', text: <>store the answer if my cell is inside C. no early exit this time: every thread must reach every <code>__syncthreads()</code>, even ones off the edge</> },
+  { show: 22, hl: [], pic: 'full', text: <>the whole solution. same answer as solution 1, but 16 times fewer trips to the slow main memory</> },
 ];
 
 export default function Tiled() {
@@ -30,7 +35,7 @@ export default function Tiled() {
   const p = st.pic;
   const cls = (which: 'a' | 'b', r: number, c: number) => {
     if (p === 'empty') return 'off';
-    if (p === 'shared') return '';
+    if (p === 'shared' || p === 'names' || p === 'loop') return '';
     if (p === 'edge') return (which === 'a' ? r : c) >= EDGE ? 'zero' : 'ld';
     const me = r === TY && c === TX;
     if (p === 'mine') return me ? 'me' : '';
@@ -42,6 +47,7 @@ export default function Tiled() {
     <div class="tiled" ref={root}>
       <div class="td-cols">
         <div class="td-code"><Code lang="cpp" code={TILED} hl={st.hl} /></div>
+        <style>{`.tiled .td-code .ln:nth-child(n + ${st.show + 1}) { opacity: 0; }`}</style>
         <div class="td-pic">
           <div class="td-sh">
             {(['a', 'b'] as const).map((w) => (
@@ -55,9 +61,9 @@ export default function Tiled() {
           </div>
           <div class="td-sc">
             {p === 'mine' && <>thread (tx = <span class="c-t">{TX}</span>, ty = <span class="c-t">{TY}</span>):{'\n'}As[{TY}][{TX}] ← A[row][t·16 + {TX}]{'\n'}Bs[{TY}][{TX}] ← B[t·16 + {TY}][col]</>}
-            {p === 'ld' && <>all 256 spots filled</>}
+            {p === 'full' && <>all 256 spots filled</>}
             {p === 'dot' && <>sum += As[{TY}][i] * Bs[i][{TX}], i = 0 … 15</>}
-            {p === 'next' && <>done with tile t: safe to load tile t + 1</>}
+            {p === 'next' && <>everyone done with this tile: safe to load the next</>}
             {p === 'edge' && <>a block on the bottom-right corner:{'\n'}As rows past M and Bs columns past K load 0</>}
           </div>
         </div>

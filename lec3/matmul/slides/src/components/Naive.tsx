@@ -10,7 +10,8 @@ import { MM, MM_CSS } from './mm';
  * The naive kernel, line by line, next to a picture: C cut into 16 × 16 blocks (the brighten2d picture), leetgpu's
  * example 2 (a 1 × 1 answer, so 255 of the block's threads do nothing), the dot product as a row of A meeting a column
  * of B, and where those numbers sit in row-major memory. The drawn C is 64 × 48 (4 × 3 blocks); the benchmark size
- * (M = 8192, K = 4096) is in the launch step's arithmetic.
+ * (M = 8192, K = 4096) is in the launch step's arithmetic. The code appears a few lines per step, and all of it
+ * only on the last step.
  */
 const T = 16, BX = 2, BY = 1, TX = 9, TY = 6; // the block and thread we point at
 const ROW = BY * T + TY, COL = BX * T + TX;
@@ -19,13 +20,22 @@ const CW = 4 * T, CH = 3 * T; // the drawn C, in cells
 const SM = 6, SN = 8, SK = 5, R = 2, Q = 3, I = 3;
 
 type Pic = 'blocks' | 'me' | 'edge' | 'dot' | 'index' | 'launch';
-const STEPS: { hl: number[]; pic: Pic; text: ComponentChildren }[] = [
-  { hl: [], pic: 'blocks', text: <>the whole kernel: what <b>one cell</b> of C does. every thread runs all of it</> },
-  { hl: [2, 3], pic: 'me', text: <>which cell is mine: same as brighten2d. <b>x is the column, y is the row</b></> },
-  { hl: [4], pic: 'edge', text: <>sizes aren't multiples of 16. example 2's C is 1 × 1: one block of 256 threads, and 255 of them return</> },
-  { hl: [6, 7, 8], pic: 'dot', text: <>the dot product: walk along my row of A and down my column of B, N multiply-adds</> },
-  { hl: [8, 9], pic: 'index', text: <>row-major: a row of A is <b>N</b> floats long, a row of B and of C is <b>K</b>. (square-matrix code that uses N everywhere breaks here)</> },
-  { hl: [12, 13], pic: 'launch', text: <>the launch: enough 16 × 16 blocks to cover C, rounding up. x across the K columns, y down the M rows</> },
+// show: how many lines of the code are visible (the rest stay hidden until their step); hl: the lines this step is about
+const STEPS: { show: number; hl: number[]; pic: Pic; text: ComponentChildren }[] = [
+  { show: 2, hl: [0, 1], pic: 'blocks',
+    text: <><code>__global__</code> makes this a <b>kernel</b>: the gpu runs it once for every thread. A, B and C are already in the gpu's memory</> },
+  { show: 4, hl: [2, 3], pic: 'me',
+    text: <>each thread first asks: <b>which cell of C is mine?</b> skip the blocks before mine, then add my spot inside my block. x counts columns, y counts rows</> },
+  { show: 5, hl: [4], pic: 'edge',
+    text: <>C doesn't always split evenly into 16 × 16 blocks, so some threads land outside it. they stop right here</> },
+  { show: 9, hl: [6, 7, 8], pic: 'dot',
+    text: <>the math: go along my row of A and down my column of B, multiply each pair, add it to <code>sum</code></> },
+  { show: 11, hl: [9, 10], pic: 'index',
+    text: <>store the answer. each row of C is K numbers long, so C[row][col] sits at <code>row * K + col</code></> },
+  { show: 14, hl: [12, 13], pic: 'launch',
+    text: <>back on the cpu: 16 × 16 threads per block, and enough blocks to cover all of C. <code>&lt;&lt;&lt; &gt;&gt;&gt;</code> starts them</> },
+  { show: 14, hl: [], pic: 'blocks',
+    text: <>the whole solution. every thread runs these same lines, each on its own cell of C</> },
 ];
 
 const pct = (a: number, b: number) => `${(a / b) * 100}%`;
@@ -41,6 +51,7 @@ export default function Naive() {
     <div class="naive" ref={root}>
       <div class="nv-cols">
         <div class="nv-code"><Code lang="cpp" code={NAIVE} hl={st.hl} /></div>
+        <style>{`.naive .nv-code .ln:nth-child(n + ${st.show + 1}) { opacity: 0; }`}</style>
         <div class="nv-pic">
           <div class={`nv-c fade ${onC ? 'on' : ''}`}>
             <div class="nv-img">
@@ -55,8 +66,8 @@ export default function Naive() {
             <div class="muted nv-cap">C, cut into 16 × 16 blocks: one thread per cell</div>
             <div class="nv-sc">
               {pic === 'me' && <>
-                row = <span class="c-b">{BY}</span> * <span class="c-s">16</span> + <span class="c-t">{TY}</span> = <span class="c-r">{ROW}</span>,{' '}
-                col = <span class="c-b">{BX}</span> * <span class="c-s">16</span> + <span class="c-t">{TX}</span> = <span class="c-r">{COL}</span>
+                <span class="muted">blockIdx.y * blockDim.y + threadIdx.y</span>{'\n'}row = <span class="c-b">{BY}</span> * <span class="c-s">16</span> + <span class="c-t">{TY}</span> = <span class="c-r">{ROW}</span>,{' '}
+                {'\n'}col = <span class="c-b">{BX}</span> * <span class="c-s">16</span> + <span class="c-t">{TX}</span> = <span class="c-r">{COL}</span>
               </>}
               {pic === 'launch' && <>benchmark: (<span class="c-s">4096</span> + 15) / 16 = <span class="c-r">256</span> blocks across{'\n'}           (<span class="c-s">8192</span> + 15) / 16 = <span class="c-r">512</span> blocks down</>}
             </div>

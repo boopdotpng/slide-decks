@@ -9,7 +9,12 @@ some way.
 example 1 from the problem. the point of the last two steps: every cell is independent (one thread each), and
 row-major means C[row][col] is C[row * K + col]: the row length is the number of columns.
 
-# 03-naive.astro
+# 03-syntax-naive.astro
+
+vocabulary before the code: one row per step. every row here shows up in both solutions, so this slide carries
+over to solution 2. `solve` and `extern "C"` are leetgpu's wrapper: the cpu-side function their checker calls.
+
+# 04-naive.astro
 
 the full submission (passes):
 
@@ -37,18 +42,23 @@ extern "C" void solve(const float* A, const float* B, float* C, int M, int N, in
 common mistake: square-matrix code (`b[i * N + col]`, `c[row * N + col]`) works on example 1 and breaks as soon as
 N ≠ K. and without the bounds check, example 2's block writes 255 floats past the end of C.
 
-# 04-slow.astro
+# 05-slow.astro
 
 drawn with a 4 × 4 block and 8 × 8 matrices; the counts are for the drawing. real block: 16 × 16, so each row of A and
 column of B is fetched 16 times per block. benchmark: 2 · 8192 · 6144 · 4096 ≈ 412 billion float reads (≈ 1.6 TB)
 for ≈ 436 MB of matrices. the caches catch part of that; the ratio is the point.
 
-# 05-tiles.astro
+# 06-tiles.astro
 
 drawn with 4 × 4 tiles. the c tile is the block; the strip of a and strip of b go through shared memory one tile pair
 at a time. shared memory is per block (per sm), small and fast; global memory is the big slow dram.
 
-# 06-tiled.astro
+# 07-syntax-tiled.astro
+
+only the syntax solution 2 adds, each next to what solution 1 did instead. shared memory: per block, ~48 KB usable by
+default on the t4, on-chip; global memory: the 16 GB of dram.
+
+# 08-tiled.astro
 
 same launch shape as the naive kernel (16 × 16 blocks, one thread per cell of C). the full submission (passes):
 
@@ -85,7 +95,7 @@ extern "C" void solve(const float* A, const float* B, float* C, int M, int N, in
 the barriers are the same idea as the histogram's lds version in the gpu deck. a __syncthreads() that some threads of
 the block skip is undefined behaviour (in practice it can hang or silently mis-sync), hence no early return.
 
-# 07-bugs.astro
+# 09-bugs.astro
 
 all three are real leetgpu submissions for this problem, trimmed. 1: `C[idx] += sum` relies on C starting at zero.
 2: the kernel's parameters are named (N, M, K) while solve passes (M, N, K); every use inside is swapped too, so it

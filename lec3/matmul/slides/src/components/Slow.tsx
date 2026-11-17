@@ -17,13 +17,13 @@ type St = { rows: number; cols: number; reads: number; distinct: number; text: C
 // rows × cols of the block's threads lit; reads = every thread fetches 2 · S numbers
 const STEPS: St[] = [
   { rows: 1, cols: 1, reads: 2 * S, distinct: 2 * S,
-    text: <>one thread: a whole row of A and a whole column of B, straight from <b>global memory</b> (the slow, off-chip kind)</> },
+    text: <>one thread reads a whole row of A and a whole column of B from the gpu's <b>main memory</b>: big, but slow to reach</> },
   { rows: 1, cols: BW, reads: BW * 2 * S, distinct: S + BW * S,
-    text: <>its neighbours in the same row of the block read <b>the same row of A</b>, each fetching it again</> },
+    text: <>the threads next to it read <b>the same row of A</b>, and each one fetches it all over again</> },
   { rows: BW, cols: BW, reads: BW * BW * 2 * S, distinct: 2 * BW * S,
-    text: <>the whole block: every row of A it needs is fetched 4 times, every column of B 4 times. in a real 16 × 16 block: <b>16 times</b></> },
+    text: <>the same goes for B. in this 4 × 4 block, every number is fetched 4 times. real blocks are 16 × 16: <b>16 times</b></> },
   { rows: BW, cols: BW, reads: BW * BW * 2 * S, distinct: 2 * BW * S,
-    text: <>the whole benchmark: 412 billion reads (≈ 1.6 TB) for 436 MB of matrices. the threads spend their time waiting on memory</> },
+    text: <>at full size: 412 billion reads for 436 MB of data. the threads spend most of their time waiting for memory</> },
 ];
 
 export default function Slow() {

@@ -14,12 +14,12 @@ const M = 3 * T, K = 3 * T, N = NT * T;
 
 type St = { t: number; phase: 'none' | 'load' | 'use' | 'done'; text: ComponentChildren };
 const STEPS: St[] = [
-  { t: -1, phase: 'none', text: <>one block, one 16 × 16 tile of C. its answers need a 16-row strip of A and a 16-column strip of B</> },
-  { t: 0, phase: 'load', text: <><b>load</b>: the block's 256 threads copy one tile of A and one of B into <b>shared memory</b>, one number each</> },
-  { t: 0, phase: 'use', text: <><b>use</b>: multiply the two tiles out of shared memory (fast, on-chip). every number in them is used 16 times</> },
-  { t: 1, phase: 'load', text: <>slide one tile along, load, use, and add to the same 256 sums</> },
-  { t: 3, phase: 'done', text: <>after N / 16 tiles, the sums are finished: the same answer as before</> },
-  { t: 3, phase: 'done', text: <>each number now comes from global memory <b>once per block</b> instead of 16 times: <b>16× fewer</b> slow reads</> },
+  { t: -1, phase: 'none', text: <>one block works out one 16 × 16 square of C. for that it needs these 16 rows of A and 16 columns of B</> },
+  { t: 0, phase: 'load', text: <><b>step 1, load</b>: the 256 threads each copy one number into <b>shared memory</b>, a small, fast memory inside the block</> },
+  { t: 0, phase: 'use', text: <><b>step 2, use</b>: multiply using only the fast copies. every number copied gets used 16 times</> },
+  { t: 1, phase: 'load', text: <>move one tile over and do it again, adding onto the same answers</> },
+  { t: 3, phase: 'done', text: <>after the last tile, the answers are done: the same C as solution 1</> },
+  { t: 3, phase: 'done', text: <>each number now comes from slow main memory <b>once per block</b>, not 16 times</> },
 ];
 
 export default function Tiles() {
