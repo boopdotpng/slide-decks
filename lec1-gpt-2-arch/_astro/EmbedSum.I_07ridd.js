@@ -1,0 +1,7 @@
+import{_ as e,c as t,d as n,o as r,u as i}from"./viz.ZHEKlosV.js";import{r as a}from"./preact.module.Bl7PEaKa.js";var o=.25;function s(){let{root:s,step:c,d:l}=e(`embed`);return l?i(`div`,{class:`es`,ref:s,children:[i(`div`,{class:`hdr`}),i(`div`,{class:`hdr muted`,children:`the word`}),i(`div`,{}),i(`div`,{class:`hdr muted ${n(c,1)}`,children:`its position`}),i(`div`,{}),i(`div`,{class:`hdr muted ${n(c,2)}`,children:`the strip it starts as`}),l.toks.map((e,s)=>i(a,{children:[i(`div`,{class:`t`,children:i(r,{t:e})}),i(t,{values:l.tok_emb[s],scale:o,height:44,label:`word`}),i(`div`,{class:`op ${n(c,1)}`,children:`+`}),i(`div`,{class:n(c,1),children:i(t,{values:l.pos_emb[s],scale:o,height:44,label:`position ${s}`})}),i(`div`,{class:`op ${n(c,2)}`,children:`=`}),i(`div`,{class:n(c,2),children:i(t,{values:l.embed[s],scale:o,height:44,label:`start`})})]})),i(`div`,{class:`cap ${n(c,2)}`,children:`added once, right after the lookup, before block 0. everything after reads these`}),i(`style`,{children:`
+        .es { display: grid; grid-template-columns: auto 1fr auto 1fr auto 1fr; gap: .7em .6em; align-items: center; font-size: .8em; }
+        .es .hdr { font-size: .6em; }
+        .es .t { text-align: right; font-size: .9em; }
+        .es .op { font-size: 1.2em; color: var(--muted); }
+        .es .cap { grid-column: 1 / -1; font-size: .7em; color: var(--muted); margin-top: .6em; }
+      `})]}):i(`div`,{ref:s})}export{s as default};

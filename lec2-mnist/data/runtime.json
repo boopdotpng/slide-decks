@@ -1,0 +1,1 @@
+{"machine": "Apple M4 Pro", "batch": {"device": "CPU", "loop_ms": 415.1566670043394, "batched_ms": 3.0057085095904768}, "jit": {"device": "METAL", "plain_ms": 20.256687537766993, "jit_ms": 0.6645210669375956, "kernels": 25}}

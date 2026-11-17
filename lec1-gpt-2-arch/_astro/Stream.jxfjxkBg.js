@@ -1,0 +1,20 @@
+import{_ as e,r as t,u as n}from"./viz.ZHEKlosV.js";import{r}from"./preact.module.Bl7PEaKa.js";var i=[`The`,` United`,` States`,` of`],a=120,o=34,s=70,c=e=>a+e*64,l=c(3)+o,u=[n(r,{children:`the four strips run straight down through the model`}),n(r,{children:[`attention: a rescaled copy goes out (shifted and stretched to a standard spread, so every block sees the same range), the tokens read from each other, and the result is `,n(`b`,{children:`added`}),` back on`]}),n(r,{children:`the mlp: same again, but each token is worked on alone`}),n(r,{children:`that's one block. gpt-2 is twelve of them in a row, all adding to the same strips`}),n(r,{children:`the rnn had one strip and rewrote it every step. here every token keeps its own, and nothing is ever erased`})];function d({y0:e,y1:r,name:i,sub:o,on:s,cur:c}){let u=l+90,d=u+220;return n(`g`,{class:`br ${s?`on`:``} ${c?`cur`:``}`,children:[n(t,{from:[l+4,e],to:[u-6,e],on:s,width:3,color:`var(--muted)`}),n(`rect`,{x:u,y:e-30,width:160,height:60,rx:10,class:`bx`}),n(`text`,{x:u+80,y:e+8,class:`bt sm`,children:`rescale`}),n(t,{from:[u+160,e],to:[d-6,e],on:s,width:3,color:`var(--muted)`}),n(`rect`,{x:d,y:e-50,width:300,height:100,rx:12,class:`bx main`}),n(`text`,{x:d+150,y:e-4,class:`bt`,children:i}),n(`text`,{x:d+150,y:e+28,class:`bt sub`,children:o}),n(t,{from:[d+150,e+50],via:[[d+150,r]],to:[l+34,r],on:s,width:3,color:`var(--accent)`}),n(`rect`,{x:112,y:r-3,width:l-a+12,height:6,rx:3,class:`addline`}),n(`circle`,{cx:l+4,cy:r,r:26,class:`plus`}),n(`text`,{x:l+4,y:r+12,class:`bt pl`,children:`+`})]})}function f(){let{root:t,step:a}=e(`embed`);return n(`div`,{class:`stm`,ref:t,children:[n(`svg`,{viewBox:`0 0 1260 620`,children:[n(`defs`,{children:n(`linearGradient`,{id:`lane`,x1:`0`,x2:`0`,y1:`0`,y2:`1`,children:[n(`stop`,{offset:`0`,"stop-color":`var(--neg)`,"stop-opacity":`.55`}),n(`stop`,{offset:`.5`,"stop-color":`var(--pos)`,"stop-opacity":`.55`}),n(`stop`,{offset:`1`,"stop-color":`var(--neg)`,"stop-opacity":`.55`})]})}),i.map((e,t)=>n(`text`,{x:c(t)+o/2,y:56,class:`tk`,transform:`rotate(-45 ${c(t)+o/2} 56)`,children:e.startsWith(` `)?n(r,{children:[n(`tspan`,{class:`sp`,children:`·`}),e.slice(1)]}):e})),i.map((e,t)=>n(`rect`,{x:c(t),y:s,width:o,height:520,rx:5,fill:`url(#lane)`})),n(d,{y0:150,y1:290,name:`attention`,sub:`tokens read each other`,on:a>=1,cur:a===1}),n(d,{y0:380,y1:520,name:`mlp`,sub:`each token alone`,on:a>=2,cur:a===2}),n(`g`,{class:`x12 ${a>=3?`on`:``}`,children:[n(`path`,{d:`M 1080 92 q 24 0 24 24 v 170 q 0 24 24 24 q -24 0 -24 24 v 170 q 0 24 -24 24`}),n(`text`,{x:1150,y:318,class:`bt l`,children:`× 12 blocks`})]})]}),n(`div`,{class:`cap`,children:u[Math.min(a,u.length-1)]}),n(`style`,{children:`
+        .stm { font-size: .8em; }
+        .stm svg { height: 58cqh; max-width: 100%; display: block; overflow: visible; }
+        .stm .tk { font: 22px var(--mono); fill: var(--fg); }
+        .stm .tk .sp { fill: var(--muted); }
+        .stm .bx { fill: var(--panel); stroke: var(--border); stroke-width: 2; transition: stroke .3s; }
+        .stm .br.cur .bx.main { stroke: var(--accent); }
+        .stm .bt { fill: var(--fg); font-size: 30px; text-anchor: middle; font-family: var(--sans); }
+        .stm .bt.sm { font-size: 22px; fill: var(--muted); }
+        .stm .bt.l { text-anchor: start; font-size: 26px; fill: var(--muted); }
+        .stm .bt.sub { font-size: 20px; fill: var(--muted); }
+        .stm .bt.pl { font-size: 36px; fill: var(--accent); font-weight: 700; }
+        .stm .addline { fill: var(--accent); opacity: .7; }
+        .stm .plus { fill: var(--bg); stroke: var(--accent); stroke-width: 3; }
+        .stm .br, .stm .x12 { opacity: 0; transition: opacity .4s; }
+        .stm .br.on, .stm .x12.on { opacity: 1; }
+        .stm .x12 path { fill: none; stroke: var(--muted); stroke-width: 3; }
+        .stm .cap { font-size: .7em; color: var(--muted); min-height: 2.6em; margin-top: .6em; }
+        .stm .cap b { color: var(--fg); }
+      `})]})}export{f as default};

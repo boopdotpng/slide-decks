@@ -1,0 +1,14 @@
+import{C as e,T as t,_ as n,d as r,u as i}from"./viz.ZHEKlosV.js";var a=[0,1,2,3,10,100],o=[4,16,64,1024],s=64;function c({p:t,period:n}){let r=360*t/n,a=2*Math.PI*t/n;return i(`div`,{class:`clk`,children:[i(`svg`,{width:136,height:136,viewBox:`-68 -68 136 136`,children:[i(`circle`,{r:s,fill:`var(--panel)`,stroke:`var(--border)`,"stroke-width":`2`}),Array.from({length:12},(e,t)=>i(`line`,{x1:`0`,y1:-60,x2:`0`,y2:-52,stroke:`var(--line-2)`,transform:`rotate(${t*30})`})),i(`g`,{class:`hand`,style:{transform:`rotate(${r}deg)`},children:i(`line`,{x1:`0`,y1:`0`,x2:`0`,y2:-54,stroke:`var(--accent)`,"stroke-width":`5`,"stroke-linecap":`round`})}),i(`circle`,{r:`5`,fill:`var(--accent)`})]}),i(`div`,{class:`cells`,children:[i(`div`,{class:`cell`,style:{background:e(Math.sin(a),.6)}}),i(`div`,{class:`cell`,style:{background:e(Math.cos(a),.6)}})]}),i(`div`,{class:`per muted`,children:[`a turn every `,n]})]})}function l({xy:e,size:n}){let r=n/2,a=Math.max(...e.map(([e,t])=>Math.hypot(e,t))),o=t=>[r+e[t][0]/a*(r-4),r-e[t][1]/a*(r-4)];return i(`svg`,{width:n,height:n,viewBox:`0 0 ${n} ${n}`,children:e.slice(1).map((n,r)=>{let[a,s]=o(r),[c,l]=o(r+1);return i(`line`,{x1:a,y1:s,x2:c,y2:l,stroke:t(.15+.85*(r/e.length)),"stroke-width":`2`})})})}function u(){let{root:e,step:t,d:s}=n(`embed`),u=a[Math.min(t,a.length-1)];return i(`div`,{class:`pclk`,ref:e,children:[i(`div`,{class:`left`,children:[i(`div`,{class:`ctr`,children:[`position `,i(`b`,{children:u})]}),i(`div`,{class:`clocks`,children:o.map(e=>i(c,{p:u,period:e}))}),i(`div`,{class:`cap muted`,children:`each hand gives two numbers. together they spell out the position`})]}),i(`div`,{class:`gpt ${r(t,6)}`,children:[s&&i(l,{xy:s.wpe_pca.coords.map(e=>[e[0],e[1]]),size:260}),i(`div`,{class:`cap muted`,children:`gpt-2's own table, squashed onto a flat page: it learned a slow hand by itself`})]}),i(`style`,{children:`
+        .pclk { display: flex; gap: 3em; align-items: center; font-size: .8em; }
+        .pclk .left { display: flex; flex-direction: column; gap: .8em; }
+        .pclk .ctr { font-size: 1.1em; }
+        .pclk .ctr b { color: var(--accent); font-family: var(--mono); display: inline-block; min-width: 2.5em; }
+        .pclk .clocks { display: flex; gap: 1.6em; }
+        .pclk .clk { display: flex; flex-direction: column; align-items: center; gap: .4em; }
+        .pclk .hand { transition: transform .8s cubic-bezier(.4, 0, .2, 1); }
+        .pclk .cells { display: flex; gap: 3px; }
+        .pclk .cell { width: 34px; height: 34px; border-radius: 4px; transition: background .8s; }
+        .pclk .per { font-size: .5em; }
+        .pclk .cap { font-size: .6em; max-width: 26em; }
+        .pclk .gpt { display: flex; flex-direction: column; align-items: center; gap: .5em; max-width: 280px; text-align: center; }
+      `})]})}export{u as default};

@@ -1,0 +1,12 @@
+import{t as e}from"./hooks.module.U3JihANK.js";import{c as t,o as n,r}from"./hooks.DjY2cg7H.js";var i=[{addr:`0x0000_0000`,name:`ram`,what:`the first 640 KiB`},{addr:`0x000b_8000`,name:`vga text`,what:`the old text screen`},{addr:`0x0010_0000`,name:`ram`,what:`your pages live here`},{addr:`0xb000_0000`,name:`pcie config`},{addr:`0xc000_0000`,name:`pcie devices`,what:`the accelerator, gpu, ssd`},{addr:`0xfee0_0000`,name:`local apic`,what:`timer, interrupts`},{addr:`0xffff_fff0`,name:`firmware`,what:`the cpu starts here`}],a=[[],[0,2],[4],[4],[5],[4]],o=`
+u32 *card = (u32 *)0xc0000000;
+card[GO] = 1;    // the card starts`,s=[`physical addresses are what actually goes out of the cpu. this is a typical x86 pc (qemu's q35), simplified`,`ram is just some of the ranges`,`the rest are devices. the accelerator is a pcie card: its registers show up as a range here (a bar). a store there goes over pcie to the card`,`the kernel maps the card into its own page table, without u. the same store that faulted for you works here: that's a driver (memory-mapped i/o)`,`the timer is a device too. the kernel sets it to interrupt, and that's how it takes the cpu back (in a bit)`,`the kernel can also map the card into your page table, with u. asking for that takes a special syscall: the last part of the talk`];function c(){let c=e(null),l=r(c);return t(`div`,{class:`pmap`,ref:c,children:[t(`div`,{class:`pmap-cols`,children:[t(`table`,{class:`pmap-table`,children:i.map((e,n)=>t(`tr`,{class:a[l].includes(n)?`on`:``,children:[t(`td`,{class:`muted`,children:e.addr}),t(`td`,{children:e.name}),t(`td`,{class:`muted`,children:e.what})]}))}),t(`div`,{class:`pmap-side fade ${l===3?`on`:``}`,children:[t(`div`,{class:`muted`,children:`kernel's page table`}),t(`table`,{class:`pmap-pt`,children:t(`tr`,{children:[t(`td`,{children:`0xc0000`}),t(`td`,{children:`→ 0xc0000`}),t(`td`,{children:`w - -`})]})}),t(n,{lang:`c`,code:o})]})]}),t(`div`,{class:`caption`,children:s[l]}),t(`style`,{children:`
+        .pmap-cols { display: flex; gap: 1.5em; align-items: flex-start; }
+        .pmap-table { font-size: .72em; }
+        .pmap-table td { padding: .25em 1.2em .25em .4em; transition: background .3s; white-space: nowrap; }
+        .pmap-table td:first-child { font-family: var(--mono); }
+        .pmap-table tr.on td { background: var(--hl); }
+        .pmap-side { font-size: .6em; flex: none; }
+        .pmap-pt { font-family: var(--mono); margin: .3em 0 .6em; }
+        .pmap-side pre { font-size: 1em; }
+      `})]})}export{c as default};

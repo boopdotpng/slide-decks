@@ -1,0 +1,22 @@
+import{T as e,_ as t,c as n,d as r,f as i,l as a,o,p as s,s as c,u as l}from"./viz.ZHEKlosV.js";import{r as u}from"./preact.module.Bl7PEaKa.js";import{t as d}from"./common.-pbhy8Ns.js";function f(){let{root:f,step:p,d:m}=t(`forward`);if(!m)return l(`div`,{ref:f});let h=m.toks.length-1,g=m.dots[h].map(e=>e/8),_=Math.min(...g)-.5,v=Math.max(...g)+.5,y=m.probs,b=g.indexOf(Math.max(...g));return l(`div`,{class:`bg`,ref:f,children:[l(`div`,{class:`main`,children:[l(`div`,{class:`left`,children:[l(`div`,{class:`me`,children:[l(`span`,{class:`k`,style:{color:d.q.color},children:[l(a,{t:m.toks[h]}),` is looking for`]}),l(n,{values:m.lenses.q.out[h],height:26})]}),l(`div`,{class:`hdr`,children:[l(`span`,{}),l(`span`,{class:`muted`,children:d.k.plain}),l(`span`,{class:`muted ${r(p,1)}`,children:[`score ÷ 8 `,l(`span`,{class:`ax`,children:`worse ← → better`})]}),l(`span`,{class:`muted ${r(p,2)}`,children:`budget`})]}),m.toks.map((e,t)=>l(`div`,{class:`row ${p>=2&&t===b?`top`:``}`,children:[l(o,{t:e}),l(n,{values:m.lenses.k.out[t],height:26}),l(`div`,{class:`line ${r(p,1)}`,children:[l(`div`,{class:`dot`,style:{left:`${(g[t]-_)/(v-_)*100}%`}}),l(`span`,{class:`sv`,children:i(g[t],1)})]}),l(`div`,{class:`bud ${r(p,2)}`,children:[l(`div`,{class:`fill`,style:{width:`${y[h][t]*100}%`}}),l(`span`,{children:s(y[h][t])})]})]}))]}),l(`div`,{class:`grid ${r(p,3)}`,children:[l(`div`,{class:`lbl`,children:`every token does this. rows: who's looking · columns: who's looked at`}),l(c,{data:y.map((e,t)=>e.map((e,n)=>n>t?null:e)),cell:64,gap:4,color:t=>e(Math.sqrt(t)),rowLabels:m.toks.map(e=>l(a,{t:e})),colLabels:m.toks.map(e=>l(a,{t:e})),hlRow:h,tipFn:(e,t,n)=>n===null?`the future: blocked`:`${s(n)}`}),l(`div`,{class:`lbl`,children:`striped: the future. a token can't look at words that come after it`})]})]}),l(`div`,{class:`cap`,children:[l(u,{children:[`every token's advertise strip, against what `,l(a,{t:m.toks[h]}),` is looking for`]}),l(u,{children:[`the match score for each, ÷ 8 (the square root of 64, keeps the numbers tame). all negative, and that's fine: only the `,l(`b`,{children:`gaps`}),` matter`]}),l(u,{children:`the budget: raise e to each score, then take each one's share of the total. a gap of 2.5 becomes 87% against 7%. it always adds up to 100%`}),l(u,{children:[`every token does this. the future is blocked because in training the next word `,l(`b`,{children:`is`}),` the answer: a token must guess it, not read it`]})][Math.min(p,3)]}),l(`style`,{children:`
+        .bg { display: flex; flex-direction: column; gap: 1em; font-size: .8em; }
+        .bg .main { display: flex; gap: 3em; align-items: center; }
+        .bg .cap { font-size: .7em; color: var(--muted); min-height: 1.6em; max-width: 60em; }
+        .bg .cap b { color: var(--fg); }
+        .bg .left { display: flex; flex-direction: column; gap: .5em; flex: 1; }
+        .bg .me { display: grid; grid-template-columns: 9em 1fr; gap: .8em; align-items: center; margin-bottom: .8em; }
+        .bg .k { font-size: .6em; text-align: right; }
+        .bg .hdr, .bg .row { display: grid; grid-template-columns: 5em 1fr 12em 8em; gap: .8em; align-items: center; }
+        .bg .hdr > * { font-size: .55em; }
+        .bg .ax { opacity: .7; margin-left: .5em; }
+        .bg .row .chip { justify-self: end; font-size: .75em; }
+        .bg .row.top .chip { border-color: var(--accent); background: var(--hl); }
+        .bg .line { position: relative; height: 26px; border-bottom: 1px solid var(--line-2); }
+        .bg .dot { position: absolute; bottom: -8px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: ${d.k.color}; }
+        .bg .sv { position: absolute; right: 0; top: -2px; font: .5em var(--mono); color: var(--muted); }
+        .bg .bud { position: relative; height: 26px; background: var(--surface); border-radius: 4px; }
+        .bg .bud .fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 4px; transition: width .5s; }
+        .bg .bud span { position: absolute; left: .4em; top: 50%; transform: translateY(-50%); font: .55em var(--mono); color: var(--fg); }
+        .bg .grid { display: flex; flex-direction: column; gap: .6em; max-width: 21em; }
+        .bg .grid .heat .rl, .bg .grid .heat .cl { font-size: .55em; }
+      `})]})}export{f as default};

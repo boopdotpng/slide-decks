@@ -1,0 +1,28 @@
+import{_ as e,a as t,c as n,d as r,f as i,l as a,u as o}from"./viz.ZHEKlosV.js";import{r as s}from"./preact.module.Bl7PEaKa.js";import{t as c}from"./common.-pbhy8Ns.js";var l=430,u=150,d=30,f=[`q`,`k`,`v`];function p(){let{root:p,step:m,d:h}=e(`forward`);if(!h)return o(`div`,{ref:p});let g=h.toks.length,_=h.cell,[v,y]=h.focus,b=h.ln1[g-1],x=h.lenses.q,S=m===2?_+1:_,C=b.map((e,t)=>e*(m===2?x.col_next[t]:x.col[t])),w=m===1||m===2,T=x.row,E=m===4?`fade on`:`fade`;return o(`div`,{class:`ln`,ref:p,children:[o(`div`,{class:`x`,children:[o(`div`,{class:`lbl`,children:o(a,{t:h.toks[g-1]})}),o(`div`,{class:`sw`,children:[o(n,{values:b,vertical:!0,height:l,width:d,label:`strip`}),o(`div`,{class:`rowpick ${E}`,style:{top:`${T/768*100}%`}})]}),o(`div`,{class:`lbl`,children:`768`})]}),o(`div`,{class:`prod ${w?`on`:``}`,children:[o(`div`,{class:`lbl`,children:`× weight`}),o(n,{values:C,vertical:!0,height:l,width:d,label:`number × weight`}),o(`div`,{class:`lbl`,children:`add up ↓`})]}),f.map((e,a)=>{let d=h.lenses[e],f=c[e];return o(`div`,{class:`lens fade ${a===0||m>=5?`on`:``}`,style:{"--lc":f.color},children:[o(`div`,{class:`lbl top`,children:a===0?o(s,{children:[`block `,v,`, head `,y,`'s grid of learned numbers, `,o(`b`,{children:`768 × 64`})]}):o(`b`,{children:`768 × 64`})}),o(t,{m:d.img,w:u,h:l,children:a===0&&o(s,{children:[o(`div`,{class:`colhl ${w?`on`:``}`,style:{left:`${S/64*100}%`,width:`${100/64}%`}}),o(`div`,{class:`rowhl ${E}`,style:{top:`${T/768*100}%`,height:`${100/768}%`}})]})}),o(`div`,{class:`out ${a>0||m>=3?`on`:``}`,children:o(n,{values:d.out[g-1],height:26,label:f.plain})}),a===0&&o(`div`,{class:`one ${w?`on`:``}`,style:{left:`${(S+.5)/64*100}%`},children:i(d.out[g-1][S])}),o(`div`,{class:`name ${r(m,6)}`,children:f.plain}),o(`div`,{class:`lbl`,children:`64 numbers`})]})}),o(`div`,{class:`side ${E}`,children:[o(`div`,{class:`lbl`,children:`the other way to see it`}),o(`div`,{class:`rowview`,children:[o(`span`,{class:`n`,children:[`strip [`,T,`] = `,o(`b`,{children:i(b[T])})]}),o(`span`,{class:`muted`,children:`× its row of the grid`}),o(n,{values:x.row_vals,height:18,label:`row ${T}`}),o(`span`,{class:`muted`,children:`= one scaled row, 64 wide. do that for all 768 rows and add them up: the same 64 numbers`})]})]}),o(`div`,{class:`cap`,children:[o(s,{children:[`the strip for `,o(a,{t:h.toks[g-1]}),`, on its side, next to the head's first grid: 768 rows, 64 columns. a real piece of the model: block `,v,`, head `,y]}),o(s,{children:[`one column: each of the 768 numbers times the weight beside it, all added up. that's `,o(`b`,{children:`one`}),` number out`]}),o(s,{children:`the next column, the same way: the next number. every column is its own multiply-and-add`}),o(s,{children:[`64 columns, 64 numbers. the grid turned 768 numbers into 64. in code: `,o(`code`,{children:`x @ W`}),`, a matrix multiply`]}),o(s,{children:[`or: each number in the strip picks up its `,o(`b`,{children:`row`}),`, scaled. the lookup table earlier was this with a strip of one 1 and 767 zeros: pick one row. a multiply picks every row, a little`]}),o(s,{children:[`the `,o(`b`,{children:`same`}),` strip through the head's two other grids: the question, the tag and the note from the room. three different short strips`]}),o(s,{children:`three readings of one token, each for a different job`})][Math.min(m,6)]}),o(`style`,{children:`
+        .ln { display: grid; grid-template-columns: auto auto repeat(3, auto) 1fr; gap: 0 1.6em; justify-content: start; align-items: start; font-size: .8em; }
+        .ln .x, .ln .prod { position: relative; display: flex; flex-direction: column; align-items: center; gap: .3em; }
+        .ln .prod { opacity: 0; transition: opacity .35s; } .ln .prod.on { opacity: 1; }
+        .ln .sw { position: relative; }
+        .ln .rowpick { position: absolute; left: -6px; right: -6px; height: 3px; background: var(--fg); border-radius: 2px; }
+        .ln .lens { position: relative; display: flex; flex-direction: column; gap: .3em; width: ${u}px; }
+        .ln .lens .byteheat { outline: 3px solid var(--lc); outline-offset: 2px; border-radius: 3px; }
+        .ln .colhl { position: absolute; top: -6px; bottom: -6px; outline: 3px solid var(--fg); border-radius: 2px; opacity: 0; transition: opacity .3s, left .4s; }
+        .ln .colhl.on { opacity: 1; }
+        .ln .rowhl { position: absolute; left: -6px; right: -6px; min-height: 3px; background: var(--fg); border-radius: 2px; }
+        .ln .out { opacity: 0; transition: opacity .35s; margin-top: .4em; outline: 2px solid var(--lc); border-radius: 3px; }
+        .ln .out.on { opacity: 1; }
+        .ln .one { position: absolute; top: calc(${l}px + 4.2em); transform: translateX(-50%); font-family: var(--mono); font-size: .7em;
+          color: var(--fg); opacity: 0; transition: opacity .3s, left .4s; }
+        .ln .one.on { opacity: 1; }
+        .ln .name { color: var(--lc); font-size: .6em; min-height: 1.4em; white-space: nowrap; }
+        .ln .lbl { font-size: .5em; white-space: nowrap; }
+        .ln .lens .lbl.top { white-space: normal; line-height: 1.2; min-height: 2.4em; }
+        .ln .lbl b { color: var(--fg); }
+        .ln .side { align-self: center; max-width: 22em; display: flex; flex-direction: column; gap: .6em; }
+        .ln .rowview { display: flex; flex-direction: column; gap: .4em; font-size: .6em; }
+        .ln .rowview .n { font-family: var(--mono); }
+        .ln .rowview .n b { color: var(--fg); }
+        .ln .cap { grid-column: 1 / -1; margin-top: 1em; font-size: .7em; color: var(--muted); min-height: 1.5em; max-width: 60em; }
+        .ln .cap b { color: var(--fg); }
+        .ln .cap code { font-family: var(--mono); color: var(--fg); }
+      `})]})}export{p as default};

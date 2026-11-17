@@ -1,0 +1,24 @@
+import{r as e}from"./preact.module.Bl7PEaKa.js";import{t}from"./hooks.module.BNbONuGS.js";import{n,t as r}from"./hooks.5GiSEWoZ.js";import{t as i}from"./Code.Cy3pb0ne.js";import{n as a}from"./kernels.DTzTSn_g.js";var o=16,s=5,c=9,l=11,u=[{show:4,hl:[0,2,3],pic:`empty`,text:n(e,{children:[`the same inputs as solution 1. `,n(`code`,{children:`TILE`}),` is just a name for 16`]})},{show:6,hl:[4,5],pic:`shared`,text:n(e,{children:[`two 16 × 16 scratch tiles in `,n(`b`,{children:`shared memory`}),`: small, fast, and seen by all 256 threads of the block`]})},{show:8,hl:[6,7],pic:`names`,text:n(e,{children:`my row and column of C, worked out exactly like solution 1. tx and ty are short names for my x and y`})},{show:11,hl:[9,10],pic:`loop`,text:n(e,{children:[`go across A and down B `,n(`b`,{children:`one tile at a time`}),`. for the full-size problem: 6144 / 16 = 384 tiles`]})},{show:14,hl:[11,12,13],pic:`mine`,text:n(e,{children:[`each thread copies `,n(`b`,{children:`one`}),` number of A and one of B into the tiles, at its own spot. off the edge of the matrix, it writes 0`]})},{show:15,hl:[14],pic:`full`,text:n(e,{children:[n(`code`,{children:`__syncthreads()`}),`: wait until all 256 threads have copied their number. now the tiles are complete`]})},{show:18,hl:[16,17],pic:`dot`,text:n(e,{children:`the math, reading only the fast tiles: my row of As times my column of Bs`})},{show:20,hl:[18,19],pic:`next`,text:n(e,{children:`wait again, so nobody loads the next tile over numbers someone is still using`})},{show:22,hl:[20,21],pic:`edge`,text:n(e,{children:[`store the answer if my cell is inside C. no early exit this time: every thread must reach every `,n(`code`,{children:`__syncthreads()`}),`, even ones off the edge`]})},{show:22,hl:[],pic:`full`,text:n(e,{children:`the whole solution. same answer as solution 1, but 16 times fewer trips to the slow main memory`})}];function d(){let d=t(null),f=u[Math.min(u.length-1,r(d))],p=f.pic,m=(e,t,n)=>{if(p===`empty`)return`off`;if(p===`shared`||p===`names`||p===`loop`)return``;if(p===`edge`)return(e===`a`?t:n)>=l?`zero`:`ld`;let r=t===c&&n===s;return p===`mine`?r?`me`:``:p===`dot`?r?`me`:(e===`a`?t===c:n===s)?`use`:`ld`:p===`next`?`ld old`:`ld`};return n(`div`,{class:`tiled`,ref:d,children:[n(`div`,{class:`td-cols`,children:[n(`div`,{class:`td-code`,children:n(i,{lang:`cpp`,code:a,hl:f.hl})}),n(`style`,{children:`.tiled .td-code .ln:nth-child(n + ${f.show+1}) { opacity: 0; }`}),n(`div`,{class:`td-pic`,children:[n(`div`,{class:`td-sh`,children:[`a`,`b`].map(e=>n(`div`,{class:`td-m`,children:[n(`div`,{class:`td-g`,children:Array.from({length:256},(t,r)=>n(`i`,{class:m(e,Math.floor(r/o),r%o)}))}),n(`div`,{class:`td-n`,children:e===`a`?`As`:`Bs`})]}))}),n(`div`,{class:`td-sc`,children:[p===`mine`&&n(e,{children:[`thread (tx = `,n(`span`,{class:`c-t`,children:s}),`, ty = `,n(`span`,{class:`c-t`,children:c}),`):`,`
+`,`As[`,c,`][`,s,`] ← A[row][t·16 + `,s,`]`,`
+`,`Bs[`,c,`][`,s,`] ← B[t·16 + `,c,`][col]`]}),p===`full`&&n(e,{children:`all 256 spots filled`}),p===`dot`&&n(e,{children:[`sum += As[`,c,`][i] * Bs[i][`,s,`], i = 0 … 15`]}),p===`next`&&n(e,{children:`everyone done with this tile: safe to load the next`}),p===`edge`&&n(e,{children:[`a block on the bottom-right corner:`,`
+`,`As rows past M and Bs columns past K load 0`]})]})]})]}),n(`div`,{class:`caption td-text`,children:f.text}),n(`style`,{children:`
+        .tiled .td-cols { display: flex; gap: 1.2em; align-items: center; }
+        .tiled .td-code { flex: 1.6; min-width: 0; }
+        .tiled .td-code pre { margin: 0; font-size: .44em; overflow: hidden; }
+        .tiled .td-pic { flex: none; width: 560px; }
+        .tiled .td-sh { display: flex; gap: 1em; justify-content: center; }
+        .tiled .td-m { display: flex; flex-direction: column; align-items: center; }
+        .tiled .td-g { display: grid; grid-template-columns: repeat(${o}, 14px); grid-auto-rows: 14px; gap: 1px;
+          padding: 6px; border: 2px dashed var(--line-2); border-radius: 6px; }
+        .tiled .td-g i { background: var(--surface); border-radius: 1px; transition: background .3s, opacity .3s; }
+        .tiled .td-g i.off { opacity: .25; }
+        .tiled .td-g i.ld { background: var(--accent); }
+        .tiled .td-g i.old { opacity: .45; }
+        .tiled .td-g i.use { background: var(--good); }
+        .tiled .td-g i.me { background: var(--hot); }
+        .tiled .td-g i.zero { background: transparent; outline: 1px dashed var(--muted); outline-offset: -1px; }
+        .tiled .td-n { font: .42em var(--mono); color: var(--muted); margin-top: .4em; }
+        .tiled .td-sc { font: .42em/1.7 var(--mono); margin-top: 1em; min-height: 5.1em; white-space: pre; text-align: center; }
+        .tiled .c-t { color: var(--teal); }
+        .tiled .td-text { font-size: .8em; min-height: 2.4em; margin-top: .8em; }
+      `})]})}export{d as default};

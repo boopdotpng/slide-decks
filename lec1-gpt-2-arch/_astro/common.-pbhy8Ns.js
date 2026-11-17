@@ -1,0 +1,1 @@
+var e={q:{plain:`what i'm looking for`,name:`query`,color:`var(--hot)`},k:{plain:`what i advertise`,name:`key`,color:`var(--good)`},v:{plain:`what i hand over`,name:`value`,color:`var(--purple)`}},t=(e,t=3)=>`hsl(${((e-t)*30+213+360)%360}, 72%, 64%)`;export{t as n,e as t};

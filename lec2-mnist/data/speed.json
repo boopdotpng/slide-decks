@@ -1,0 +1,1 @@
+{"machine": "Apple M4 Pro", "beam": 2, "batch": 256, "steps": 5000, "runs": [{"device": "CPU", "ms": 2.651395509019494}, {"device": "METAL", "ms": 0.5261869519017637}]}

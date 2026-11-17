@@ -1,0 +1,1 @@
+var e=(e,t=2)=>Math.abs(e)>=100?e.toFixed(0):e.toFixed(t),t=e=>Array.from({length:e},(e,t)=>t),n=null;function r(e,t){n||(n=document.createElement(`div`),n.className=`viz-tip`,document.body.append(n)),!e||!t?n.style.opacity=`0`:(n.innerHTML=t,n.style.opacity=`1`,n.style.left=`${e.clientX+14}px`,n.style.top=`${e.clientY+14}px`)}export{t as n,r,e as t};
