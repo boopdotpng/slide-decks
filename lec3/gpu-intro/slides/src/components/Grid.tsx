@@ -5,16 +5,16 @@ import { useSlideStep, useTicker } from 'slides/hooks';
 import { BLOCK, H, IMG, N, W, WAVE, brighten, paint } from './image';
 
 /**
- * The photo as a grid of blocks: 256 threads = 2 rows each, 40 of them, each block 8 waves. Then the blocks dealt out
- * to the 32 wgps and finishing (each finished block drawn brightened, × 2).
+ * The photo as a grid of blocks: 256 threads = 2 rows each, 40 of them, each block 8 warps. Then the blocks dealt out
+ * to the rtx 4090's 128 sms and finishing (each finished block drawn brightened, × 2).
  *
- * The dealing is a cartoon: blocks start in order, a few per tick, on a made-up wgp each, and run for made-up times.
- * amd documents that the hardware starts a block's waves on a wgp with room for them, not the order, the placement or
- * the speed. On the real chip all 40 of our blocks fit at once (a wgp parks 64 waves = 8 of these blocks).
+ * The dealing is a cartoon: blocks start in order, a few per tick, on a made-up sm each, and run for made-up times.
+ * nvidia documents that a block goes to an sm with room for it, not the order, the placement or the speed. On the
+ * real chip all 40 of our blocks fit at once (an sm holds up to 1536 threads = 6 of these blocks).
  */
 const BLOCKS = N / BLOCK; // 40
 const ROWS = BLOCK / W; // 2 rows per block
-const WGPS = 32;
+const SMS = 128;
 const ME = { block: 5, thread: 37 };
 const MINE = ME.block * BLOCK + ME.thread;
 
@@ -23,8 +23,8 @@ const hash = (n: number) => {
   h ^= h >>> 15;
   return ((Math.imul(h, 0x165667b1) ^ (h >>> 13)) >>> 0) / 4294967296;
 };
-/** made-up: which wgp, when it starts, how long it runs */
-const WGP_OF = Array.from({ length: BLOCKS }, (_, b) => Math.floor(hash(b + 11) * WGPS));
+/** made-up: which sm, when it starts, how long it runs */
+const SM_OF = Array.from({ length: BLOCKS }, (_, b) => Math.floor(hash(b + 11) * SMS));
 const START = Array.from({ length: BLOCKS }, (_, b) => Math.floor(b * 0.5));
 const LEN = Array.from({ length: BLOCKS }, (_, b) => 10 + Math.floor(hash(b + 97) * 26));
 const END = Math.max(...START.map((s, b) => s + LEN[b]));
@@ -33,7 +33,7 @@ const PERIOD = END + 14; // hold the finished photo, then start over
 const TEXT: ComponentChildren[] = [
   <>threads come in <b>blocks</b>: here {BLOCK} threads = 2 rows of pixels = 8 warps. {BLOCKS} blocks make the <b>grid</b></>,
   <>which pixel is mine? skip {ME.block} whole blocks of {BLOCK}, then {ME.thread} more: pixel {MINE}</>,
-  <>a block runs on one processor; its threads can share a scratchpad and wait for each other. blocks go wherever there's room</>,
+  <>a block runs on one sm; its threads can use the sm's shared memory and wait for each other. blocks go wherever there's room</>,
   <>in any order, so blocks never depend on each other</>,
 ];
 
@@ -101,11 +101,11 @@ export default function Grid() {
           </div>
         )}
         <div class={`gv-wgps fade ${k >= 2 ? 'on' : ''}`} style={{ display: k < 2 ? 'none' : undefined }}>
-          <div class="muted gv-t">the 32 processors, and the blocks running on them</div>
+          <div class="muted gv-t">the 128 sms, and the blocks running on them</div>
           <div class="gv-tiles">
-            {Array.from({ length: WGPS }, (_, w) => (
+            {Array.from({ length: SMS }, (_, w) => (
               <div class="gv-wgp">
-                {states.map((s, b) => (s === 'run' && WGP_OF[b] === w ? <b>{b}</b> : null))}
+                {states.map((s, b) => (s === 'run' && SM_OF[b] === w ? <b>{b}</b> : null))}
               </div>
             ))}
           </div>
@@ -134,9 +134,9 @@ export default function Grid() {
         .grid-view .gv-px i.mine { outline: 3px solid var(--accent); outline-offset: 1px; z-index: 1; }
         .grid-view .gv-zw span { display: block; font-size: .36em; margin-top: .35em; white-space: nowrap; }
         .grid-view .gv-t { font-size: .5em; margin-bottom: .4em; }
-        .grid-view .gv-tiles { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
-        .grid-view .gv-wgp { min-height: 74px; border-radius: 7px; background: var(--panel); border: 1px solid var(--line);
-          display: flex; flex-wrap: wrap; gap: 3px; padding: 4px; align-content: flex-start; }
+        .grid-view .gv-tiles { display: grid; grid-template-columns: repeat(16, 1fr); gap: 4px; }
+        .grid-view .gv-wgp { min-height: 34px; border-radius: 5px; background: var(--panel); border: 1px solid var(--line);
+          display: flex; flex-wrap: wrap; gap: 2px; padding: 3px; align-content: flex-start; }
         .grid-view .gv-wgp b { font: 600 .38em/1.6 var(--mono); padding: 0 .3em; border-radius: 4px; background: var(--accent); color: var(--on-color); }
         .grid-view .gv-leg { display: flex; gap: 1.4em; font-size: .46em; margin-top: .6em; }
         .grid-view .gv-leg i { display: inline-block; width: 1em; height: 1em; border-radius: 3px; vertical-align: -.12em; }

@@ -7,9 +7,9 @@ import { gray, ink } from './Wave';
 
 /**
  * A branch, one instruction stream for 32 threads: lift the shadows (p < DARK → p × 2, else leave it), image.ts's
- * shadows(). Wave 166 (row 41, columns 64 … 95) crosses the hills twice, so its lanes disagree. The compare writes
- * one bit per lane into the exec mask; lanes whose bit is 0 sit through "× 2" and "store" doing nothing. The counts
- * of mixed / all-dark / all-light waves are over the whole photo.
+ * shadows(). Warp 166 (row 41, columns 64 … 95) crosses the hills twice, so its lanes disagree. The compare writes
+ * one bit per lane into the warp's active mask; lanes whose bit is 0 sit through "× 2" and "store" doing nothing. The counts
+ * of mixed / all-dark / all-light warps are over the whole photo.
  */
 const WV = 166;
 const ROW = Math.floor((WV * WAVE) / W), COL = (WV * WAVE) % W;
@@ -72,7 +72,7 @@ export default function Branch() {
         ))}
         <span class="br-n muted">&lt; {DARK}?</span>
         {P.map((_, l) => <span class={`br-y fade ${st.cmp ? 'on' : ''} ${ON[l] ? 'yes' : 'no'}`}>{ON[l] ? 'yes' : 'no'}</span>)}
-        <span class="br-n">exec</span>
+        <span class="br-n">mask</span>
         {P.map((_, l) => <span class={`br-b ${st.exec ? (ON[l] ? 'one' : 'zero') : 'blank'}`}>{st.exec ? (ON[l] ? 1 : 0) : 1}</span>)}
       </div>
       <div class="caption br-text">{st.text}</div>

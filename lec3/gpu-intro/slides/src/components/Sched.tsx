@@ -4,11 +4,12 @@ import type { ComponentChildren } from 'preact';
 import { useSlideStep } from 'slides/hooks';
 
 /**
- * One simd, n waves parked on it, each running brighten's shape: 2 instructions (work out my pixel, ask for it), a
- * long sleep until the 32 pixels arrive, then 3 more (multiply, cap at 255, store). Rows are waves, columns are cycles; the bottom row is the simd itself.
- * It's a small simulation, not a measurement: every cycle the simd runs one instruction from the first wave that
- * is awake (amd doesn't document how it really picks), and a load comes back WAIT cycles after it was sent. The
- * real wait is a few hundred cycles, so real waves sleep even more of the time than these do.
+ * One warp scheduler (a quarter of an sm), n warps parked on it, each running brighten's shape: 2 instructions (work out my pixel, ask for
+ * it), a long sleep until the 32 pixels arrive, then 3 more (multiply, cap at 255, store). Rows are warps, columns are
+ * cycles; the bottom row is the scheduler itself. It's a small simulation, not a measurement: every cycle the
+ * scheduler issues one instruction from the first warp that is ready (nvidia doesn't document how it
+ * really picks), and a load comes back WAIT cycles after it was sent. The real wait is a few hundred cycles, so real
+ * warps sleep even more of the time than these do.
  */
 const PRE = 2, POST = 3, WAIT = 30, COLS = 104;
 type Cell = 'run' | 'sleep' | 'idle';
@@ -61,7 +62,7 @@ export default function Sched() {
           </div>
         ))}
         <div class="sc-row sc-simd">
-          <span class="sc-l">the simd</span>
+          <span class="sc-l">scheduler</span>
           {Array.from({ length: COLS }, (_, c) => <i class={s.busy[c] ? 'busy' : c < s.end ? 'free' : 'idle'} />)}
         </div>
       </div>

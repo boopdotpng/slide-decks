@@ -27,7 +27,7 @@ const STEPS: St[] = [
   { wave: false, op: -1, vals: [], stored: false,
     text: <>a <b>thread</b>: its number <code>i</code>, its pixel, four steps</> },
   { wave: false, op: -1, vals: [], stored: false,
-    text: <>32 neighbouring threads share one stream of instructions: a <b>warp</b> (nvidia) or <b>wave</b> (amd)</> },
+    text: <>32 neighbouring threads share one stream of instructions: a <b>warp</b></> },
   { wave: true, op: 0, vals: P, stored: false,
     text: <><b>load</b>: one instruction, 32 different pixels</> },
   { wave: true, op: 2, vals: cap, stored: false,
