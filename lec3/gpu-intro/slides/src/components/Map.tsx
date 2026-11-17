@@ -39,7 +39,7 @@ const STEPS: { lit: Part[]; mem: boolean; text: ComponentChildren }[] = [
 const VW = 1500, VH = 640;
 const TILE = { x: 40, y: 78, w: 68, h: 68, gap: 8 };
 const CUS = [760, 1124];
-const SIMD = { dy: 112, w: 160, h: 300, gap: 14 };
+const SIMD = { dy: 112, w: 153, h: 300, gap: 14 }; // 10 + 2 × 153 + 14 + 10 = the compute unit's 340
 const HOT = 7; // the tile that's blown up: top right, next to the callout
 
 /** a memory's label: its size, and (in the memory step) how far away it is */
@@ -126,7 +126,7 @@ export default function Map({ mini = false, at }: { mini?: boolean; at?: At }) {
                     <rect x={x} y={y} width={SIMD.w} height={SIMD.h} rx={10} class="leaf" />
                     <text x={x + 12} y={y + 30} font-size="22" font-weight="700">simd</text>
                     {Array.from({ length: 32 }, (_, l) => (
-                      <rect x={x + 12 + l * 4.3} y={y + 46} width={3.2} height={90} rx={1}
+                      <rect x={x + 12 + l * 4.07} y={y + 46} width={3} height={90} rx={1}
                         class={`lane ${l === 0 && first && st.lit.includes('lane') && !st.lit.includes('simd') ? 'one' : ''}`} />
                     ))}
                     <text x={x + 12} y={y + 162} font-size="17" class="dim">32 lanes</text>

@@ -2,7 +2,6 @@
 import { useEffect, useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { useSlideStep, useTicker } from 'slides/hooks';
-import { Tex } from 'slides/viz';
 import { BLOCK, H, IMG, N, W, WAVE, brighten, paint } from './image';
 
 /**
@@ -32,8 +31,8 @@ const END = Math.max(...START.map((s, b) => s + LEN[b]));
 const PERIOD = END + 14; // hold the finished photo, then start over
 
 const TEXT: ComponentChildren[] = [
-  <>threads come in <b>blocks</b>: here 256 threads, 2 rows of pixels, 8 warps. {BLOCKS} blocks make the <b>grid</b></>,
-  <>which pixel is mine? <Tex tex={`\\text{blockIdx} \\times \\text{blockDim} + \\text{threadIdx}`} />. block {ME.block}, thread {ME.thread}: pixel {MINE}</>,
+  <>threads come in <b>blocks</b>: here {BLOCK} threads = 2 rows of pixels = 8 warps. {BLOCKS} blocks make the <b>grid</b></>,
+  <>which pixel is mine? skip {ME.block} whole blocks of {BLOCK}, then {ME.thread} more: pixel {MINE}</>,
   <>a block runs on one processor; its threads can share a scratchpad and wait for each other. blocks go wherever there's room</>,
   <>in any order, so blocks never depend on each other</>,
 ];
@@ -76,7 +75,7 @@ export default function Grid() {
         </div>
         {k < 2 && (
           <div class="gv-zoom">
-            <div class="muted gv-t">block {ME.block}, enlarged: 2 rows of 128 pixels, 8 warps of 32</div>
+            <div class="muted gv-t">block {ME.block}, enlarged: 2 rows of {W} pixels, 8 warps of {WAVE}</div>
             {[0, 1].map((r) => (
               <div class="gv-zrow">
                 {Array.from({ length: 4 }, (_, q) => {
@@ -95,6 +94,10 @@ export default function Grid() {
                 })}
               </div>
             ))}
+            <div class={`gv-f fade ${k === 1 ? 'on' : ''}`}>
+              <div>i = <span class="c-b">blockIdx.x</span> * <span class="c-s">blockDim.x</span> + <span class="c-t">threadIdx.x</span></div>
+              <div class="muted">  = <span class="c-b">{ME.block}</span> * <span class="c-s">{BLOCK}</span> + <span class="c-t">{ME.thread}</span> = <span class="c-r">{MINE}</span></div>
+            </div>
           </div>
         )}
         <div class={`gv-wgps fade ${k >= 2 ? 'on' : ''}`} style={{ display: k < 2 ? 'none' : undefined }}>
@@ -116,7 +119,7 @@ export default function Grid() {
         .grid-view .gv-cols { display: flex; gap: 1.6em; align-items: flex-start; }
         .grid-view .gv-photo { position: relative; flex: none; width: 720px; aspect-ratio: ${W} / ${H}; }
         .grid-view canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; border-radius: 4px; }
-        .grid-view .gv-blk { position: absolute; left: 0; right: 0; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 22%, transparent);
+        .grid-view .gv-blk { position: absolute; left: 0; right: 0; box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--fg) 10%, transparent);
           transition: background .25s, box-shadow .25s; }
         .grid-view .gv-blk.run { background: color-mix(in srgb, var(--accent) 30%, transparent); }
         .grid-view .gv-blk.me { box-shadow: inset 0 0 0 3px var(--hot); z-index: 1; }
@@ -124,7 +127,7 @@ export default function Grid() {
           background: color-mix(in srgb, var(--hot) 18%, transparent); }
         .grid-view .gv-mine { position: absolute; background: var(--hot); outline: 3px solid var(--hot); outline-offset: 3px; z-index: 2; }
         .grid-view .gv-wgps, .grid-view .gv-zoom { flex: 1; min-width: 0; }
-        .grid-view .gv-zrow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+        .grid-view .gv-zrow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
         .grid-view .gv-px { display: grid; grid-template-columns: repeat(${WAVE}, 1fr); height: 64px; border-radius: 4px; overflow: visible;
           box-shadow: 0 0 0 2px var(--hot); }
         .grid-view .gv-px i { position: relative; }
@@ -139,6 +142,9 @@ export default function Grid() {
         .grid-view .gv-leg i { display: inline-block; width: 1em; height: 1em; border-radius: 3px; vertical-align: -.12em; }
         .grid-view .gv-leg i.run { background: var(--accent); }
         .grid-view .gv-leg i.done { background: var(--muted); }
+        .grid-view .gv-f { font: .56em/1.7 var(--mono); white-space: pre; margin-top: 1em; }
+        .grid-view .c-b { color: var(--accent); } .grid-view .c-t { color: var(--teal); }
+        .grid-view .c-s { color: var(--purple); } .grid-view .c-r { color: var(--hot); font-weight: 700; }
         .grid-view .gv-text { font-size: .76em; min-height: 3.3em; margin-top: .7em; }
       `}</style>
     </div>
