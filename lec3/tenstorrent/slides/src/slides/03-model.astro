@@ -1,0 +1,26 @@
+---
+// gpu column: the intro deck. tenstorrent column: boop-docs (intro.md, hardware/architecture.md, matmul/README.md)
+// and blackhole-py (its manifest lists the cores each program runs on). mvmul: an 8×16 block times a 16×16 block.
+const rows = [
+  ['you write', 'what one <b>thread</b> does', 'what one <b>tile</b> does, as up to <b>5 programs</b>: move in, unpack, math, pack, move out'],
+  ['splitting the work', 'ask for a grid; the hardware deals out blocks', 'you pick which tile gets which piece'],
+  ['slow memory', 'the hardware switches to another warp', 'you overlap it: fetch the next block while computing this one'],
+  ['near memory', 'registers, a small scratchpad, caches you don\'t control', '1.5 MB per tile, laid out by you'],
+  ['one math instruction', '32 lanes, one number each', 'a block times a block: 8×16 · 16×16 = 2,048 multiply-adds'],
+  ['threads sharing data', 'atomics, shared memory, barriers', 'send it: tile to tile over the network'],
+];
+---
+<header><h2>what you write</h2></header>
+<table class="cmp">
+  <tr><th></th><th>gpu</th><th>tenstorrent</th></tr>
+  {rows.map((r, k) => (
+    <tr class={k ? 'step' : ''}><td class="cmp-n">{r[0]}</td><td set:html={r[1]} /><td set:html={r[2]} /></tr>
+  ))}
+</table>
+<style>
+  .cmp { font-size: .62em; width: 100%; }
+  .cmp td, .cmp th { padding: .55em 1.6em .55em 0; vertical-align: top; text-align: left; }
+  .cmp th { color: var(--muted); font-weight: 400; }
+  .cmp tr + tr td { border-top: 1px solid var(--border); }
+  .cmp-n { color: var(--muted); white-space: nowrap; }
+</style>

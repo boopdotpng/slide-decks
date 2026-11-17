@@ -1,0 +1,22 @@
+<header><h2>why build it like this?</h2></header>
+<div class="why">
+  <div>
+    <h3>gpu</h3>
+    <p>spends silicon on <b>hiding latency for you</b>: caches, thousands of parked warps, a scheduler. so the model stays simple: launch lots of threads</p>
+  </div>
+  <div class="step">
+    <h3>tenstorrent</h3>
+    <p>spends it on <b>sram and matrix engines</b>, and leaves the scheduling to software. data flows tile to tile instead of round-tripping through memory</p>
+  </div>
+</div>
+<ul class="why-l">
+  <li class="step">the payoff: blackhole-py decodes llama 3 8b (fp8, short prompts) at <b>81%</b> of the card's 512 GB/s memory bandwidth, because every byte's path is planned</li>
+  <li class="step">the cost: a missing wait gives a fast <i>wrong</i> answer, a buffer that can never be reserved hangs it. the compiler and libraries carry most people</li>
+</ul>
+<style>
+  .why { display: flex; gap: 2.4em; font-size: .72em; }
+  .why > div { flex: 1; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: .4em 1.1em; }
+  .why h3 { margin: .4em 0 .2em; color: var(--accent); }
+  .why-l { font-size: .66em; margin-top: 1.2em; }
+  .why-l li { margin: .5em 0; }
+</style>
