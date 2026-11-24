@@ -1,0 +1,40 @@
+---
+// anu's point from planning: ai one-shots cs assignments. flip it: the hard stuff is now the signal
+---
+<header>
+  <div class="section">why it’s hard</div>
+  <h2>hard is the point</h2>
+</header>
+<div class="vs">
+  <div class="card easy">
+    <div class="tag">a cs assignment</div>
+    <ul>
+      <li>a clear spec and an autograder</li>
+      <li>thousands of solutions already online</li>
+      <li>same problem as last year</li>
+    </ul>
+    <p class="verdict">ai one-shots it</p>
+  </div>
+  <div class="card real step">
+    <div class="tag">a blackhole kernel</div>
+    <ul>
+      <li>five programs that have to agree</li>
+      <li>barely any examples. the docs are the code</li>
+      <li>the tools changed last week</li>
+    </ul>
+    <p class="verdict">ai gets you started, then gets it wrong</p>
+  </div>
+</div>
+<p class="callout step">if ai can do the assignment, the assignment stops showing what you can do. this still does</p>
+<style>
+  .vs { display: flex; gap: 40px; justify-content: center; }
+  .card { width: 640px; background: var(--panel); border: 2px solid var(--border); border-radius: 14px; padding: 16px 28px; }
+  .card.real { border: 3px solid var(--good); background: var(--tint-green); }
+  .tag { font-size: 20px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .card.real .tag { color: var(--good); }
+  ul { font-size: 28px; margin: 10px 0; }
+  li { margin: 6px 0; }
+  .verdict { font-size: 32px; font-weight: 750; margin: 12px 0 4px; }
+  .easy .verdict { color: var(--muted); }
+  .callout { text-align: center; margin: 30px auto 0; max-width: 1200px; font-size: 32px; font-weight: 650; line-height: 1.25; }
+</style>

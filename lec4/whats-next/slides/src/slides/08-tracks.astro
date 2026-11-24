@@ -1,0 +1,47 @@
+---
+// four ways in, each with one first task. tasks come from blackhole-py master: research.md §4 (the noc.read cap),
+// compiler/DESIGN.md §9 (the reading guide + ast exercise), README (serve.py, batched backends in progress)
+const tracks = [
+  { t: 'kernels', k: 'ttrv', card: true,
+    first: 'read the small kernels in examples/common, then make the hard-coded in-flight cap on noc.read a cap= option and measure gb/s',
+    where: 'research.md §4: ~30 lines' },
+  { t: 'compiler', k: 'tinygrad → blackhole', card: false,
+    first: 'dump the kernel ast tinygrad hands a backend (VIZ=1) for five ops: add, rmsnorm, two matmuls, attention',
+    where: 'compiler/DESIGN.md §9: the 11 tinygrad files that matter' },
+  { t: 'serving', k: 'models + server', card: true,
+    first: 'run serve.py and batch_check.py, then pick up a piece of the batched qwen or inkling backends',
+    where: 'README: batched backends in progress' },
+  { t: 'study', k: 'catch up', card: false,
+    first: 'work back through the decks: the mnist exercises, the three matmul bugs, the training-lab experiments',
+    where: 'every deck is on the site' },
+];
+---
+<header>
+  <div class="section">what’s next</div>
+  <h2>four ways in</h2>
+  <p class="sub">each with one first task. no card? start with compiler or study</p>
+</header>
+<div class="tracks">
+  {tracks.map((t, i) => (
+    <div class={`tr ${i ? 'step' : ''}`}>
+      <div class="top"><b>{t.t}</b><span class={`need ${t.card ? 'card' : 'lap'}`}>{t.card ? 'needs the card' : 'laptop only'}</span></div>
+      <div class="k">{t.k}</div>
+      <p class="first"><em>first task</em>{t.first}</p>
+      <p class="where">{t.where}</p>
+    </div>
+  ))}
+</div>
+<style>
+  .tracks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; }
+  .tr { background: var(--panel); border: 2px solid var(--border); border-top: 6px solid var(--good); border-radius: 14px; padding: 16px 20px;
+    display: flex; flex-direction: column; }
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .top b { font-size: 34px; }
+  .need { font-size: 14px; font-weight: 750; text-transform: uppercase; letter-spacing: .06em; padding: 3px 9px; border-radius: 7px; white-space: nowrap; }
+  .need.card { color: var(--hot); border: 2px solid var(--hot); }
+  .need.lap { color: var(--accent); border: 2px solid var(--accent); }
+  .k { font-family: var(--mono); font-size: 18px; color: var(--muted); margin: 2px 0 10px; }
+  .first { font-size: 23px; line-height: 1.32; margin: 0; flex: 1; }
+  .first em { display: block; font-style: normal; font-size: 15px; font-weight: 750; text-transform: uppercase; letter-spacing: .08em; color: var(--good); margin-bottom: 4px; }
+  .where { font-size: 18px; color: var(--muted); margin: 12px 0 0; padding-top: 10px; border-top: 2px solid var(--border); }
+</style>

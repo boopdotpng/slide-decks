@@ -1,0 +1,42 @@
+---
+// ai day's "what's next" (ai-day/blackhole 10-next), updated to blackhole-py master (facts.json blackhole_py).
+// step 1: the status pills. step 2: the open slots
+import f from '../facts.json';
+const B = f.blackhole_py;
+const items = [
+  { t: 'a kernel language', s: `ttrv: one program drives all five cpus and both engines in a core. ${B.ttrv_kernels} kernels in blackhole-py today`, st: 'built', cls: 'good' },
+  { t: 'a simple compiler', s: `turn a model’s graph into ttrv kernels. a tinygrad-style uop core (${B.uop_lines} lines) and a design doc, not much more`, st: 'started', cls: 'hot' },
+  { t: 'tinygrad on the card', s: 'researchers write model(x) and it runs on blackhole, no kernels by hand', st: 'open', cls: 'open' },
+];
+---
+<header>
+  <div class="section">what’s next</div>
+  <h2>the ai day roadmap: where it stands</h2>
+  <p class="sub">blackhole-py now also runs {B.models.join(', ')}, behind an openai-compatible server</p>
+</header>
+<div class="road">
+  {items.map((it, i) => (
+    <div class="item">
+      <i>{i + 1}</i>
+      <div class="txt"><b>{it.t}</b><span>{it.s}</span></div>
+      <em class={`st ${it.cls}`}>{it.st}</em>
+    </div>
+  ))}
+  <div class="step"></div>
+  <p class="who step">every step has room for more people. the compiler and tinygrad have almost nobody</p>
+</div>
+<style>
+  .road { width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+  .item { display: flex; gap: 22px; align-items: center; background: var(--panel); border-left: 6px solid var(--good); border-radius: 10px; padding: 14px 24px; }
+  .item i { font-style: normal; font-size: 48px; font-weight: 800; color: var(--good); width: 36px; flex: none; text-align: center; }
+  .txt { flex: 1; }
+  .txt b { display: block; font-size: 34px; }
+  .txt span { display: block; font-size: 23px; line-height: 1.3; color: var(--muted); margin-top: 4px; }
+  .st { font-style: normal; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; padding: 4px 14px;
+    border-radius: 8px; border: 2px solid; flex: none; transition: opacity .3s; }
+  :global(.slide[data-step="0"]) .st { opacity: 0; }
+  .st.good { color: var(--good); border-color: var(--good); background: var(--tint-green); }
+  .st.hot { color: var(--hot); border-color: var(--hot); background: color-mix(in srgb, var(--hot) 14%, transparent); }
+  .st.open { color: var(--accent); border-color: var(--accent); background: var(--tint-blue); }
+  .who { font-size: 30px; font-weight: 650; color: var(--good); margin: 10px 0 0; text-align: center; }
+</style>

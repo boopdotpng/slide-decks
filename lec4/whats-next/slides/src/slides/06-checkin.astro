@@ -1,0 +1,22 @@
+---
+// the project's own challenges, said plainly. one per step
+const items = [
+  ['we never got to the compiler', 'the part where ml and systems meet. everything so far was setup for it'],
+  ['lectures were us talking', 'the next part only works if you build. you won’t learn this chip by watching'],
+  ['rafan is leaving the country', 'no more in-person meetings. if blackhole keeps going, it goes online'],
+  ['almost nobody here learns with ai', 'we can tell. more on that in a minute'],
+];
+---
+<header>
+  <div class="section">honest check-in</div>
+  <h2>what didn’t go to plan</h2>
+</header>
+<div class="list">
+  {items.map(([b, s], i) => <div class={`it ${i ? 'step' : ''}`}><b>{b}</b><span>{s}</span></div>)}
+</div>
+<style>
+  .list { display: flex; flex-direction: column; gap: 16px; width: 1200px; margin: 0 auto; }
+  .it { background: var(--panel); border-left: 6px solid var(--hot); border-radius: 10px; padding: 12px 24px; }
+  .it b { display: block; font-size: 34px; }
+  .it span { display: block; font-size: 24px; color: var(--muted); margin-top: 2px; }
+</style>

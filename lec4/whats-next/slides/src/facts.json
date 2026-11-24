@@ -1,0 +1,48 @@
+{
+  "_readme": "every number on these slides comes from here, with where it came from. change a value once and the slides follow.",
+  "semester": {
+    "_source": "the committed decks in this repo (deck.config.ts titles, slide counts from src/slides), 2026-11-24",
+    "sessions": [
+      { "name": "lecture 1", "decks": [["assembly → the cpu", 21], ["rnn → gpt-2", 32]],
+        "now": "read assembly, follow one prompt through gpt-2" },
+      { "name": "lecture 2", "decks": [["how a computer executes programs", 22], ["one head at a time", 46], ["transformer training lab", 14], ["train mnist", 17]],
+        "now": "what the os and driver do, read a head off its weights, train a model on your laptop" },
+      { "name": "lecture 3", "decks": [["how a gpu runs your code", 9], ["the gpu, bottom up", 26], ["matmul, two ways", 9], ["the same brighten, on tenstorrent", 5]],
+        "now": "write a cuda kernel, tile a matmul, see why blackhole plans every byte" },
+      { "name": "ai day", "decks": [["project blackhole booth", 10]],
+        "now": "llama on a $999 card, over thunderbolt, on a macbook" }
+    ]
+  },
+  "card": {
+    "cores": 120,
+    "core_sram_mb": 1.5,
+    "riscv_per_core": 5,
+    "price_usd": 999,
+    "_source": "ai-day/blackhole/slides/src/facts.json (cair blackhole deck appendix 1; blackhole architecture guide, anuraagw.me): p100a"
+  },
+  "stack": {
+    "repos": 163,
+    "archived": 28,
+    "loc_m": 2.4,
+    "first_build_min": 40,
+    "_source": "ai-day/blackhole/slides/src/facts.json: gh repo list tenstorrent (2026-11-16); source lines of the 9 repos on the ai day lines slide (2,441,185); ~40 min first build is our experience"
+  },
+  "blackhole_py": {
+    "ttrv_py_lines": 7884,
+    "ttrv_kernels": 65,
+    "uop_lines": 266,
+    "models": ["nanbeige4.3 33b", "qwen3.8 27b", "inkling 2 mini"],
+    "_source": "github.com/boopdotpng/blackhole-py master @ 4f01270 (2026-11-23): wc -l ttrv/*.py, find -name '*.ttrv', wc -l compiler/uop.py, README models list"
+  },
+  "post": {
+    "views": "14k",
+    "_source": "ai-day facts.json post: the macos announcement on x, screenshot 2026-11-16"
+  },
+  "bounties": {
+    "tt_min": 500,
+    "tt_max": 3000,
+    "_source": "docs.tenstorrent.com tt-vscode-toolkit bounty-program lesson ($500–$3000 per model bring-up); github.com/tenstorrent/tt-metal/labels/bounty"
+  },
+  "site": "boopdotpng.github.io/slide-decks",
+  "repo": "github.com/boopdotpng/blackhole-py"
+}

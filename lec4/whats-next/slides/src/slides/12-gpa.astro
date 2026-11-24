@@ -1,0 +1,35 @@
+---
+// anu's point: forget about gpa and build things outside class. the fine line: a floor, not a target.
+// hiring facts: tinygrad.org (hiring section), tenstorrent bounty program (facts.json bounties), ai day post (facts.json post)
+import f from '../facts.json';
+---
+<header>
+  <div class="section">how to work</div>
+  <h2>outside class matters more than your gpa</h2>
+  <p class="sub">not instead of it. a floor, not a target</p>
+</header>
+<div class="two">
+  <div class="card floor">
+    <div class="tag">gpa is a floor</div>
+    <p>clear the bar that resume filters and grad schools use</p>
+    <p>past that, each extra tenth buys you very little</p>
+  </div>
+  <div class="card public step">
+    <div class="tag">public work compounds</div>
+    <div class="pt"><b>tinygrad</b><span>won’t look at an application without contributions. bounties pay you while they judge the fit</span></div>
+    <div class="pt"><b>tenstorrent</b><span>pays ${f.bounties.tt_min.toLocaleString('en-US')}–${f.bounties.tt_max.toLocaleString('en-US')} bounties for bringing models up on tt-metal</span></div>
+    <div class="pt"><b>blackhole</b><span>the mac port post: {f.post.views} views in a day. nobody asked anyone’s gpa</span></div>
+  </div>
+</div>
+<style>
+  .two { display: flex; gap: 40px; justify-content: center; align-items: stretch; }
+  .card { background: var(--panel); border: 2px solid var(--border); border-radius: 14px; padding: 18px 28px; }
+  .floor { width: 500px; }
+  .public { width: 820px; border: 3px solid var(--good); background: var(--tint-green); display: flex; flex-direction: column; gap: 12px; }
+  .tag { font-size: 20px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .public .tag { color: var(--good); }
+  .floor p { font-size: 30px; line-height: 1.3; margin: 10px 0; }
+  .pt { display: flex; gap: 18px; align-items: baseline; }
+  .pt b { width: 160px; flex: none; font-size: 28px; }
+  .pt span { font-size: 24px; line-height: 1.3; color: var(--muted); }
+</style>

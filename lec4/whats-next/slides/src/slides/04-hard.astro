@@ -1,0 +1,40 @@
+---
+// what makes tenstorrent hard, in two columns: the chip (lec3/tenstorrent) and the official software (ai day slides 4-6).
+// numbers from facts.json
+import f from '../facts.json';
+const chip = [
+  [`${f.card.cores} cores, ${f.card.core_sram_mb} mb of sram each`, 'no cache. kernels copy every byte in and out themselves'],
+  [`${f.card.riscv_per_core} programs per core`, 'move in, unpack, math, pack, move out. they have to agree'],
+  ['sync by hand', 'a missing wait is a fast wrong answer. a buffer that never frees hangs the card'],
+];
+const sw = [
+  [`${f.stack.repos} repos, ${f.stack.archived} archived`, 'several ways in from pytorch, some already dead'],
+  [`${f.stack.loc_m} million lines`, 'and that’s before llvm, built from source at one pinned commit'],
+  [`~${f.stack.first_build_min} min first build`, 'linux only. the docs are mostly the source code'],
+];
+---
+<header>
+  <div class="section">why it’s hard</div>
+  <h2>what makes tenstorrent hard</h2>
+</header>
+<div class="hard">
+  <div class="col">
+    <h3>the chip</h3>
+    {chip.map(([b, s]) => <div class="pt"><b>{b}</b><span>{s}</span></div>)}
+  </div>
+  <div class="col step">
+    <h3>the software</h3>
+    {sw.map(([b, s]) => <div class="pt sw"><b>{b}</b><span>{s}</span></div>)}
+  </div>
+</div>
+<p class="callout step">so we wrote our own: blackhole-py skips almost all of it</p>
+<style>
+  .hard { display: flex; gap: 48px; justify-content: center; }
+  .col { width: 660px; display: flex; flex-direction: column; gap: 16px; }
+  .col h3 { font-size: 30px; color: var(--muted); font-weight: 500; margin: 0; }
+  .pt { background: var(--panel); border-left: 6px solid var(--purple); border-radius: 10px; padding: 10px 20px; }
+  .pt.sw { border-left-color: var(--hot); }
+  .pt b { display: block; font-size: 34px; line-height: 1.15; }
+  .pt span { display: block; font-size: 22px; line-height: 1.3; color: var(--muted); margin-top: 2px; }
+  .callout { text-align: center; margin-top: 26px; font-size: 30px; font-weight: 650; color: var(--good); }
+</style>

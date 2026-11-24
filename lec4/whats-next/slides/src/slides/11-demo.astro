@@ -1,0 +1,49 @@
+---
+// the live demo: paste copy_tile into claude / codex, ask the three questions, check the answers against the source.
+// kernel: blackhole-py examples/common/copy_tile.ttrv @ 4f01270. the one-line replay is split over three lines to fit; otherwise verbatim
+import Code from 'slides/Code';
+const src = `replay copy_rows {
+    repeat r in 0..8 { math.mova2d dst[r * 8], src=r * 8 }
+}
+
+// Copy the next SrcA tile into Dst tile t.
+macro copy_tile(t) {
+    tensix.stall math, srca_vld|sfpu
+    math.rwc reset
+    math.cfg dst_offset=t * dst.tile
+    replay.run copy_rows
+    tensix.stall sync, math
+    math.cfg dst_offset=0
+    math.rwc reset, release=a
+}`;
+---
+<header>
+  <div class="section">how to work · live</div>
+  <h2>learning a kernel nobody taught you</h2>
+  <p class="sub">examples/common/copy_tile.ttrv from blackhole-py, pasted into an ai</p>
+</header>
+<div class="demo">
+  <div class="code"><Code lang="c" code={src} /></div>
+  <div class="side">
+    <ol>
+      <li><b>ask</b>explain this line by line. what does the first stall wait for?</li>
+      <li class="step"><b>poke</b>what happens if i delete the first stall?</li>
+      <li class="step"><b>check</b>open ttrv/ and the isa docs. was it right?</li>
+    </ol>
+    <div class="rules step">
+      <h3>the rules</h3>
+      <p>check it against the source · run it · explain it back with the chat closed</p>
+    </div>
+  </div>
+</div>
+<style>
+  .demo { display: flex; gap: 40px; align-items: center; justify-content: center; }
+  .code { width: 860px; font-size: 27px; }
+  .side { width: 600px; }
+  ol { list-style: none; padding: 0; margin: 0; }
+  li { font-size: 27px; line-height: 1.3; margin: 0 0 16px; background: var(--panel); border-left: 6px solid var(--accent); border-radius: 10px; padding: 10px 18px; }
+  li b { display: block; font-size: 16px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+  .rules { background: var(--tint-green); border: 3px solid var(--good); border-radius: 12px; padding: 12px 20px; margin-top: 8px; }
+  .rules h3 { margin: 0 0 4px; font-size: 26px; color: var(--good); }
+  .rules p { margin: 0; font-size: 25px; line-height: 1.3; }
+</style>

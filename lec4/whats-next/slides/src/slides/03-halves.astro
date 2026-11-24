@@ -1,0 +1,54 @@
+---
+// the ai day "what we're learning" slide (ai-day/blackhole 09-learning), now with progress:
+// step 1 stamps both halves done, step 2 lights the synthesis as what's left
+---
+<header>
+  <div class="section">where we’ve been</div>
+  <h2>you’ve done both halves</h2>
+  <p class="sub">the plan from day one: learn ml and systems, then put them together in a compiler</p>
+</header>
+<div class="learn">
+  <div class="pillars">
+    <div class="pillar ml">
+      <h3>ml foundations <span class="stamp step">done</span></h3>
+      <ul>
+        <li>tensors, gradients, training loops</li>
+        <li>attention, one head at a time</li>
+        <li>models as graphs</li>
+      </ul>
+    </div>
+    <div class="pillar sys">
+      <h3>computer systems <span class="stamp" data-at="1">done</span></h3>
+      <ul>
+        <li>risc-v, the cpu, the os, the driver</li>
+        <li>gpus, threads, tiled matmul</li>
+        <li>a chip where you plan every byte</li>
+      </ul>
+    </div>
+  </div>
+  <div class="meet"><span>↘</span><span>↙</span></div>
+  <div class="synth step">
+    <h3><span class="kick">what’s left:</span> a compiler for this chip</h3>
+    <p>turn a model’s graph into kernels blackhole runs. most of you haven’t seen this part yet. that’s the point of what’s next</p>
+  </div>
+</div>
+<style>
+  .learn { display: flex; flex-direction: column; align-items: center; }
+  .pillars { display: flex; gap: 40px; }
+  .pillar { width: 640px; background: var(--panel); border: 2px solid var(--border); border-radius: 14px; padding: 14px 26px; }
+  .pillar.ml { border-top: 6px solid var(--accent); }
+  .pillar.sys { border-top: 6px solid var(--purple); }
+  .pillar h3 { margin: 0 0 8px; font-size: 34px; display: flex; align-items: center; gap: 16px; }
+  .pillar ul { font-size: 27px; margin: 0; }
+  .pillar li { margin: 4px 0; }
+  .stamp { font-size: 17px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--good);
+    border: 2px solid var(--good); border-radius: 8px; padding: 2px 10px; background: var(--tint-green); }
+  /* the second stamp comes in with the first: one step for both */
+  .stamp[data-at] { opacity: 0; transition: opacity .3s; }
+  :global(.slide:not([data-step="0"])) .stamp[data-at] { opacity: 1; }
+  .meet { display: flex; gap: 420px; font-size: 48px; color: var(--faint); line-height: 1; margin: 4px 0; }
+  .synth { width: 960px; text-align: center; background: var(--tint-green); border: 3px solid var(--good); border-radius: 14px; padding: 14px 26px; }
+  .synth h3 { margin: 0 0 4px; font-size: 36px; }
+  .synth .kick { color: var(--good); }
+  .synth p { margin: 0; font-size: 24px; color: var(--muted); }
+</style>

@@ -1,0 +1,26 @@
+---
+// everything to open after the meeting. the site url is the deck index this deck is published on
+import f from '../facts.json';
+const links = [
+  ['every deck from the semester', f.site],
+  ['the runtime, ttrv and the compiler', f.repo],
+  ['the compiler design doc', `${f.repo}/blob/master/compiler/DESIGN.md`],
+  ['tinygrad, and its bounties', 'github.com/tinygrad/tinygrad'],
+  ['tenstorrent bounties', 'github.com/tenstorrent/tt-metal/labels/bounty'],
+];
+---
+<header>
+  <div class="section">links</div>
+  <h2>keep going</h2>
+</header>
+<div class="links">
+  {links.map(([t, u]) => <div class="l"><span>{t}</span><a href={`https://${u}`}><code>{u}</code></a></div>)}
+</div>
+<p class="bye">thanks for showing up all semester</p>
+<style>
+  .links { width: 1300px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+  .l { display: flex; justify-content: space-between; align-items: baseline; gap: 30px; background: var(--panel); border-radius: 10px; padding: 12px 24px; }
+  .l span { font-size: 28px; }
+  .l code { font-size: 22px; background: none; padding: 0; }
+  .bye { text-align: center; margin-top: 34px; font-size: 34px; font-weight: 650; color: var(--good); }
+</style>

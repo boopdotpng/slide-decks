@@ -1,0 +1,35 @@
+---
+// the semester in four columns, one per session, each revealed on →. decks + slide counts from facts.json
+import f from '../facts.json';
+const S = f.semester.sessions;
+const decks = S.reduce((n, s) => n + s.decks.length, 0);
+const slides = S.reduce((n, s) => n + s.decks.reduce((m, d) => m + (d[1] as number), 0), 0);
+---
+<header>
+  <div class="section">where we’ve been</div>
+  <h2>one semester, bottom to top</h2>
+  <p class="sub">{decks} decks, {slides} slides. all of them are still online</p>
+</header>
+<div class="sem">
+  {S.map((s, i) => (
+    <div class={`col ${i ? 'step' : ''} ${s.name === 'ai day' ? 'event' : ''}`}>
+      <div class="name">{s.name}</div>
+      <ul>
+        {s.decks.map((d) => <li><span>{d[0]}</span><i>{d[1]}</i></li>)}
+      </ul>
+      <p class="now"><b>you can now</b>{s.now}</p>
+    </div>
+  ))}
+</div>
+<style>
+  .sem { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; width: 100%; }
+  .col { background: var(--panel); border: 2px solid var(--border); border-top: 6px solid var(--accent); border-radius: 14px;
+    padding: 16px 22px; display: flex; flex-direction: column; }
+  .col.event { border-top-color: var(--good); }
+  .name { font-size: 32px; font-weight: 750; margin-bottom: 8px; }
+  ul { list-style: none; padding: 0; margin: 0; flex: 1; }
+  li { display: flex; justify-content: space-between; gap: 12px; font-size: 22px; line-height: 1.3; margin: 6px 0; }
+  li i { font-style: normal; color: var(--faint); font-family: var(--mono); font-size: 18px; padding-top: 3px; }
+  .now { margin: 14px 0 0; padding-top: 12px; border-top: 2px solid var(--border); font-size: 21px; line-height: 1.3; color: var(--muted); }
+  .now b { display: block; color: var(--fg); font-size: 16px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+</style>
