@@ -1,0 +1,31 @@
+import{r as e,u as t}from"./viz.BfyPauLx.js";import{r as n}from"./preact.module.Bl7PEaKa.js";import{t as r}from"./hooks.module.BNbONuGS.js";import{n as i,t as a}from"./roles.Ca55homO.js";var o=`a2f5c9d3f`,s=9,c=8,l=1400,u=600,d=e=>290+e*125,f={tok:64,emb:100,read:128,attn:263,mlp:393,top:477,out:565},p=56,m=30,h=[[[0,1]],[[0,.7],[1,.4]],[[1,.8],[2,.3]],[[0,.5],[2,.9]],[[1,.6],[3,.4]],[[2,.3],[4,.9]],[[0,.4],[3,.7],[6,.3]],[[5,.8],[6,.5]],[[1,.5],[5,.9],[6,.4]]],g=[a(n,{children:[`one vector per position: its `,a(`b`,{children:`residual stream`}),`. stacked, one row each: `,a(e,{tex:`X`}),`, `,a(e,{tex:`9 \\times 32`})]}),a(n,{children:[`attention at f: pulls from a few earlier streams (which ones is learned), `,a(`b`,{children:`adds`}),` a vector into its own`]}),a(n,{children:[`every position does the same, at once: one matmul on all of `,a(e,{tex:`X`}),`, each reads only its own and earlier streams`]}),a(n,{children:[`mlp: each position reads its own stream, `,a(`b`,{children:`adds`}),` back into it`]}),a(n,{children:`unembed reads only the last stream → 36 scores`}),a(n,{children:[`nothing overwrites: `,a(e,{tex:`x \\leftarrow x + f(x)`})]})],_=[g[0],a(n,{children:`no layers: unembed reads the last stream → 36 scores`})];function v({cx:e,cy:t,kind:n,on:r,delay:i=0}){return a(`g`,{class:`chip ${n} fade ${r?`on`:``}`,style:{transitionDelay:r?`${i}ms`:`0ms`},children:[a(`rect`,{x:e-p/2,y:t-m/2,width:p,height:m,rx:`6`}),n!==`emb`&&a(`path`,{d:`M ${e-7} ${t} H ${e+7} M ${e} ${t-7} V ${t+7}`})]})}function y(e,t){let n=f.attn-m/2;return e===t?`M ${d(t)} ${f.read} V ${n}`:`M ${d(e)} ${f.read} C ${d(e)} ${f.read+80}, ${d(t)} ${n-70}, ${d(t)} ${n}`}var b=e=>{let t=f.attn+m/2+22;return`M ${d(e)} ${t} C ${d(e)+55} ${t+10}, ${d(e)+55} ${f.mlp-4}, ${d(e)+p/2} ${f.mlp}`};function x({layers:p=!0}){let m=r(null),x=i(m),S=p?x:x>=1?4:0,C=e=>S===1?e===c:S>=2,w=e=>S===2&&e!==c?e*90:0;return a(`div`,{class:`resid`,ref:m,children:[a(`svg`,{viewBox:`0 0 ${l} ${u}`,children:[a(`text`,{class:`lbl`,x:`20`,y:f.emb+8,children:`embedding`}),p&&a(n,{children:[a(`text`,{class:`lbl fade ${S>=1?`on`:``}`,x:`20`,y:(f.read+f.attn)/2+8,children:`attention`}),a(`text`,{class:`lbl fade ${S>=3?`on`:``}`,x:`20`,y:f.mlp+8,children:`mlp`})]}),a(`text`,{class:`lbl fade ${S>=4?`on`:``}`,x:`20`,y:f.out+8,children:`unembed`}),t(s).map(e=>a(`g`,{class:`col ${S===4&&e!==c?`dim`:``}`,children:[a(`line`,{class:`stream`,x1:d(e),x2:d(e),y1:f.emb,y2:f.top}),a(`text`,{class:`tok ${/\d/.test(o[e])?`dg`:``} ${S===1&&e===c?`cur`:``}`,x:d(e),y:f.tok,children:o[e]})]})),p&&t(s).map(e=>a(`g`,{class:`arcs ${C(e)?`on`:``} ${S===1?`one`:``} ${S>=3?`past`:``}`,style:{transitionDelay:`${w(e)}ms`},children:h[e].map(([t,n])=>a(`path`,{d:y(t,e),style:{strokeWidth:1.5+3*n}}))})),t(s).map(e=>a(`g`,{class:`col ${S===4&&e!==c?`dim`:``}`,children:[a(v,{cx:d(e),cy:f.emb,kind:`emb`,on:!0}),p&&a(n,{children:[a(v,{cx:d(e),cy:f.attn,kind:`attn`,on:C(e),delay:w(e)+150}),a(`path`,{class:`loop fade ${S>=3?`on`:``}`,d:b(e)}),a(v,{cx:d(e),cy:f.mlp,kind:`mlp`,on:S>=3})]})]})),a(`g`,{class:`fade ${S>=4?`on`:``}`,children:[a(`line`,{class:`stream last`,x1:d(c),x2:d(c),y1:f.top,y2:f.out-22}),a(`rect`,{class:`unemb`,x:d(c)-95,y:f.out-22,width:`190`,height:`44`,rx:`10`}),a(`text`,{class:`ulbl`,x:d(c),y:f.out+7,children:`36 scores`})]})]}),a(`div`,{class:`cap`,children:[a(`div`,{class:`caption`,children:p?g[Math.min(S,g.length-1)]:S>=4?_[1]:_[0]}),a(`div`,{class:`eq`,children:[a(e,{tex:`x = \\htmlClass{emb}{\\text{emb}}`}),p&&a(n,{children:[a(`span`,{class:`fade ${S>=1?`on`:``}`,children:[` `,a(e,{tex:`+\\, \\htmlClass{attn}{\\text{attn}}`})]}),a(`span`,{class:`fade ${S>=3?`on`:``}`,children:[` `,a(e,{tex:`+\\, \\htmlClass{mlp}{\\text{mlp}}`})]})]})]})]}),a(`style`,{children:`
+        .resid svg { width: 100%; display: block; overflow: visible; max-height: 66cqh; }
+        .resid .lbl { font-family: var(--mono); font-size: 26px; fill: var(--muted); }
+        .resid .col { transition: opacity .3s; }
+        .resid .col.dim { opacity: .35; }
+        .resid .stream { stroke: var(--raised-2); stroke-width: 6; stroke-linecap: round; }
+        .resid .stream.last { stroke: var(--answer); stroke-width: 4; }
+        .resid .tok { font-family: var(--mono); font-size: 40px; fill: var(--fg); text-anchor: middle; transition: fill .3s; }
+        .resid .tok.dg { fill: var(--digit); }
+        .resid .tok.cur { fill: var(--attn); }
+        .resid .chip rect { stroke-width: 2; }
+        .resid .chip path { stroke-width: 3; stroke-linecap: round; }
+        .resid .chip.emb rect { fill: var(--raised); stroke: var(--muted); }
+        .resid .chip.attn rect { fill: color-mix(in srgb, var(--attn) 22%, var(--bg)); stroke: var(--attn); }
+        .resid .chip.attn path { stroke: var(--attn); }
+        .resid .chip.mlp rect { fill: color-mix(in srgb, var(--mlp) 22%, var(--bg)); stroke: var(--mlp); }
+        .resid .chip.mlp path { stroke: var(--mlp); }
+        .resid .arcs path { fill: none; stroke: var(--attn); stroke-width: 2; opacity: 0; transition: opacity .4s; transition-delay: inherit; }
+        .resid .arcs.on path { opacity: .5; }
+        .resid .arcs.on.one path { opacity: .85; }
+        .resid .arcs.on.past path { opacity: .12; }
+        .resid .loop { fill: none; stroke: var(--mlp); stroke-width: 2.5; }
+        .resid .unemb { fill: color-mix(in srgb, var(--answer) 10%, transparent); stroke: var(--answer); stroke-width: 2; }
+        .resid .ulbl { font-family: var(--mono); font-size: 26px; fill: var(--answer); text-anchor: middle; }
+        .resid .fade { transition: opacity .35s; }
+        .resid .cap { display: flex; justify-content: space-between; align-items: baseline; gap: 1em; font-size: .8em; min-height: 2.6em; }
+        .resid .eq { font-family: var(--mono); color: var(--muted); white-space: nowrap; }
+
+        .resid .eq .emb { color: var(--fg); } .resid .eq .attn { color: var(--attn); } .resid .eq .mlp { color: var(--mlp); }
+        .resid .math { white-space: nowrap; color: var(--fg); }
+      `})]})}export{x as default};

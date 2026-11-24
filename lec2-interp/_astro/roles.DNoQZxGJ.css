@@ -1,0 +1,1 @@
+:root{--digit:var(--hot);--answer:var(--good);--attn:var(--accent);--l2:var(--purple);--mlp:var(--teal);--key-a:var(--accent);--key-b:var(--pink);--focus:var(--yellow)}:root .mx .hlbox{stroke:var(--focus);stroke-width:3px}:root .mx .rl.dg{fill:var(--digit)}

@@ -1,0 +1,16 @@
+import{t as e}from"./hooks.module.U3JihANK.js";import{c as t,o as n,r}from"./hooks.DjY2cg7H.js";import{J as i,b as a,x as o,y as s}from"./viz.BpU9tPyD.js";var c=[`your code calls a library. the library asks the kernel (open, ioctl, mmap), and the kernel talks to the card over pcie`,`the part of the kernel that knows the card is its driver: tt-kmd. it runs in ring 0, so a bug in it crashes the whole machine, not just your program`,`most drivers ship inside linux. tt-kmd doesn't: you install it yourself, built for your exact kernel version. dkms rebuilds it when you update linux`,`loading it: the card says "i'm 1e52:b140" on pcie (tenstorrent, blackhole). the kernel hands it to tt-kmd, which sets the card up and creates /dev/tenstorrent/0`,`once it's set up, the fast path skips the kernel entirely: plain stores straight to the card. next: how`],l={fill:`var(--surface)`,stroke:`var(--line)`},u={2:{title:`install (once)`,code:`
+git clone https://github.com/tenstorrent/tt-kmd
+cd tt-kmd
+make dkms
+  # dkms add .
+  # dkms install tenstorrent/<version>
+  # modprobe tenstorrent`},3:{title:`is it there?`,code:`
+lsmod | grep tenstorrent   # loaded?
+ls /dev/tenstorrent/       # 0
+dmesg | grep tenstorrent   # its log`}};function d(){let d=e(null),f=r(d);return t(`div`,{class:`drv`,ref:d,children:[t(`div`,{class:`drv-cols`,children:[t(`svg`,{viewBox:`0 0 1100 600`,class:`diagram`,children:[t(a,{x:10,y:10,w:1080,h:170,fill:`var(--sunken)`,tag:`ring 3`}),t(a,{x:40,y:40,w:300,h:120,...l,title:`your program`,sub:`python, c++, …`}),t(a,{x:420,y:40,w:420,h:120,...l,title:`a library`,sub:`tt-metal, blackhole-py, …`}),t(s,{from:[340,100],to:[420,100],color:`var(--muted)`}),t(a,{x:10,y:250,w:1080,h:170,fill:`var(--sunken)`,tag:`ring 0`}),t(`text`,{x:40,y:300,"font-size":`32`,"font-weight":`700`,fill:`var(--fg)`,children:`kernel`}),t(`text`,{x:40,y:340,"font-size":`22`,fill:`var(--muted)`,children:`scheduler · memory · …`}),t(a,{x:420,y:280,w:420,h:120,...l,stroke:f>=1?i.accent:l.stroke,title:`tt-kmd`,sub:f>=2?`tenstorrent.ko: a kernel module`:`the card's driver`}),t(a,{x:10,y:490,w:1080,h:100,title:`accelerator`,sub:`a grid of risc-v cores`,tag:`pcie card`}),t(s,{from:[630,160],to:[630,280],color:i.good,label:`open · ioctl · mmap`}),t(s,{from:[630,400],to:[630,490],color:i.good,label:`pcie`}),t(o,{on:f>=3,children:[t(`rect`,{x:300,y:196,width:300,height:44,rx:8,fill:`var(--hl)`}),t(`text`,{x:450,y:226,"font-size":`24`,"font-family":`var(--mono)`,fill:`var(--fg)`,"text-anchor":`middle`,children:`/dev/tenstorrent/0`})]}),t(s,{from:[190,160],to:[190,490],on:f>=4,color:i.accent,label:`plain stores`})]}),t(`div`,{class:`drv-side fade ${u[f]?`on`:``}`,children:[t(`div`,{class:`muted`,children:u[f]?.title}),t(n,{lang:`py`,code:u[f]?.code??``})]})]}),t(`div`,{class:`caption`,children:c[f]}),t(`style`,{children:`
+        .drv-cols { display: flex; gap: 1em; align-items: center; }
+        .drv svg { flex: 1.15; min-width: 0; }
+        .drv-side { flex: 1; min-width: 0; font-size: .55em; }
+        .drv-side pre { margin: .3em 0 0; }
+        .drv .caption { color: var(--fg); font-size: .75em; min-height: 3em; }
+      `})]})}export{d as default};

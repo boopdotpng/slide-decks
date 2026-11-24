@@ -1,0 +1,28 @@
+import{r as e}from"./preact.module.Bl7PEaKa.js";import{i as t,t as n}from"./hooks.module.BNbONuGS.js";import{n as r,t as i}from"./jsxRuntime.module.C3VZDa9b.js";import{a,i as o,n as s,t as c}from"./image.JmJtW1sF.js";import{gray as l,ink as u}from"./Wave.DZ4ZX1Xc.js";var d=166,f=Math.floor(d*32/128),p=d*32%128,m=Array.from(c.slice(d*32,d*32+32)),h=m.map(e=>e<40),g=h.filter(Boolean).length,_=a(c),v=(()=>{let e=0,t=0,n=0;for(let r=0;r<s/32;r++){let i=Array.from(c.slice(r*32,r*32+32)).filter(e=>e<40).length;i===32?t++:i===0?n++:e++}return{mixed:e,all:t,none:n}})(),y=[`load my pixel`,`is it < 40?`,`× 2`,`store`],b=[{op:0,cmp:!1,exec:!1,x2:!1,stored:!1,kinds:!1,text:i(e,{children:[`new job: only pixels darker than `,40,` get × 2. but one warp has one instruction stream`]})},{op:1,cmp:!0,exec:!0,x2:!1,stored:!1,kinds:!1,text:i(e,{children:[`every lane answers; the answers become an on/off `,i(`b`,{children:`mask`}),`. `,g,` of 32 are on`]})},{op:3,cmp:!0,exec:!0,x2:!0,stored:!0,kinds:!1,text:i(e,{children:`the whole warp steps through × 2 and store. lanes that are off just wait`})},{op:3,cmp:!0,exec:!0,x2:!0,stored:!0,kinds:!0,text:i(e,{children:[`an `,i(`code`,{children:`if`}),` is free when the whole warp agrees, and costs both sides when it doesn't`]})}];function x(){let e=n(null),a=n(null),s=b[Math.min(b.length-1,r(e))];t(()=>o(a.current,s.stored?Uint8Array.from(c,(e,t)=>Math.floor(t/32)===d?_[t]:e):c),[s.stored]);let g=e=>s.x2&&h[e]?m[e]*2:m[e],x=e=>s.exec&&!h[e];return i(`div`,{class:`branch`,ref:e,children:[i(`div`,{class:`br-top`,children:[i(`div`,{class:`br-photo`,children:[i(`canvas`,{ref:a}),i(`i`,{class:`br-seg`,style:{top:`${f/80*100}%`,height:`${100/80}%`,left:`${p/128*100}%`,width:`25%`}}),i(`div`,{class:`muted br-cap`,children:[`warp `,d,`: row `,f,`, columns `,p,` … `,p+32-1]})]}),i(`ol`,{class:`br-ops`,children:y.map((e,t)=>i(`li`,{class:t===s.op?`cur`:t<s.op?`past`:``,children:e}))}),i(`div`,{class:`br-kinds fade ${s.kinds?`on`:``}`,children:[i(`div`,{children:[i(`span`,{class:`br-mask`,children:`1`.repeat(32)}),i(`b`,{children:v.all}),` warps all dark (hills, lake): full use`]}),i(`div`,{children:[i(`span`,{class:`br-mask off`,children:`0`.repeat(32)}),i(`b`,{children:v.none}),` all light (sky): skipped`]}),i(`div`,{children:[i(`span`,{class:`br-mask mix`,children:h.map(e=>+!!e).join(``)}),i(`b`,{children:v.mixed}),` mixed, like this one: some lanes wait`]})]})]}),i(`div`,{class:`br-grid`,children:[i(`span`,{class:`br-n muted`,children:`lane`}),m.map((e,t)=>i(`span`,{class:`br-h`,children:t})),i(`span`,{class:`br-n`,children:`p`}),m.map((e,t)=>i(`span`,{class:`br-c ${x(t)?`off`:``} ${s.x2&&h[t]?`chg`:``}`,style:{background:l(g(t)),color:u(g(t))},children:g(t)})),i(`span`,{class:`br-n muted`,children:[`< `,40,`?`]}),m.map((e,t)=>i(`span`,{class:`br-y fade ${s.cmp?`on`:``} ${h[t]?`yes`:`no`}`,children:h[t]?`yes`:`no`})),i(`span`,{class:`br-n`,children:`mask`}),m.map((e,t)=>i(`span`,{class:`br-b ${s.exec?h[t]?`one`:`zero`:`blank`}`,children:s.exec?+!!h[t]:1}))]}),i(`div`,{class:`caption br-text`,children:s.text}),i(`style`,{children:`
+        .branch .br-top { display: flex; gap: 2.2em; align-items: flex-start; }
+        .branch .br-photo { position: relative; flex: none; }
+        .branch canvas { display: block; width: 256px; height: 160px; image-rendering: pixelated; border-radius: 4px; }
+        .branch .br-seg { position: absolute; box-shadow: 0 0 0 2.5px var(--hot); }
+        .branch .br-cap { font-size: .42em; margin-top: .35em; }
+        .branch .br-ops { font-size: .56em; margin: 0; padding-left: 1.3em; white-space: nowrap; }
+        .branch .br-ops li { margin: .15em 0; color: var(--muted); transition: color .3s; }
+        .branch .br-ops li.past { color: var(--fg); } .branch .br-ops li.cur { color: var(--hot); font-weight: 700; }
+        .branch .br-kinds { margin-left: auto; font-size: .52em; display: flex; flex-direction: column; gap: .45em; }
+        .branch .br-kinds b { color: var(--hot); margin-right: .3em; }
+        .branch .br-mask { font-family: var(--mono); font-size: .8em; margin-right: .8em; padding: .1em .4em; border-radius: 4px; background: var(--fill-green); }
+        .branch .br-mask.off { background: var(--surface); color: var(--faint); }
+        .branch .br-mask.mix { background: var(--fill-amber); }
+        .branch .br-grid { display: grid; grid-template-columns: 3.4em repeat(32, 1fr); gap: 3px; font-family: var(--mono);
+          align-items: center; margin-top: 1.1em; }
+        .branch .br-n { font-size: .46em; white-space: nowrap; }
+        .branch .br-h { font-size: .36em; color: var(--muted); text-align: center; }
+        .branch .br-c { outline: 1px solid var(--line); outline-offset: -1px; font-size: .4em; text-align: center; border-radius: 4px; padding: .5em 0; transition: opacity .3s, background .4s; }
+        .branch .br-c.off { opacity: .3; }
+        .branch .br-c.chg { box-shadow: 0 0 0 2px var(--hot); }
+        .branch .br-y { font-size: .34em; text-align: center; }
+        .branch .br-y.yes { color: var(--good); } .branch .br-y.no { color: var(--muted); }
+        .branch .br-b { font-size: .4em; text-align: center; border-radius: 4px; padding: .3em 0; background: var(--surface); transition: background .3s, color .3s; }
+        .branch .br-b.one { background: var(--fill-green); } .branch .br-b.zero { color: var(--faint); }
+        .branch .br-b.blank { color: var(--faint); }
+        .branch .br-text { font-size: .76em; min-height: 3.3em; margin-top: .9em; }
+      `})]})}export{x as default};

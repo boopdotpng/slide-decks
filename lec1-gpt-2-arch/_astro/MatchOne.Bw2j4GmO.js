@@ -1,0 +1,11 @@
+import{C as e,_ as t,d as n,f as r,l as i,s as a,u as o}from"./viz.ZHEKlosV.js";import{t as s}from"./common.-pbhy8Ns.js";var c=15;function l(){let{root:l,step:u,d}=t(`forward`);if(!d)return o(`div`,{ref:l});let f=d.toks.length,p=d.lenses.q.out[f-1],m=d.lenses.k.out[2],h=p.map((e,t)=>e*m[t]),g=(t,n)=>o(a,{data:[t],cell:c,gap:1,color:t=>e(t,n),tipFn:(e,t,n)=>`[${t}] = <b>${r(n??0)}</b>`});return o(`div`,{class:`m1`,ref:l,children:[o(`div`,{class:`r`,children:[o(`span`,{class:`k`,style:{color:s.q.color},children:[o(i,{t:d.toks[f-1]}),` · `,s.q.plain]}),g(p,2)]}),o(`div`,{class:`r`,children:[o(`span`,{class:`k`,style:{color:s.k.color},children:[o(i,{t:d.toks[2]}),` · `,s.k.plain]}),g(m,2)]}),o(`div`,{class:`r ${n(u,1)}`,children:[o(`span`,{class:`k`,children:`× cell by cell`}),g(h,4)]}),o(`div`,{class:`sum ${n(u,2)}`,children:[o(`span`,{class:`k`,children:`add them all up`}),o(`span`,{class:`v`,children:r(d.dots[f-1][2],1)}),o(`span`,{class:`muted`,children:[`one number: how well `,o(i,{t:d.toks[2]}),` matches what `,o(i,{t:d.toks[f-1]}),` is looking for`]})]}),o(`div`,{class:`cap ${n(u,2)}`,children:[`the same move as the grid: multiply pairs, add up. negative is fine, it's the `,o(`b`,{children:`gaps`}),` between the four scores that matter (next slide)`]}),o(`style`,{children:`
+        .m1 { display: flex; flex-direction: column; gap: .8em; font-size: .8em; }
+        .m1 .r, .m1 .sum { display: grid; grid-template-columns: 13em auto; gap: 1em; align-items: center; }
+        .m1 .k { text-align: right; font-size: .62em; white-space: nowrap; color: var(--muted); }
+        .m1 .heat { height: 34px; grid-auto-rows: 34px !important; }
+        .m1 .sum { grid-template-columns: 13em auto 1fr; margin-top: .6em; }
+        .m1 .sum .v { font-family: var(--mono); font-size: 1.4em; color: var(--accent); }
+        .m1 .sum .muted { font-size: .6em; }
+        .m1 .cap { margin-top: 1em; font-size: .62em; color: var(--muted); }
+        .m1 .cap b { color: var(--fg); }
+      `})]})}export{l as default};

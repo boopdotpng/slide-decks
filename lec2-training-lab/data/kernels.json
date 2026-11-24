@@ -1,0 +1,34 @@
+{
+ "tinygrad": "0.14.0",
+ "device": "CPU",
+ "flags": "DEBUG=4 NOOPT=1",
+ "shape": [
+  1,
+  4,
+  4
+ ],
+ "scores": [
+  {
+   "name": "r_4_4_4",
+   "args": 3,
+   "src": "void r_4_4_4(float* restrict data0_16, float* restrict data1_16, float* restrict data2_16) {\n  float buf0[1];\n  for (int Lidx1 = 0; Lidx1 < 4; Lidx1++) {\n    int alu0 = (Lidx1<<2);\n    for (int Lidx2 = 0; Lidx2 < 4; Lidx2++) {\n      *(buf0+0) = 0.0f;\n      for (int Ridx0 = 0; Ridx0 < 4; Ridx0++) {\n        float val0 = (*(data1_16+(alu0+Ridx0)));\n        float val1 = (*(data2_16+((Lidx2<<2)+Ridx0)));\n        *(buf0+0) = ((*(buf0+0))+(val0*val1));\n      }\n      *(data0_16+(alu0+Lidx2)) = ((*(buf0+0))*0.5f);\n    }\n  }\n}"
+  }
+ ],
+ "weights": [
+  {
+   "name": "r_4_4",
+   "args": 3,
+   "src": "void r_4_4(float* restrict data0_4, float* restrict data1_16, float* restrict data2_16) {\n  float buf0[1];\n  for (int Lidx1 = 0; Lidx1 < 4; Lidx1++) {\n    *(buf0+0) = ((float)(-__builtin_inff()));\n    for (int Ridx0 = 0; Ridx0 < 4; Ridx0++) {\n      int alu1 = ((Lidx1<<2)+Ridx0);\n      float val0 = (*(data1_16+alu1));\n      float val1 = (*(data2_16+alu1));\n      float val2 = (*(buf0+0));\n      float alu2 = (val0+val1);\n      float alu3 = ((val2<alu2)?alu2:val2);\n      *(buf0+0) = alu3;\n    }\n    *(data0_4+Lidx1) = (*(buf0+0));\n  }\n}"
+  },
+  {
+   "name": "r_4_4",
+   "args": 4,
+   "src": "void r_4_4(float* restrict data0_4, float* restrict data1_16, float* restrict data2_16, float* restrict data3_4) {\n  float buf0[1];\n  for (int Lidx1 = 0; Lidx1 < 4; Lidx1++) {\n    float val0 = (*(data3_4+Lidx1));\n    *(buf0+0) = 0.0f;\n    for (int Ridx0 = 0; Ridx0 < 4; Ridx0++) {\n      int alu1 = ((Lidx1<<2)+Ridx0);\n      float val1 = (*(data1_16+alu1));\n      float val2 = (*(data2_16+alu1));\n      float alu2 = (((val1+val2)-val0)*1.4426950216293335f);\n      _Bool alu3 = (alu2!=alu2);\n      float alu4 = ((alu2!=((float)(-__builtin_inff())))?alu2:0.0f);\n      float alu5 = (alu3?0.0f:alu4);\n      float alu6 = ((alu2!=((float)(__builtin_inff())))?alu5:0.0f);\n      float alu7 = ((alu6<0.0f)?-0.5f:0.5f);\n      int cast0 = ((int)((alu6+alu7)));\n      int alu8 = (cast0>>1);\n      float alu9 = (alu6-((float)(cast0)));\n      float alu10 = (((alu2<128.0f)!=1)?((float)(__builtin_inff())):(((((((((((((0.00015359208919107914f*alu9)+0.0013392627006396651f)*alu9)+0.009618384763598442f)*alu9)+0.055503472685813904f)*alu9)+0.24022644758224487f)*alu9)+0.6931471824645996f)*alu9)+1.0f)*__builtin_bit_cast(float, (int)(((alu8+127)<<23)))*__builtin_bit_cast(float, (int)((((cast0-alu8)+127)<<23)))));\n      float alu11 = ((alu2<-150.0f)?0.0f:alu10);\n      float alu12 = (alu3?((float)(__builtin_nanf(\"\"))):alu11);\n      *(buf0+0) = ((*(buf0+0))+alu12);\n    }\n    *(data0_4+Lidx1) = (*(buf0+0));\n  }\n}"
+  },
+  {
+   "name": "E_4_4",
+   "args": 5,
+   "src": "void E_4_4(float* restrict data0_16, float* restrict data1_16, float* restrict data2_16, float* restrict data3_4, float* restrict data4_4) {\n  for (int Lidx0 = 0; Lidx0 < 4; Lidx0++) {\n    float val0 = (*(data3_4+Lidx0));\n    float val1 = (*(data4_4+Lidx0));\n    for (int Lidx1 = 0; Lidx1 < 4; Lidx1++) {\n      int alu0 = ((Lidx0<<2)+Lidx1);\n      float val2 = (*(data1_16+alu0));\n      float val3 = (*(data2_16+alu0));\n      float alu1 = (((val2+val3)-val0)*1.4426950216293335f);\n      _Bool alu2 = (alu1!=alu1);\n      float alu3 = ((alu1!=((float)(-__builtin_inff())))?alu1:0.0f);\n      float alu4 = (alu2?0.0f:alu3);\n      float alu5 = ((alu1!=((float)(__builtin_inff())))?alu4:0.0f);\n      float alu6 = ((alu5<0.0f)?-0.5f:0.5f);\n      int cast0 = ((int)((alu5+alu6)));\n      int alu7 = (cast0>>1);\n      float alu8 = (alu5-((float)(cast0)));\n      float alu9 = (((alu1<128.0f)!=1)?((float)(__builtin_inff())):(((((((((((((0.00015359208919107914f*alu8)+0.0013392627006396651f)*alu8)+0.009618384763598442f)*alu8)+0.055503472685813904f)*alu8)+0.24022644758224487f)*alu8)+0.6931471824645996f)*alu8)+1.0f)*__builtin_bit_cast(float, (int)(((alu7+127)<<23)))*__builtin_bit_cast(float, (int)((((cast0-alu7)+127)<<23)))));\n      float alu10 = ((alu1<-150.0f)?0.0f:alu9);\n      float alu11 = (alu2?((float)(__builtin_nanf(\"\"))):alu10);\n      *(data0_16+alu0) = (alu11/val1);\n    }\n  }\n}"
+  }
+ ]
+}

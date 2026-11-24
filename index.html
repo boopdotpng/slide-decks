@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>slides</title>
+<style>
+  @font-face { font-family: 'Paper Mono'; src: url('PaperMono.woff2') format('woff2'); font-weight: 100 900; }
+  :root { --bg:#0a0a0a; --fg:#e5e5e5; --muted:#8a8a8a; --accent:#60a5fa; --panel:#141414; --border:#262626;
+    --sans: -apple-system, 'Segoe UI', Inter, Helvetica, Arial, sans-serif;
+    --mono: 'Paper Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.5 var(--sans); }
+  main { max-width: 46rem; margin: 0 auto; padding: 5rem 1.5rem 4rem; }
+  h1 { font-size: 2.6rem; line-height: 1.1; margin: 0 0 .4rem; letter-spacing: -.02em; }
+  .lead { color: var(--muted); margin: 0 0 3.5rem; }
+  h2 { font: 500 .78rem var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: .14em; margin: 0 0 .9rem; }
+  section + section { margin-top: 2.8rem; }
+  .deck { display: grid; gap: .2rem; padding: 1.1rem 1.3rem; margin-bottom: .7rem; text-decoration: none; color: inherit;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    transition: border-color .15s, transform .15s, background .15s; }
+  .deck:hover, .deck:focus-visible { border-color: var(--accent); background: #161b22; transform: translateY(-1px); outline: none; }
+  .title { font-size: 1.3rem; font-weight: 600; }
+  .deck:hover .title { color: var(--accent); }
+  .sub { color: var(--muted); }
+  .meta { font: .78rem var(--mono); color: #5c5c5c; margin-top: .35rem; }
+  footer { margin-top: 4rem; font: .78rem var(--mono); color: #5c5c5c; }
+  footer a { color: inherit; }
+</style>
+<main>
+  <h1>slides</h1>
+  <p class="lead">lecture decks. arrow keys to move, <code>g</code> to jump, <code>f</code> for fullscreen.</p>
+  
+  <section>
+    <h2>lecture 1</h2>
+    
+    <a class="deck" href="lec1-risc-v/">
+      <span class="title">assembly and the cpu</span>
+      <span class="sub">one small program, start to finish</span>
+      <span class="meta">risc-v · 21 slides</span>
+    </a>
+    <a class="deck" href="lec1-gpt-2-arch/">
+      <span class="title">rnn → gpt-2</span>
+      <span class="sub">"The United States of" → America</span>
+      <span class="meta">gpt-2-arch · 32 slides</span>
+    </a>
+  </section>
+  <section>
+    <h2>lecture 2</h2>
+    
+    <a class="deck" href="lec2-interp/">
+      <span class="title">one head at a time</span>
+      <span class="sub">tiny models on tasks small enough to read the answer off the weights</span>
+      <span class="meta">interp · 46 slides</span>
+    </a>
+    <a class="deck" href="lec2-training-lab/">
+      <span class="title">transformer training lab</span>
+      <span class="sub">from the attention equation to five models you implement, configure and train on your own machine</span>
+      <span class="meta">training-lab · 14 slides</span>
+    </a>
+    <a class="deck" href="lec2-mnist/">
+      <span class="title">train mnist</span>
+      <span class="sub">what a tensor library does, then a network that reads handwritten digits, trained on your own computer</span>
+      <span class="meta">mnist · 17 slides</span>
+    </a>
+    <a class="deck" href="lec2-os/">
+      <span class="title">how a computer executes programs</span>
+      <span class="sub">from the bottom up</span>
+      <span class="meta">os · 22 slides</span>
+    </a>
+  </section>
+  <section>
+    <h2>lecture 3</h2>
+    
+    <a class="deck" href="lec3-gpu-intro/">
+      <span class="title">how a gpu runs your code</span>
+      <span class="sub">one photo, thousands of threads, and the few ideas you need before writing cuda</span>
+      <span class="meta">gpu-intro · 9 slides</span>
+    </a>
+    <a class="deck" href="lec3-gpu/">
+      <span class="title">the gpu, bottom up</span>
+      <span class="sub">one photo, three small programs, and the chip that runs them</span>
+      <span class="meta">gpu · 26 slides</span>
+    </a>
+    <a class="deck" href="lec3-tenstorrent/">
+      <span class="title">the same matmul, on a tenstorrent chip</span>
+      <span class="sub">remember brighten from before the coding? here's the same program on a chip built a completely different way</span>
+      <span class="meta">tenstorrent · 5 slides</span>
+    </a>
+    <a class="deck" href="lec3-matmul/">
+      <span class="title">matmul, two ways</span>
+      <span class="sub">the leetgpu matmul, solved twice: one thread per answer, then tiles in shared memory. plus three bugs to spot</span>
+      <span class="meta">matmul · 9 slides</span>
+    </a>
+  </section>
+  <section>
+    <h2>lecture 4</h2>
+    
+    <a class="deck" href="lec4-whats-next/">
+      <span class="title">project blackhole · what’s next</span>
+      <span class="sub">project blackhole after this semester: what we covered, what’s still open, and who carries it</span>
+      <span class="meta">whats-next · 15 slides</span>
+    </a>
+  </section>
+  <section>
+    <h2>ai day</h2>
+    
+    <a class="deck" href="ai-day-blackhole/">
+      <span class="title">project blackhole · ai day 2026</span>
+      <span class="sub">the most open ai chip you can buy, running llama on a mac</span>
+      <span class="meta">blackhole · 10 slides</span>
+    </a>
+  </section>
+  <footer><a href="https://github.com/boopdotpng/slide-decks">source</a></footer>
+</main>
+</html>

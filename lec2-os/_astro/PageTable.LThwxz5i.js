@@ -1,0 +1,17 @@
+import{t as e}from"./hooks.module.U3JihANK.js";import{c as t,r as n}from"./hooks.DjY2cg7H.js";import{J as r}from"./viz.BpU9tPyD.js";var i=[{v:`0x10`,p:`0x1a203`,f:`- - u`,what:`.rodata (msg)`},{v:`0x11`,p:`0x1a204`,f:`- x u`,what:`.text (your code)`},{v:`0x7ffffffde`,p:`0x1b61f`,f:`w - u`,what:`stack`},{v:`0xffffffff81000`,p:`0x1000`,f:`- x -`,what:`kernel code`},{v:`0xc0000`,p:`—`,f:``,what:`accelerator registers: not mapped`,missing:!0}],a=[-1,0,0,3,4,-1],o=[`memory is split into 4 KiB pages. 4 KiB = 2¹² bytes, so the low 12 bits (0x120) say where inside the page; the rest (0x10) picks the page`,`the mmu looks page 0x10 up in the table: it's really physical page 0x1a203. keep the offset: 0x1a203120`,`each entry has permissions: w(rite), (e)x(ecute), u = ring 3 may use it. store into msg? no w → page fault`,`kernel pages are in your table too, but without u. jump or load there from ring 3 → page fault`,`the accelerator's address isn't in your table at all. that's the fault from the kernel slide`,`the cr3 register points at the table. one table per process: the kernel changes cr3 to switch whose memory is visible`];function s(){let s=e(null),c=n(s),l=a[c];return t(`div`,{class:`pt`,ref:s,children:[t(`div`,{class:`pt-addr`,children:[t(`span`,{class:`muted`,children:`virtual`}),t(`span`,{class:`pt-chip page`,children:`0x10`}),t(`span`,{class:`pt-chip off`,children:`120`}),t(`span`,{class:`fade ${c>=1?`on`:``}`,children:[t(`span`,{class:`muted`,children:`→ physical`}),t(`span`,{class:`pt-chip page`,children:`0x1a203`}),t(`span`,{class:`pt-chip off`,children:`120`})]})]}),t(`div`,{class:`pt-labels muted`,children:[t(`span`,{children:`page`}),t(`span`,{children:`offset`})]}),t(`table`,{class:`pt-table ${c===2?`flags`:``}`,children:[t(`tr`,{children:[t(`th`,{children:`virtual page`}),t(`th`,{children:`physical page`}),t(`th`,{children:`w x u`}),t(`th`,{})]}),i.map((e,n)=>t(`tr`,{class:`${n===l?`on`:``} ${e.missing?`missing fade ${c>=4?`on`:``}`:``}`,children:[t(`td`,{children:e.v}),t(`td`,{children:e.p}),t(`td`,{class:`pt-f`,children:e.f}),t(`td`,{class:`muted`,children:e.what})]}))]}),t(`div`,{class:`pt-cr3 fade ${c>=5?`on`:``}`,children:[t(`code`,{children:`cr3`}),` → this table `,t(`span`,{class:`muted`,children:`· the cpu caches recent lookups (the tlb) · really a 4-level tree, more on that later`})]}),t(`div`,{class:`caption`,children:o[c]}),t(`style`,{children:`
+        .pt { font-size: .8em; }
+        .pt-addr { display: flex; align-items: center; gap: .3em; font-family: var(--mono); }
+        .pt-addr .muted { font-family: var(--sans); margin: 0 .3em; }
+        .pt-chip { padding: .1em .4em; border-radius: 6px; }
+        .pt-chip.page { background: ${r.blue}; }
+        .pt-chip.off { background: ${r.violet}; }
+        .pt-labels { font-size: .6em; display: flex; gap: 1.6em; margin: .2em 0 .8em 5.4em; }
+        .pt-table { font-family: var(--mono); font-size: .8em; }
+        .pt-table td { padding: .2em 1.6em .2em .4em; transition: background .3s, color .3s; white-space: nowrap; }
+        .pt-table th { font-family: var(--sans); font-size: .8em; padding-left: .4em; }
+        .pt-table tr.on td { background: var(--hl); }
+        .pt-table tr.missing td { color: ${r.bad}; }
+        .pt-table tr.missing.on td { background: color-mix(in srgb, var(--bad) 14%, transparent); }
+        .pt-table.flags .pt-f { color: ${r.hot}; }
+        .pt-cr3 { margin-top: .8em; font-size: .75em; }
+      `})]})}export{s as default};

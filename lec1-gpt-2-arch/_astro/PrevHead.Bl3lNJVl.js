@@ -1,0 +1,7 @@
+import{T as e,_ as t,d as n,l as r,p as i,s as a,u as o}from"./viz.ZHEKlosV.js";import{r as s}from"./preact.module.Bl7PEaKa.js";function c({P:t,toks:n,title:s}){return o(`div`,{class:`pat`,children:[o(`div`,{class:`ttl`,children:s}),o(a,{data:t.map((e,t)=>e.map((e,n)=>n>t?null:e)),cell:70,gap:4,color:t=>e(Math.sqrt(t)),rowLabels:n.map(e=>o(r,{t:e})),colLabels:n.map(e=>o(r,{t:e})),tipFn:(e,t,n)=>n===null?`the future`:i(n)})]})}function l(){let{root:e,step:r,d:i}=t(`forward`);if(!i)return o(`div`,{ref:e});let[a,l]=i.focus,[u,d]=i.prev_head;return o(`div`,{class:`ph`,ref:e,children:[o(c,{P:i.probs_all[a][l],toks:i.toks,title:o(s,{children:[`block `,a,`, head `,l,` · the one we followed`]})}),o(`div`,{class:n(r,1),children:o(c,{P:i.probs_all[u][d],toks:i.toks,title:o(s,{children:[`block `,u,`, head `,d,` · always the word before`]})})}),o(`div`,{class:`cap ${n(r,1)}`,children:`this head ignores the words and reads only position: "who sits right before me?". without the position strip, it couldn't exist`}),o(`style`,{children:`
+        .ph { display: grid; grid-template-columns: auto auto; gap: 1em 5em; justify-content: start; font-size: .8em; }
+        .ph .pat { display: flex; flex-direction: column; gap: .8em; }
+        .ph .ttl { font-size: .62em; color: var(--muted); }
+        .ph .heat .rl, .ph .heat .cl { font-size: .6em; }
+        .ph .cap { grid-column: 1 / -1; font-size: .7em; color: var(--muted); margin-top: .6em; }
+      `})]})}export{l as default};

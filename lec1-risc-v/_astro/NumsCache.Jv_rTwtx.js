@@ -1,0 +1,23 @@
+import{r as e}from"./preact.module.Bl7PEaKa.js";import{t}from"./hooks.module.U3JihANK.js";import{o as n,r}from"./hooks.CTQS5bFp.js";import{J as i}from"./viz.3mionHVt.js";var a=[74112,74176],o=74136,s=[3,1,4,1,5,9,2,6],c=70,l=1,u=e=>{let t=(e-o)/8;return t>=0&&t<8?`nums[${t}]`:t===8?`total`:null},d=[{i:0,kind:`miss`},{i:1,kind:`hit`},{i:2,kind:`hit`},{i:3,kind:`hit`},{i:4,kind:`hit`},{i:5,kind:`miss`},{i:6,kind:`hit`},{i:7,kind:`hit`},{i:8,kind:`hit`}],f=[{done:0,text:n(e,{children:[`memory comes into the cache in `,n(`b`,{children:`64-byte lines`}),`, never less: 8 of our numbers' worth. nums starts at 0x12198, which isn't a multiple of 64, so it's split across two lines`]})},{done:1,text:n(e,{children:[`lap 1: `,n(`code`,{children:`ld`}),` nums[0]. not in the cache: a `,n(`b`,{children:`miss`}),`. wait ~70 ns for ram, and the whole line comes in`]})},{done:5,text:n(e,{children:[`laps 2–5: already there. each is a `,n(`b`,{children:`hit`}),`, ~1 ns`]})},{done:6,text:n(e,{children:`lap 6: nums[5] is in the next line. another miss`})},{done:9,text:n(e,{children:[`laps 7–8 hit, and so does the `,n(`code`,{children:`sd`}),` to total: it's in the same line`]})},{done:9,text:n(e,{children:`9 memory accesses, 2 misses. the misses are almost all the time. so: keep data you use together, together, and walk it in order`})}];function p(){let e=t(null),p=Math.min(f.length-1,r(e)),h=d.slice(0,f[p].done),g=new Map(h.map(e=>[e.i,e.kind])),_=h[h.length-1],v=new Set(h.map(e=>Math.floor((o+8*e.i-a[0])/64))),y=h.filter(e=>e.kind===`miss`).length,b=h.length-y;return n(`div`,{class:`nums-cache`,ref:e,children:[n(`div`,{class:`nc-lines`,children:a.map((e,t)=>n(`div`,{class:`nc-line ${v.has(t)?`in`:``}`,children:[n(`div`,{class:`nc-label`,children:[`line `,m(e),` – `,m(e+63),` · 64 bytes`]}),n(`div`,{class:`nc-cells`,children:Array.from({length:8},(t,r)=>{let i=e+8*r,a=u(i),c=(i-o)/8,l=g.get(c);return n(`div`,{class:`nc-c ${a?``:`other`} ${l??``} ${_?.i===c&&p<f.length-1?`now`:``}`,children:[n(`span`,{class:`nc-name`,children:a??`not ours`}),n(`span`,{class:`nc-v`,children:a?c<8?s[c]:p>=4?31:0:``}),n(`span`,{class:`nc-addr`,children:m(i)})]})})})]}))}),n(`table`,{class:`nc-stats fade ${p>=1?`on`:``}`,children:n(`tbody`,{children:[n(`tr`,{children:[n(`td`,{class:`nc-miss`,children:`misses`}),n(`td`,{children:[y,` × ~`,c,` ns`]}),n(`td`,{children:[`= `,y*c,` ns`]})]}),n(`tr`,{children:[n(`td`,{class:`nc-hit`,children:`hits`}),n(`td`,{children:[b,` × ~`,l,` ns`]}),n(`td`,{children:[`= `,b*l,` ns`]})]})]})}),n(`div`,{class:`caption nc-text`,children:f[p].text}),n(`style`,{children:`
+        .nums-cache .nc-lines { display: flex; flex-direction: column; gap: 1em; }
+        .nums-cache .nc-line { border-radius: 10px; padding: .4em .5em .5em; background: var(--sunken);
+          box-shadow: inset 0 0 0 2px transparent; transition: background .3s, box-shadow .3s; }
+        .nums-cache .nc-line.in { background: color-mix(in srgb, ${i.green} 27%, transparent); box-shadow: inset 0 0 0 2px ${i.green}; }
+        .nums-cache .nc-label { font-family: var(--mono); font-size: .5em; color: var(--muted); margin-bottom: .3em; }
+        .nums-cache .nc-cells { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+        .nums-cache .nc-c { display: flex; flex-direction: column; align-items: center; padding: .3em 0; border-radius: 5px;
+          background: var(--surface); font-family: var(--mono); transition: background .25s; }
+        .nums-cache .nc-c.other { background: none; border: 1px dashed var(--line); }
+        .nums-cache .nc-c.miss { background: ${i.bad}; color: var(--on-color); }
+        .nums-cache .nc-c.hit { background: ${i.good}; color: var(--on-color); }
+        .nums-cache .nc-c.now { outline: 3px solid var(--fg); }
+        .nums-cache .nc-name { font-size: .45em; }
+        .nums-cache .nc-v { font-size: .75em; min-height: 1.2em; }
+        .nums-cache .nc-addr { font-size: .38em; opacity: .7; }
+        .nums-cache .nc-c.other .nc-name { color: var(--faint); }
+        .nums-cache .nc-stats { font-family: var(--mono); font-size: .6em; margin-top: 1em; }
+        .nums-cache .nc-stats td { padding: .1em 1.2em .1em 0; }
+        .nums-cache .nc-miss { color: ${i.bad}; }
+        .nums-cache .nc-hit { color: ${i.good}; }
+        .nums-cache .nc-text { font-size: .75em; min-height: 2.6em; margin-top: .6em; }
+      `})]})}var m=e=>`0x`+e.toString(16);export{p as default};
